@@ -77,6 +77,8 @@ type MethodOrGetMethodOrSetMethodSelector =
   | SetMethodSelector
   | MethodSelector
 
+type FunctionPropertyGroup =
+  `${PublicOrProtectedOrPrivateModifier}${StaticModifier}${OverrideModifier}${ReadonlyModifier}${DecoratedModifier}function-property`
 type ConstructorGroup =
   `${PublicOrProtectedOrPrivateModifierPrefix}${ConstructorSelector}`
 type DeclarePropertyGroup =
@@ -97,6 +99,7 @@ type Group =
   | MethodOrGetMethodOrSetMethodGroup
   | NonDeclarePropertyGroup
   | IndexSignatureSelector
+  | FunctionPropertyGroup
   | AccessorPropertyGroup
   | DeclarePropertyGroup
   | ConstructorGroup
@@ -451,8 +454,16 @@ export default createEslintRule<Options, MESSAGE_ID>({
                 modifiers.push('static')
               }
 
+              if (
+                member.value?.type === 'ArrowFunctionExpression' ||
+                member.value?.type === 'FunctionExpression'
+              ) {
+                selectors.push('function-property')
+              }
+
               selectors.push('property')
             }
+
             for (let officialGroup of generateOfficialGroups(
               modifiers,
               selectors,
