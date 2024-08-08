@@ -157,7 +157,8 @@ export default createEslintRule<Options, MESSAGE_ID>({
       },
     ],
     messages: {
-      unexpectedClassesOrder: 'Expected "{{right}}" to come before "{{left}}".',
+      unexpectedClassesOrder:
+        'Expected "{{right}}" ({{rightGroup}}) to come before "{{left}}" ({{leftGroup}}).',
     },
   },
   defaultOptions: [
@@ -451,7 +452,9 @@ export default createEslintRule<Options, MESSAGE_ID>({
                 messageId: 'unexpectedClassesOrder',
                 data: {
                   left: toSingleLine(left.name),
+                  leftGroup: left.group,
                   right: toSingleLine(right.name),
+                  rightGroup: right.group,
                 },
                 node: right.node,
                 fix: (fixer: TSESLint.RuleFixer) => {
