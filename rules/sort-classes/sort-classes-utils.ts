@@ -1,5 +1,15 @@
 import type { Modifier, Selector } from './sort-classes'
+import { minimatch } from 'minimatch'
+import type { SortClassesAdvancedCustomGroup } from './sort-classes-advanced-custom-group'
 
+interface CustomGroupMatchesProps {
+  memberValueType: 'ArrowFunctionExpression' | 'FunctionExpression' | undefined | string;
+  advancedCustomGroups: SortClassesAdvancedCustomGroup
+  selectors: Selector[]
+  modifiers: Modifier[]
+  decorators: string[]
+  elementName: string
+}
 /**
  * Cache computed groups by modifiers and selectors for performance
  */
@@ -94,4 +104,67 @@ const getPermutations = (elements: string[]): string[][] => {
   backtrack(0)
 
   return result
+}
+
+export const advancedCustomGroupMatches = (
+  props: CustomGroupMatchesProps,
+): boolean => {
+  if (
+    props.advancedCustomGroups.selector &&
+    !props.selectors.includes(props.advancedCustomGroups.selector)
+  ) {
+    return false
+  }
+
+  if (props.advancedCustomGroups.modifiers) {
+    for (let modifier of props.advancedCustomGroups.modifiers) {
+      if (!props.modifiers.includes(modifier)) {
+        return false
+      }
+    }
+  }
+
+  if (props.advancedCustomGroups.elementNamePattern) {
+    let matchesElementNamePattern: boolean = minimatch(
+      props.elementName,
+      props.advancedCustomGroups.elementNamePattern,
+      {
+        nocomment: true,
+      },
+    )
+    if (!matchesElementNamePattern) {
+      return false
+    }
+  }
+
+  if (props.advancedCustomGroups.decoratorNamePattern) {
+    let decoratorPattern = props.advancedCustomGroups.decoratorNamePattern
+    let matchesDecoratorNamePattern: boolean = props.decorators.some(
+      decorator =>
+        minimatch(decorator, decoratorPattern, {
+          nocomment: true,
+        }),
+    )
+    if (!matchesDecoratorNamePattern) {
+      return false
+    }
+  }
+
+  if (props.advancedCustomGroups.valueTypePattern) {
+    if (!props.memberValueType) {
+      return false
+    }
+    let matchesValueTypePattern: boolean = minimatch(
+      props.memberValueType,
+      props.advancedCustomGroups.valueTypePattern,
+      {
+        nocomment: true,
+      },
+    )
+    if (!matchesValueTypePattern) {
+      return false
+    }
+  }
+
+  return true
 }

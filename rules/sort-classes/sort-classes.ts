@@ -1,13 +1,17 @@
 import type { TSESTree } from '@typescript-eslint/types'
 import type { TSESLint } from '@typescript-eslint/utils'
 
+import type { SortClassesAdvancedCustomGroup } from './sort-classes-advanced-custom-group'
 import type { SortingNode } from '../../typings'
 
+import {
+  advancedCustomGroupMatches,
+  generateOfficialGroups,
+} from './sort-classes-utils'
 import { isPartitionComment } from '../../utils/is-partition-comment'
 import { getCommentBefore } from '../../utils/get-comment-before'
 import { createEslintRule } from '../../utils/create-eslint-rule'
 import { getGroupNumber } from '../../utils/get-group-number'
-import { generateOfficialGroups } from './sort-classes-utils'
 import { getSourceCode } from '../../utils/get-source-code'
 import { toSingleLine } from '../../utils/to-single-line'
 import { rangeToDiff } from '../../utils/range-to-diff'
@@ -105,6 +109,7 @@ type Group =
 
 type Options = [
   Partial<{
+    advancedCustomGroups: SortClassesAdvancedCustomGroup[]
     customGroups: { [key: string]: string[] | string }
     type: 'alphabetical' | 'line-length' | 'natural'
     partitionByComment: string[] | boolean | string
@@ -177,6 +182,44 @@ export default createEslintRule<Options, MESSAGE_ID>({
               ],
             },
           },
+          advancedCustomGroups: {
+            description: 'Specifies advanced custom groups.',
+            type: 'array',
+            items: {
+              additionalProperties: false,
+              description: 'Advanced group.',
+              type: 'object',
+              properties: {
+                groupName: {
+                  description: 'Group name',
+                  type: 'string',
+                },
+                selector: {
+                  description: 'Selector',
+                  type: 'string',
+                },
+                modifiers: {
+                  description: 'Modifiers',
+                  type: 'array',
+                  items: {
+                    type: 'string',
+                  },
+                },
+                elementNameRegex: {
+                  description: 'Selector',
+                  type: 'string',
+                },
+                decoratorNamePattern: {
+                  description: 'Decorator name pattern',
+                  type: 'string',
+                },
+                valueTypePattern: {
+                  description: 'Value type pattern',
+                  type: 'string',
+                },
+              },
+            },
+          },
           customGroups: {
             description: 'Specifies custom groups.',
             type: 'object',
@@ -223,6 +266,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
         'unknown',
       ],
       customGroups: {},
+      advancedCustomGroups: [],
     },
   ],
   create: context => ({
@@ -243,6 +287,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
             ['get-method', 'set-method'],
             'unknown',
           ],
+          advancedCustomGroups: [],
           partitionByComment: false,
           type: 'alphabetical',
           ignoreCase: true,
@@ -337,13 +382,18 @@ export default createEslintRule<Options, MESSAGE_ID>({
             let isPrivateName = name.startsWith('#')
             let decorated =
               'decorators' in member && member.decorators.length > 0
+            let decorators: string[] = []
 
             let modifiers: Modifier[] = []
             let selectors: Selector[] = []
+            let memberValueType: undefined | string
+
             if (
               member.type === 'MethodDefinition' ||
               member.type === 'TSAbstractMethodDefinition'
             ) {
+              memberValueType = member.value.type
+
               // By putting the abstract modifier before accessibility modifiers,
               // we prioritize 'abstract' over those in cases like:
               // Config: ['abstract-method', 'public-method']
@@ -355,6 +405,16 @@ export default createEslintRule<Options, MESSAGE_ID>({
 
               if (decorated) {
                 modifiers.push('decorated')
+                for (let decorator of member.decorators) {
+                  if (decorator.expression.type === 'Identifier') {
+                    decorators.push(decorator.expression.name)
+                  } else if (
+                    decorator.expression.type === 'CallExpression' &&
+                    decorator.expression.callee.type === 'Identifier'
+                  ) {
+                    decorators.push(decorator.expression.callee.name)
+                  }
+                }
               }
 
               if (member.override) {
@@ -390,12 +450,24 @@ export default createEslintRule<Options, MESSAGE_ID>({
               member.type === 'AccessorProperty' ||
               member.type === 'TSAbstractAccessorProperty'
             ) {
+              memberValueType = member.value?.type
+
               if (member.type === 'TSAbstractAccessorProperty') {
                 modifiers.push('abstract')
               }
 
               if (decorated) {
                 modifiers.push('decorated')
+                for (let decorator of member.decorators) {
+                  if (decorator.expression.type === 'Identifier') {
+                    decorators.push(decorator.expression.name)
+                  } else if (
+                    decorator.expression.type === 'CallExpression' &&
+                    decorator.expression.callee.type === 'Identifier'
+                  ) {
+                    decorators.push(decorator.expression.callee.name)
+                  }
+                }
               }
 
               if (member.override) {
@@ -417,6 +489,8 @@ export default createEslintRule<Options, MESSAGE_ID>({
               member.type === 'PropertyDefinition' ||
               member.type === 'TSAbstractPropertyDefinition'
             ) {
+              memberValueType = member.value?.type
+
               // Similarly to above for methods, prioritize 'declare', 'decorated', 'abstract', 'override' and 'readonly'
               // over accessibility modifiers
               if (member.declare) {
@@ -429,6 +503,17 @@ export default createEslintRule<Options, MESSAGE_ID>({
 
               if (decorated) {
                 modifiers.push('decorated')
+
+                for (let decorator of member.decorators) {
+                  if (decorator.expression.type === 'Identifier') {
+                    decorators.push(decorator.expression.name)
+                  } else if (
+                    decorator.expression.type === 'CallExpression' &&
+                    decorator.expression.callee.type === 'Identifier'
+                  ) {
+                    decorators.push(decorator.expression.callee.name)
+                  }
+                }
               }
 
               if (member.override) {
@@ -462,6 +547,21 @@ export default createEslintRule<Options, MESSAGE_ID>({
             setCustomGroups(options.customGroups, name, {
               override: true,
             })
+
+            for (let advancedCustomGroup of options.advancedCustomGroups) {
+              if (
+                advancedCustomGroupMatches({
+                  advancedCustomGroups: advancedCustomGroup,
+                  elementName: name,
+                  modifiers,
+                  selectors,
+                  decorators,
+                  memberValueType,
+                })
+              ) {
+                defineGroup(advancedCustomGroup.groupName, true)
+              }
+            }
 
             if (member.type === 'PropertyDefinition' && member.value) {
               dependencies = extractDependencies(member.value)
