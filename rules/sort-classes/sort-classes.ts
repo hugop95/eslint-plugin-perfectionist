@@ -42,6 +42,7 @@ export type Modifier =
   | StaticModifier
 
 type ConstructorSelector = 'constructor'
+type FunctionPropertySelector = 'function-property'
 type PropertySelector = 'property'
 type MethodSelector = 'method'
 type GetMethodSelector = 'get-method'
@@ -50,6 +51,7 @@ type IndexSignatureSelector = 'index-signature'
 type AccessorPropertySelector = 'accessor-property'
 export type Selector =
   | AccessorPropertySelector
+  | FunctionPropertySelector
   | IndexSignatureSelector
   | ConstructorSelector
   | GetMethodSelector
@@ -78,7 +80,7 @@ type MethodOrGetMethodOrSetMethodSelector =
   | MethodSelector
 
 type FunctionPropertyGroup =
-  `${PublicOrProtectedOrPrivateModifier}${StaticModifier}${OverrideModifier}${ReadonlyModifier}${DecoratedModifier}function-property`
+  `${PublicOrProtectedOrPrivateModifierPrefix}${StaticModifier}${OverrideModifier}${ReadonlyModifier}${DecoratedModifier}${FunctionPropertySelector}`
 type ConstructorGroup =
   `${PublicOrProtectedOrPrivateModifierPrefix}${ConstructorSelector}`
 type DeclarePropertyGroup =
