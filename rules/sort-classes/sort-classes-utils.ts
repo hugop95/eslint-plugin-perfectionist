@@ -3,7 +3,11 @@ import { minimatch } from 'minimatch'
 import type { SortClassesAdvancedCustomGroup } from './sort-classes-advanced-custom-group'
 
 interface CustomGroupMatchesProps {
-  memberValueType: 'ArrowFunctionExpression' | 'FunctionExpression' | undefined | string;
+  memberValueType:
+    | 'ArrowFunctionExpression'
+    | 'FunctionExpression'
+    | undefined
+    | string
   advancedCustomGroups: SortClassesAdvancedCustomGroup
   selectors: Selector[]
   modifiers: Modifier[]
