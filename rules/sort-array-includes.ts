@@ -187,47 +187,46 @@ export let sortArray = <MessageIds extends string>(
       [[]],
     )
 
-    for (let nodes of formattedMembers) {
-      pairwise(nodes, (left, right) => {
-        let groupKindOrder = ['unknown']
+    let nodes = formattedMembers.flat()
+    pairwise(nodes, (left, right) => {
+      let groupKindOrder = ['unknown']
 
-        if (typeof options.groupKind === 'string') {
-          groupKindOrder =
-            options.groupKind === 'literals-first'
-              ? ['literal', 'spread']
-              : ['spread', 'literal']
-        }
-        let leftNum = getGroupNumber(groupKindOrder, left)
-        let rightNum = getGroupNumber(groupKindOrder, right)
+      if (typeof options.groupKind === 'string') {
+        groupKindOrder =
+          options.groupKind === 'literals-first'
+            ? ['literal', 'spread']
+            : ['spread', 'literal']
+      }
+      let leftNum = getGroupNumber(groupKindOrder, left)
+      let rightNum = getGroupNumber(groupKindOrder, right)
 
-        if (
-          (options.groupKind !== 'mixed' && leftNum > rightNum) ||
-          ((options.groupKind === 'mixed' || leftNum === rightNum) &&
-            isPositive(compare(left, right, options)))
-        ) {
-          context.report({
-            messageId,
-            data: {
-              left: toSingleLine(left.name),
-              right: toSingleLine(right.name),
-            },
-            node: right.node,
-            fix: fixer => {
-              let sortedNodes =
-                options.groupKind !== 'mixed'
-                  ? groupKindOrder
-                      .map(group => nodes.filter(n => n.group === group))
-                      .map(groupedNodes => sortNodes(groupedNodes, options))
-                      .flat()
-                  : sortNodes(nodes, options)
+      if (
+        (options.groupKind !== 'mixed' && leftNum > rightNum) ||
+        ((options.groupKind === 'mixed' || leftNum === rightNum) &&
+          isPositive(compare(left, right, options)))
+      ) {
+        context.report({
+          messageId,
+          data: {
+            left: toSingleLine(left.name),
+            right: toSingleLine(right.name),
+          },
+          node: right.node,
+          fix: fixer => {
+            let sortedNodes =
+              options.groupKind !== 'mixed'
+                ? groupKindOrder
+                    .map(group => nodes.filter(n => n.group === group))
+                    .map(groupedNodes => sortNodes(groupedNodes, options))
+                    .flat()
+                : sortNodes(nodes, options)
 
-              return makeFixes(fixer, nodes, sortedNodes, sourceCode, {
-                partitionComment,
-              })
-            },
-          })
-        }
-      })
-    }
+            return makeFixes(fixer, nodes, sortedNodes, sourceCode, {
+              partitionComment,
+            })
+          },
+        })
+      }
+    })
   }
 }
