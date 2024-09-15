@@ -2069,7 +2069,7 @@ describe(ruleName, () => {
             `,
             options: [
               {
-                type: 'alphabetical',
+                ...options,
                 order: 'asc',
               },
             ],
@@ -2904,7 +2904,7 @@ describe(ruleName, () => {
             `,
             options: [
               {
-                type: 'alphabetical',
+                ...options,
                 order: 'asc',
               },
             ],

@@ -9,9 +9,7 @@ import { getCommentsBefore } from './get-comments-before'
 export let getNodeRange = (
   node: TSESTree.Node,
   sourceCode: TSESLint.SourceCode,
-  additionalOptions?: {
-    partitionComment?: string[] | boolean | string
-  },
+  partitionComment: string[] | boolean | string,
 ): TSESTree.Range => {
   let start = node.range.at(0)!
   let end = node.range.at(1)!

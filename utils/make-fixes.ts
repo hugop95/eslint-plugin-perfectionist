@@ -23,11 +23,12 @@ export let makeFixes = (
   for (let max = nodes.length, i = 0; i < max; i++) {
     let { node } = nodes.at(i)!
 
+    let partitionComment = additionalOptions?.partitionComment ?? false
     fixes.push(
       fixer.replaceTextRange(
-        getNodeRange(node, source, additionalOptions),
+        getNodeRange(node, source, partitionComment),
         source.text.slice(
-          ...getNodeRange(sortedNodes.at(i)!.node, source, additionalOptions),
+          ...getNodeRange(sortedNodes.at(i)!.node, source, partitionComment),
         ),
       ),
     )
