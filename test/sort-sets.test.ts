@@ -1213,5 +1213,57 @@ describe(ruleName, () => {
       ],
       invalid: [],
     })
+
+    ruleTester.run(`${ruleName}: allows to use new line as partition`, rule, {
+      valid: [],
+      invalid: [
+        {
+          code: dedent`
+              new Set([
+                'd',
+                'a',
+
+                'c',
+
+                'e',
+                'b',
+              ])
+            `,
+          output: dedent`
+              new Set([
+                'a',
+                'd',
+
+                'c',
+
+                'b',
+                'e',
+              ])
+            `,
+          options: [
+            {
+              type: 'alphabetical',
+              partitionByNewLine: true,
+            },
+          ],
+          errors: [
+            {
+              messageId: 'unexpectedSetsOrder',
+              data: {
+                left: 'd',
+                right: 'a',
+              },
+            },
+            {
+              messageId: 'unexpectedSetsOrder',
+              data: {
+                left: 'e',
+                right: 'b',
+              },
+            },
+          ],
+        },
+      ],
+    })
   })
 })

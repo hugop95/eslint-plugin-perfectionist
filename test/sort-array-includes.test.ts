@@ -1266,5 +1266,57 @@ describe(ruleName, () => {
       ],
       invalid: [],
     })
+
+    ruleTester.run(`${ruleName}: allows to use new line as partition`, rule, {
+      valid: [],
+      invalid: [
+        {
+          code: dedent`
+              [
+                'd',
+                'a',
+
+                'c',
+
+                'e',
+                'b',
+              ].includes(value)
+            `,
+          output: dedent`
+              [
+                'a',
+                'd',
+
+                'c',
+
+                'b',
+                'e',
+              ].includes(value)
+            `,
+          options: [
+            {
+              type: 'alphabetical',
+              partitionByNewLine: true,
+            },
+          ],
+          errors: [
+            {
+              messageId: 'unexpectedArrayIncludesOrder',
+              data: {
+                left: 'd',
+                right: 'a',
+              },
+            },
+            {
+              messageId: 'unexpectedArrayIncludesOrder',
+              data: {
+                left: 'e',
+                right: 'b',
+              },
+            },
+          ],
+        },
+      ],
+    })
   })
 })
