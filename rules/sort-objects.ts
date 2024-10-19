@@ -49,6 +49,21 @@ type Options = [
   }>,
 ]
 
+const defaultOptions: Required<Options[0]> = {
+  partitionByNewLine: false,
+  partitionByComment: false,
+  styledComponents: true,
+  destructureOnly: false,
+  type: 'alphabetical',
+  ignorePattern: [],
+  matcher: 'minimatch',
+  ignoreCase: true,
+  specialCharacters: 'keep',
+  customGroups: {},
+  order: 'asc',
+  groups: [],
+}
+
 export default createEslintRule<Options, MESSAGE_ID>({
   name: 'sort-objects',
   meta: {
@@ -173,22 +188,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
         'Expected dependency "{{right}}" to come before "{{nodeDependentOnRight}}".',
     },
   },
-  defaultOptions: [
-    {
-      type: 'alphabetical',
-      order: 'asc',
-      ignoreCase: true,
-      specialCharacters: 'keep',
-      matcher: 'minimatch',
-      partitionByComment: false,
-      partitionByNewLine: false,
-      styledComponents: true,
-      destructureOnly: false,
-      ignorePattern: [],
-      groups: [],
-      customGroups: {},
-    },
-  ],
+  defaultOptions: [defaultOptions],
   create: context => {
     let sortObject = (
       node: TSESTree.ObjectExpression | TSESTree.ObjectPattern,
@@ -196,19 +196,8 @@ export default createEslintRule<Options, MESSAGE_ID>({
       let settings = getSettings(context.settings)
 
       let options = complete(context.options.at(0), settings, {
-        partitionByNewLine: false,
-        partitionByComment: false,
-        styledComponents: true,
-        destructureOnly: false,
-        type: 'alphabetical',
-        ignorePattern: [],
-        matcher: 'minimatch',
-        ignoreCase: true,
-        specialCharacters: 'keep',
-        customGroups: {},
-        order: 'asc',
-        groups: [],
-      } as const)
+        ...defaultOptions,
+      })
 
       validateGroupsConfiguration(
         options.groups,

@@ -46,6 +46,17 @@ type Options = [
   }>,
 ]
 
+const defaultOptions: Required<Options[0]> = {
+  type: 'alphabetical',
+  ignoreCase: true,
+  specialCharacters: 'keep',
+  order: 'asc',
+  groups: [],
+  matcher: 'minimatch',
+  partitionByNewLine: false,
+  partitionByComment: false,
+}
+
 export default createEslintRule<Options, MESSAGE_ID>({
   name: 'sort-union-types',
   meta: {
@@ -136,32 +147,14 @@ export default createEslintRule<Options, MESSAGE_ID>({
         'Expected "{{right}}" to come before "{{left}}".',
     },
   },
-  defaultOptions: [
-    {
-      type: 'alphabetical',
-      order: 'asc',
-      ignoreCase: true,
-      specialCharacters: 'keep',
-      matcher: 'minimatch',
-      partitionByNewLine: false,
-      partitionByComment: false,
-      groups: [],
-    },
-  ],
+  defaultOptions: [defaultOptions],
   create: context => ({
     TSUnionType: node => {
       let settings = getSettings(context.settings)
 
       let options = complete(context.options.at(0), settings, {
-        type: 'alphabetical',
-        ignoreCase: true,
-        specialCharacters: 'keep',
-        order: 'asc',
-        groups: [],
-        matcher: 'minimatch',
-        partitionByNewLine: false,
-        partitionByComment: false,
-      } as const)
+        ...defaultOptions,
+      })
 
       validateGroupsConfiguration(
         options.groups,

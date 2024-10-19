@@ -41,6 +41,19 @@ type Options<T extends string[]> = [
 
 type SortObjectTypesSortingNode = SortingNode<TSESTree.TypeElement>
 
+const defaultOptions: Required<Options<string[]>[0]> = {
+  partitionByComment: false,
+  partitionByNewLine: false,
+  type: 'alphabetical',
+  groupKind: 'mixed',
+  matcher: 'minimatch',
+  ignoreCase: true,
+  specialCharacters: 'keep',
+  customGroups: {},
+  order: 'asc',
+  groups: [],
+}
+
 export default createEslintRule<Options<string[]>, MESSAGE_ID>({
   name: 'sort-object-types',
   meta: {
@@ -153,37 +166,15 @@ export default createEslintRule<Options<string[]>, MESSAGE_ID>({
         'Expected "{{right}}" to come before "{{left}}".',
     },
   },
-  defaultOptions: [
-    {
-      type: 'alphabetical',
-      order: 'asc',
-      ignoreCase: true,
-      specialCharacters: 'keep',
-      matcher: 'minimatch',
-      partitionByComment: false,
-      partitionByNewLine: false,
-      groupKind: 'mixed',
-      groups: [],
-      customGroups: {},
-    },
-  ],
+  defaultOptions: [defaultOptions],
   create: context => ({
     TSTypeLiteral: node => {
       if (node.members.length > 1) {
         let settings = getSettings(context.settings)
 
         let options = complete(context.options.at(0), settings, {
-          partitionByComment: false,
-          partitionByNewLine: false,
-          type: 'alphabetical',
-          groupKind: 'mixed',
-          matcher: 'minimatch',
-          ignoreCase: true,
-          specialCharacters: 'keep',
-          customGroups: {},
-          order: 'asc',
-          groups: [],
-        } as const)
+          ...defaultOptions,
+        })
 
         validateGroupsConfiguration(
           options.groups,
