@@ -1,6 +1,7 @@
 import type { SortingNode } from '../typings'
 
 import {
+  partitionByCommentJsonSchema,
   specialCharactersJsonSchema,
   ignoreCaseJsonSchema,
   matcherJsonSchema,
@@ -87,22 +88,9 @@ export default createEslintRule<Options<string[]>, MESSAGE_ID>({
             type: 'array',
           },
           partitionByComment: {
+            ...partitionByCommentJsonSchema,
             description:
               'Allows you to use comments to separate the interface properties into logical groups.',
-            anyOf: [
-              {
-                type: 'boolean',
-              },
-              {
-                type: 'string',
-              },
-              {
-                type: 'array',
-                items: {
-                  type: 'string',
-                },
-              },
-            ],
           },
           partitionByNewLine: {
             description:

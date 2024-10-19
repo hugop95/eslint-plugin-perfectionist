@@ -4,6 +4,7 @@ import type { TSESLint } from '@typescript-eslint/utils'
 import type { SortingNodeWithDependencies } from '../utils/sort-nodes-by-dependencies'
 
 import {
+  partitionByCommentJsonSchema,
   specialCharactersJsonSchema,
   ignoreCaseJsonSchema,
   matcherJsonSchema,
@@ -89,22 +90,9 @@ export default createEslintRule<Options, MESSAGE_ID>({
           ignoreCase: ignoreCaseJsonSchema,
           specialCharacters: specialCharactersJsonSchema,
           partitionByComment: {
+            ...partitionByCommentJsonSchema,
             description:
               'Allows you to use comments to separate the keys of objects into logical groups.',
-            anyOf: [
-              {
-                type: 'array',
-                items: {
-                  type: 'string',
-                },
-              },
-              {
-                type: 'boolean',
-              },
-              {
-                type: 'string',
-              },
-            ],
           },
           partitionByNewLine: {
             description:
