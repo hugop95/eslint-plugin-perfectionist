@@ -6,6 +6,7 @@ import type { SortingNodeWithDependencies } from '../utils/sort-nodes-by-depende
 import {
   partitionByCommentJsonSchema,
   specialCharactersJsonSchema,
+  customGroupsJsonSchema,
   ignoreCaseJsonSchema,
   matcherJsonSchema,
   groupsJsonSchema,
@@ -117,23 +118,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
             type: 'array',
           },
           groups: groupsJsonSchema,
-          customGroups: {
-            description: 'Specifies custom groups.',
-            type: 'object',
-            additionalProperties: {
-              oneOf: [
-                {
-                  type: 'string',
-                },
-                {
-                  type: 'array',
-                  items: {
-                    type: 'string',
-                  },
-                },
-              ],
-            },
-          },
+          customGroups: customGroupsJsonSchema,
         },
         additionalProperties: false,
       },
