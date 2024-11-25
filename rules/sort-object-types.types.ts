@@ -33,10 +33,17 @@ export type CustomGroup = (
   }
 
 export type SingleCustomGroup = (
+  | BaseSingleCustomGroup<IndexSignatureSelector>
   | BaseSingleCustomGroup<MultilineSelector>
   | BaseSingleCustomGroup<MethodSelector>
 ) &
   ElementNamePatternFilterCustomGroup
+
+export type Selector =
+  | IndexSignatureSelector
+  | MultilineSelector
+  | MethodSelector
+  | TypeSelector
 
 export interface AnyOfCustomGroup {
   anyOf: SingleCustomGroup[]
@@ -44,14 +51,14 @@ export interface AnyOfCustomGroup {
 
 export type Modifier = RequiredModifier | OptionalModifier
 
-export type Selector = MultilineSelector | MethodSelector
-
 /**
  * Only used in code as well
  */
 interface AllowedModifiersPerSelector {
   multiline: OptionalModifier | RequiredModifier
   method: OptionalModifier | RequiredModifier
+  type: OptionalModifier | RequiredModifier
+  'index-signature': never
 }
 
 interface BaseSingleCustomGroup<T extends Selector> {
@@ -59,25 +66,39 @@ interface BaseSingleCustomGroup<T extends Selector> {
   selector?: T
 }
 
+/**
+ * Only used in code, so I don't know if it's worth maintaining this.
+ */
+type Group =
+  | IndexSignatureGroup
+  | MultilineGroup
+  | MethodGroup
+  | TypeGroup
+  | 'unknown'
+  | string
+
+type IndexSignatureGroup =
+  `${OptionalModifierPrefix | RequiredModifierPrefix}${IndexSignatureSelector}`
+
 type MultilineGroup =
   `${OptionalModifierPrefix | RequiredModifierPrefix}${MultilineSelector}`
 
 type MethodGroup =
   `${OptionalModifierPrefix | RequiredModifierPrefix}${MethodSelector}`
 
+type TypeGroup =
+  `${OptionalModifierPrefix | RequiredModifierPrefix}${TypeSelector}`
+
 interface ElementNamePatternFilterCustomGroup {
   elementNamePattern?: string
 }
-
 type RequiredModifierPrefix = WithDashSuffixOrEmpty<RequiredModifier>
+
 type OptionalModifierPrefix = WithDashSuffixOrEmpty<OptionalModifier>
 
-/**
- * Only used in code, so I don't know if it's worth maintaining this.
- */
-type Group = MultilineGroup | MethodGroup | 'unknown' | string
-
 type WithDashSuffixOrEmpty<T extends string> = `${T}-` | ''
+
+type IndexSignatureSelector = 'index-signature'
 
 type MultilineSelector = 'multiline'
 
@@ -87,7 +108,14 @@ type OptionalModifier = 'optional'
 
 type MethodSelector = 'method'
 
-export let allSelectors: Selector[] = ['method', 'multiline']
+type TypeSelector = 'type'
+
+export let allSelectors: Selector[] = [
+  'method',
+  'multiline',
+  'index-signature',
+  'type',
+]
 
 export let allModifiers: Modifier[] = ['optional', 'required']
 

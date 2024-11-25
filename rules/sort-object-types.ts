@@ -136,6 +136,11 @@ export default createEslintRule<Options, MESSAGE_ID>({
 
             let selectors: Selector[] = []
             let modifiers: Modifier[] = []
+
+            if (member.type === 'TSIndexSignature') {
+              selectors.push('index-signature')
+            }
+
             if (
               member.type === 'TSMethodSignature' ||
               (member.type === 'TSPropertySignature' &&
@@ -147,6 +152,8 @@ export default createEslintRule<Options, MESSAGE_ID>({
             if (member.loc.start.line !== member.loc.end.line) {
               selectors.push('multiline')
             }
+
+            selectors.push('type')
 
             for (let predefinedGroup of generatePredefinedGroups({
               cache: cachedGroupsByModifiersAndSelectors,
