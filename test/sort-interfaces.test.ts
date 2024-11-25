@@ -21,7 +21,7 @@ describe(ruleName, () => {
   describe(`${ruleName}: sorting by alphabetical order`, () => {
     let type = 'alphabetical-order'
 
-    let options: Options<string[]>[0] = {
+    let options: Options[0] = {
       type: 'alphabetical',
       ignoreCase: true,
       order: 'asc',
@@ -235,7 +235,7 @@ describe(ruleName, () => {
             errors: [
               {
                 data: {
-                  left: 'c()',
+                  left: 'c(): number',
                   right: 'a',
                 },
                 messageId: 'unexpectedInterfacePropertiesOrder',
@@ -1490,7 +1490,7 @@ describe(ruleName, () => {
             errors: [
               {
                 data: {
-                  left: 'c()',
+                  left: 'c(): number',
                   right: 'a',
                 },
                 messageId: 'unexpectedInterfacePropertiesOrder',
@@ -2217,7 +2217,7 @@ describe(ruleName, () => {
             errors: [
               {
                 data: {
-                  right: 'c()',
+                  right: 'c(): number',
                   left: 'a',
                 },
                 messageId: 'unexpectedInterfacePropertiesOrder',

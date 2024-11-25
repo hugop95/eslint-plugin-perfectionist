@@ -1276,7 +1276,7 @@ describe(ruleName, () => {
             errors: [
               {
                 data: {
-                  left: '[name in v]?',
+                  left: '[name in v]',
                   right: '8',
                 },
                 messageId: 'unexpectedObjectTypesOrder',
