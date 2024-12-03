@@ -6,25 +6,26 @@ import {
   elementNamePatternJsonSchema,
 } from '../utils/common-json-schemas'
 
-export type Options = [
-  Partial<{
-    customGroups: Record<string, string[] | string> | CustomGroup[]
-    /**
-     * @deprecated for {@link `groups`}
-     */
-    groupKind: 'required-first' | 'optional-first' | 'mixed'
-    type: 'alphabetical' | 'line-length' | 'natural'
-    partitionByComment: string[] | boolean | string
-    newlinesBetween: 'ignore' | 'always' | 'never'
-    specialCharacters: 'remove' | 'trim' | 'keep'
-    locales: NonNullable<Intl.LocalesArgument>
-    groups: (Group[] | Group)[]
-    partitionByNewLine: boolean
-    ignorePattern: string[]
-    order: 'desc' | 'asc'
-    ignoreCase: boolean
-  }>,
-]
+export type Options = Partial<{
+  useConfigurationIf: {
+    allNamesMatchPattern?: string
+  }
+  customGroups: Record<string, string[] | string> | CustomGroup[]
+  /**
+   * @deprecated for {@link `groups`}
+   */
+  groupKind: 'required-first' | 'optional-first' | 'mixed'
+  type: 'alphabetical' | 'line-length' | 'natural'
+  partitionByComment: string[] | boolean | string
+  newlinesBetween: 'ignore' | 'always' | 'never'
+  specialCharacters: 'remove' | 'trim' | 'keep'
+  locales: NonNullable<Intl.LocalesArgument>
+  groups: (Group[] | Group)[]
+  partitionByNewLine: boolean
+  ignorePattern: string[]
+  order: 'desc' | 'asc'
+  ignoreCase: boolean
+}>[]
 
 export type SingleCustomGroup = (
   | BaseSingleCustomGroup<IndexSignatureSelector>
