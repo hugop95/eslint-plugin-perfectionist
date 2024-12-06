@@ -522,12 +522,15 @@ export default createEslintRule<Options<string[]>, MESSAGE_ID>({
             messageIds = [
               ...messageIds,
               ...getNewlinesErrors({
+                options: {
+                  ...options,
+                  customGroups: [],
+                },
                 missedSpacingError: 'missedSpacingBetweenImports',
                 extraSpacingError: 'extraSpacingBetweenImports',
                 rightNum: rightNumber,
                 leftNum: leftNumber,
                 sourceCode,
-                options,
                 right,
                 left,
               }),
@@ -544,10 +547,13 @@ export default createEslintRule<Options<string[]>, MESSAGE_ID>({
                     fixer,
                   }),
                   ...makeNewlinesFixes({
+                    options: {
+                      ...options,
+                      customGroups: [],
+                    },
                     sortedNodes: sortedNodesExcludingEslintDisabled,
                     nodes: nodeList,
                     sourceCode,
-                    options,
                     fixer,
                   }),
                 ],
