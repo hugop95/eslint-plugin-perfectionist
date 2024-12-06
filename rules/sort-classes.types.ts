@@ -31,6 +31,21 @@ export type SingleCustomGroup =
   | BaseSingleCustomGroup<StaticBlockSelector>
   | BaseSingleCustomGroup<ConstructorSelector>
   | AdvancedSingleCustomGroup<MethodSelector>
+export type CustomGroup = {
+  newlinesInside?: 'ignore' | 'always' | 'never'
+  newlinesAbove?: 'ignore' | 'always' | 'never'
+  newlinesBelow?: 'ignore' | 'always' | 'never'
+  groupName: string
+} & (
+  | {
+      order?: SortClassesOptions[0]['order']
+      type?: SortClassesOptions[0]['type']
+    }
+  | {
+      type?: 'unsorted'
+    }
+) &
+  (SingleCustomGroup | AnyOfCustomGroup)
 export type Selector =
   | AccessorPropertySelector
   | FunctionPropertySelector
@@ -41,18 +56,6 @@ export type Selector =
   | SetMethodSelector
   | PropertySelector
   | MethodSelector
-export type CustomGroup = (
-  | {
-      order?: SortClassesOptions[0]['order']
-      type?: SortClassesOptions[0]['type']
-    }
-  | {
-      type?: 'unsorted'
-    }
-) &
-  (SingleCustomGroup | AnyOfCustomGroup) & {
-    groupName: string
-  }
 export type Modifier =
   | PublicOrProtectedOrPrivateModifier
   | DecoratedModifier
