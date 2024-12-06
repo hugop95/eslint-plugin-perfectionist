@@ -113,8 +113,7 @@ export let partitionByNewLineJsonSchema: JSONSchema4 = {
 }
 
 export let newlinesBetweenJsonSchema: JSONSchema4 = {
-  description:
-    'Specifies how new lines should be handled between modules members groups.',
+  description: 'Specifies how new lines should be handled between groups.',
   enum: ['ignore', 'always', 'never'],
   type: 'string',
 }
@@ -154,6 +153,30 @@ let customGroupNameJsonSchema: Record<string, JSONSchema4> = {
   },
 }
 
+let customGroupNewlinesInsideJsonSchema: Record<string, JSONSchema4> = {
+  newlinesInside: {
+    description:
+      'Specifies how new lines should be handled between members of the custom group.',
+    type: 'string',
+  },
+}
+
+let customGroupNewlinesAboveJsonSchema: Record<string, JSONSchema4> = {
+  newlinesAbove: {
+    description:
+      'Specifies how new lines should be handled right above the custom group.',
+    type: 'string',
+  },
+}
+
+let customGroupNewlinesBelowJsonSchema: Record<string, JSONSchema4> = {
+  newlinesBelow: {
+    description:
+      'Specifies how new lines should be handled right below the custom group.',
+    type: 'string',
+  },
+}
+
 export let buildCustomGroupsArrayJsonSchema = ({
   singleCustomGroupJsonSchema,
 }: {
@@ -165,6 +188,9 @@ export let buildCustomGroupsArrayJsonSchema = ({
         properties: {
           ...customGroupNameJsonSchema,
           ...customGroupSortJsonSchema,
+          ...customGroupNewlinesAboveJsonSchema,
+          ...customGroupNewlinesInsideJsonSchema,
+          ...customGroupNewlinesBelowJsonSchema,
           anyOf: {
             items: {
               properties: {
@@ -185,6 +211,9 @@ export let buildCustomGroupsArrayJsonSchema = ({
         properties: {
           ...customGroupNameJsonSchema,
           ...customGroupSortJsonSchema,
+          ...customGroupNewlinesAboveJsonSchema,
+          ...customGroupNewlinesInsideJsonSchema,
+          ...customGroupNewlinesBelowJsonSchema,
           ...singleCustomGroupJsonSchema,
         },
         description: 'Custom group.',
