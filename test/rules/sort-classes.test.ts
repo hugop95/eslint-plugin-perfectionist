@@ -7787,6 +7787,150 @@ describe(ruleName, () => {
         invalid: [],
       },
     )
+
+    describe('newlinesInside', () => {
+      ruleTester.run(
+        `${ruleName}: allows to use newlinesInside: always`,
+        rule,
+        {
+          invalid: [
+            {
+              errors: [
+                {
+                  data: {
+                    right: 'c',
+                    left: 'b',
+                  },
+                  messageId: 'missedSpacingBetweenClassMembers',
+                },
+                {
+                  data: {
+                    right: 'd',
+                    left: 'c',
+                  },
+                  messageId: 'extraSpacingBetweenClassMembers',
+                },
+              ],
+              options: [
+                {
+                  customGroups: [
+                    {
+                      groupName: 'methodsWithNewlinesInside',
+                      newlinesInside: 'always',
+                      selector: 'method',
+                    },
+                  ],
+                  groups: ['unknown', 'methodsWithNewlinesInside'],
+                  type: 'alphabetical',
+                },
+              ],
+              code: dedent`
+                class Class {
+                  a
+                  b() {}
+                  c() {}
+
+
+                  d() {}
+                }
+              `,
+              output: dedent`
+              class Class {
+                a
+                b() {}
+
+                c() {}
+
+                d() {}
+              }
+            `,
+            },
+          ],
+          valid: [],
+        },
+      )
+
+      ruleTester.run(`${ruleName}: allows to use newlinesInside: never`, rule, {
+        invalid: [
+          {
+            options: [
+              {
+                customGroups: [
+                  {
+                    groupName: 'methodsWithoutNewlinesInside',
+                    newlinesInside: 'never',
+                    selector: 'method',
+                  },
+                ],
+                groups: ['unknown', 'methodsWithoutNewlinesInside'],
+                type: 'alphabetical',
+              },
+            ],
+            errors: [
+              {
+                data: {
+                  right: 'd',
+                  left: 'c',
+                },
+                messageId: 'extraSpacingBetweenClassMembers',
+              },
+            ],
+            code: dedent`
+                class Class {
+                  a
+
+                  c() {}
+
+                  d() {}
+                }
+              `,
+            output: dedent`
+              class Class {
+                a
+
+                c() {}
+                d() {}
+              }
+            `,
+          },
+        ],
+        valid: [],
+      })
+
+      ruleTester.run(
+        `${ruleName}: allows to use newlinesInside: ignore`,
+        rule,
+        {
+          valid: [
+            {
+              options: [
+                {
+                  customGroups: [
+                    {
+                      groupName: 'methodsIgnoringNewlinesInside',
+                      newlinesInside: 'ignore',
+                      selector: 'method',
+                    },
+                  ],
+                  groups: ['unknown', 'methodsIgnoringNewlinesInside'],
+                  newlinesBetween: 'always',
+                  type: 'alphabetical',
+                },
+              ],
+              code: dedent`
+                class Class {
+                  a
+
+                  b() {}
+                  c() {}
+                }
+              `,
+            },
+          ],
+          invalid: [],
+        },
+      )
+    })
   })
 
   describe(`${ruleName}: misc`, () => {
