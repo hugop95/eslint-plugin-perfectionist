@@ -36,7 +36,12 @@ export type SingleCustomGroup =
   | BaseSingleCustomGroup<ConstructorSelector>
   | AdvancedSingleCustomGroup<MethodSelector>
 
-export type CustomGroup = (
+export type CustomGroup = {
+  newlinesAbove?: 'ignore' | 'always' | 'never'
+  newlinesBelow?: 'ignore' | 'always' | 'never'
+  newlinesInside?: 'always' | 'never'
+  groupName: string
+} & (
   | {
       order?: SortClassesOptions[0]['order']
       type?: SortClassesOptions[0]['type']
@@ -44,10 +49,8 @@ export type CustomGroup = (
   | {
       type?: 'unsorted'
     }
-) & {
-  newlinesInside?: 'always' | 'never'
-  groupName: string
-} & (SingleCustomGroup | AnyOfCustomGroup)
+) &
+  (SingleCustomGroup | AnyOfCustomGroup)
 
 export type NonDeclarePropertyGroup = JoinWithDash<
   [

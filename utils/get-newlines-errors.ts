@@ -21,6 +21,8 @@ interface GetNewlinesErrorsParameters<T extends string> {
 }
 
 interface CustomGroup {
+  newlinesAbove?: 'ignore' | 'always' | 'never'
+  newlinesBelow?: 'ignore' | 'always' | 'never'
   newlinesInside?: 'always' | 'never'
   groupName: string
 }
