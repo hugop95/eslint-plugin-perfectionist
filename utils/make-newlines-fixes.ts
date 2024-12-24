@@ -6,6 +6,13 @@ import { getNewlinesBetweenOption } from './get-newlines-between-option'
 import { getLinesBetween } from './get-lines-between'
 import { getNodeRange } from './get-node-range'
 
+interface CustomGroup {
+  newlinesAbove?: 'ignore' | 'always' | 'never'
+  newlinesBelow?: 'ignore' | 'always' | 'never'
+  newlinesInside?: 'always' | 'never'
+  groupName: string
+}
+
 interface MakeNewlinesFixesParameters {
   sourceCode: TSESLint.SourceCode
   sortedNodes: SortingNode[]
@@ -18,11 +25,6 @@ interface Options {
   customGroups?: Record<string, string[] | string> | CustomGroup[]
   newlinesBetween: 'ignore' | 'always' | 'never'
   groups: (string[] | string)[]
-}
-
-interface CustomGroup {
-  newlinesInside?: 'always' | 'never'
-  groupName: string
 }
 
 export let makeNewlinesFixes = ({

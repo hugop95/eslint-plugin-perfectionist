@@ -162,6 +162,24 @@ let customGroupNewlinesInsideJsonSchema: Record<string, JSONSchema4> = {
   },
 }
 
+let customGroupNewlinesAboveJsonSchema: Record<string, JSONSchema4> = {
+  newlinesAbove: {
+    description:
+      'Specifies how new lines should be handled right above the custom group.',
+    enum: ['ignore', 'always', 'never'],
+    type: 'string',
+  },
+}
+
+let customGroupNewlinesBelowJsonSchema: Record<string, JSONSchema4> = {
+  newlinesBelow: {
+    description:
+      'Specifies how new lines should be handled right below the custom group.',
+    enum: ['ignore', 'always', 'never'],
+    type: 'string',
+  },
+}
+
 export let buildCustomGroupsArrayJsonSchema = ({
   singleCustomGroupJsonSchema,
 }: {
@@ -173,7 +191,9 @@ export let buildCustomGroupsArrayJsonSchema = ({
         properties: {
           ...customGroupNameJsonSchema,
           ...customGroupSortJsonSchema,
+          ...customGroupNewlinesAboveJsonSchema,
           ...customGroupNewlinesInsideJsonSchema,
+          ...customGroupNewlinesBelowJsonSchema,
           anyOf: {
             items: {
               properties: {
@@ -194,7 +214,9 @@ export let buildCustomGroupsArrayJsonSchema = ({
         properties: {
           ...customGroupNameJsonSchema,
           ...customGroupSortJsonSchema,
+          ...customGroupNewlinesAboveJsonSchema,
           ...customGroupNewlinesInsideJsonSchema,
+          ...customGroupNewlinesBelowJsonSchema,
           ...singleCustomGroupJsonSchema,
         },
         description: 'Custom group.',

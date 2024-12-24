@@ -67,7 +67,12 @@ interface AllowedModifiersPerSelector {
   type: DeclareModifier | ExportModifier
 }
 
-type CustomGroup = (
+type CustomGroup = {
+  newlinesAbove?: 'ignore' | 'always' | 'never'
+  newlinesBelow?: 'ignore' | 'always' | 'never'
+  newlinesInside?: 'always' | 'never'
+  groupName: string
+} & (
   | {
       order?: SortModulesOptions[0]['order']
       type?: SortModulesOptions[0]['type']
@@ -75,10 +80,8 @@ type CustomGroup = (
   | {
       type?: 'unsorted'
     }
-) & {
-  newlinesInside?: 'always' | 'never'
-  groupName: string
-} & (SingleCustomGroup | AnyOfCustomGroup)
+) &
+  (SingleCustomGroup | AnyOfCustomGroup)
 /**
  * Only used in code, so I don't know if it's worth maintaining this.
  */

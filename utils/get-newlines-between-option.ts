@@ -8,6 +8,13 @@ export interface GetNewlinesBetweenOptionParameters {
   options: Options
 }
 
+interface CustomGroup {
+  newlinesAbove?: 'ignore' | 'always' | 'never'
+  newlinesBelow?: 'ignore' | 'always' | 'never'
+  newlinesInside?: 'always' | 'never'
+  groupName: string
+}
+
 interface Options {
   customGroups?: Record<string, string[] | string> | CustomGroup[]
   newlinesBetween: 'ignore' | 'always' | 'never'
@@ -25,6 +32,12 @@ interface CustomGroup {
  * groups, which can override the global option.
  * - If the two nodes are in the same custom group, the `newlinesInside` option
  * of the group is used.
+ * - If the two nodes are in different custom groups, the `newlinesAbove` option
+ * of the previous group and the `newlinesBelow` option of the next group are
+ * used.
+ * - Groups that are part of a group array are ignored
+ * - `always` has a higher priority than `never`.
+ * - The fallback is the global `newlinesBetween` option.
  * @param {GetNewlinesBetweenOptionParameters} props - The function arguments
  * @param {SortingNode} props.nextSortingNode - The next node to sort
  * @param {SortingNode} props.sortingNode - The current node to sort
@@ -71,7 +84,12 @@ export let getNewlinesBetweenOption = ({
     return nodeCustomGroup.newlinesInside ?? globalNewlinesBetweenOption
   }
 
-  return globalNewlinesBetweenOption
+  return (
+    getNewlinesBetweenOptionForCustomGroups({
+      previousCustomGroupOption: nodeCustomGroup?.newlinesBelow,
+      nextCustomGroupOption: nextNodeCustomGroup?.newlinesAbove,
+    }) ?? globalNewlinesBetweenOption
+  )
 }
 
 let getGlobalNewlinesBetweenOption = ({
@@ -90,4 +108,28 @@ let getGlobalNewlinesBetweenOption = ({
     return 'never'
   }
   return nodeGroupNumber === nextNodeGroupNumber ? 'never' : 'always'
+}
+
+let getNewlinesBetweenOptionForCustomGroups = ({
+  previousCustomGroupOption,
+  nextCustomGroupOption,
+}: {
+  previousCustomGroupOption?: 'ignore' | 'always' | 'never'
+  nextCustomGroupOption?: 'ignore' | 'always' | 'never'
+}): undefined | 'ignore' | 'always' | 'never' => {
+  if (!previousCustomGroupOption || previousCustomGroupOption === 'ignore') {
+    return nextCustomGroupOption
+  }
+  if (!nextCustomGroupOption || nextCustomGroupOption === 'ignore') {
+    return previousCustomGroupOption
+  }
+  if (
+    (nextCustomGroupOption === 'always' &&
+      previousCustomGroupOption === 'never') ||
+    (previousCustomGroupOption === 'always' &&
+      nextCustomGroupOption === 'never')
+  ) {
+    return 'ignore'
+  }
+  return nextCustomGroupOption
 }
