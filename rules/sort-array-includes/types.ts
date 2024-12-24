@@ -6,6 +6,11 @@ import {
 } from '../../utils/common-json-schemas'
 
 export type Options = Partial<{
+  groups: (
+    | { newlinesBetween: 'ignore' | 'always' | 'never' }
+    | Group[]
+    | Group
+  )[]
   type: 'alphabetical' | 'line-length' | 'unsorted' | 'natural' | 'custom'
   useConfigurationIf: {
     allNamesMatchPattern?: string
@@ -19,7 +24,6 @@ export type Options = Partial<{
   locales: NonNullable<Intl.LocalesArgument>
   customGroups: CustomGroup[]
   partitionByNewLine: boolean
-  groups: (Group[] | Group)[]
   order: 'desc' | 'asc'
   ignoreCase: boolean
   alphabet: string

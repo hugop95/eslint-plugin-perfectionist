@@ -54,7 +54,11 @@ export type Options<T extends string[]> = [
     newlinesBetween: 'ignore' | 'always' | 'never'
     specialCharacters: 'remove' | 'trim' | 'keep'
     locales: NonNullable<Intl.LocalesArgument>
-    groups: (Group<T>[] | Group<T>)[]
+    groups: (
+      | Group<T>[]
+      | Group<T>
+      | { newlinesBetween: 'ignore' | 'always' | 'never' }
+    )[]
     environment: 'node' | 'bun'
     partitionByNewLine: boolean
     internalPattern: string[]
@@ -170,9 +174,13 @@ export default createEslintRule<Options<string[]>, MESSAGE_ID>({
       : null
 
     let isSideEffectOnlyGroup = (
-      group: undefined | string[] | string,
+      group:
+        | undefined
+        | string[]
+        | string
+        | { newlinesBetween: 'ignore' | 'always' | 'never' },
     ): boolean => {
-      if (!group) {
+      if (!group || (typeof group === 'object' && 'newlinesBetween' in group)) {
         return false
       }
       if (typeof group === 'string') {

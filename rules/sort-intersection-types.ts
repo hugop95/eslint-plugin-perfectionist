@@ -37,12 +37,16 @@ import { pairwise } from '../utils/pairwise'
 
 type Options = [
   Partial<{
+    groups: (
+      | { newlinesBetween: 'ignore' | 'always' | 'never' }
+      | Group[]
+      | Group
+    )[]
     type: 'alphabetical' | 'line-length' | 'natural' | 'custom'
     partitionByComment: string[] | boolean | string
     newlinesBetween: 'ignore' | 'always' | 'never'
     specialCharacters: 'remove' | 'trim' | 'keep'
     locales: NonNullable<Intl.LocalesArgument>
-    groups: (Group[] | Group)[]
     partitionByNewLine: boolean
     order: 'desc' | 'asc'
     ignoreCase: boolean

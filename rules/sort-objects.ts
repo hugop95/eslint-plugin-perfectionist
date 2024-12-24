@@ -52,6 +52,11 @@ type Options = Partial<{
     callingFunctionNamePattern?: string
     allNamesMatchPattern?: string
   }
+  groups: (
+    | { newlinesBetween: 'ignore' | 'always' | 'never' }
+    | Group[]
+    | Group
+  )[]
   type: 'alphabetical' | 'line-length' | 'unsorted' | 'natural' | 'custom'
   destructuredObjects: { groups: boolean } | boolean
   customGroups: Record<string, string[] | string>
@@ -59,7 +64,6 @@ type Options = Partial<{
   newlinesBetween: 'ignore' | 'always' | 'never'
   specialCharacters: 'remove' | 'trim' | 'keep'
   locales: NonNullable<Intl.LocalesArgument>
-  groups: (Group[] | Group)[]
   partitionByNewLine: boolean
   objectDeclarations: boolean
   styledComponents: boolean

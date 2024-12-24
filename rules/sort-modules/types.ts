@@ -10,13 +10,17 @@ import {
 
 export type SortModulesOptions = [
   Partial<{
+    groups: (
+      | { newlinesBetween: 'ignore' | 'always' | 'never' }
+      | Group[]
+      | Group
+    )[]
     type: 'alphabetical' | 'line-length' | 'natural' | 'custom'
     partitionByComment: string[] | boolean | string
     newlinesBetween: 'ignore' | 'always' | 'never'
     specialCharacters: 'remove' | 'trim' | 'keep'
     locales: NonNullable<Intl.LocalesArgument>
     customGroups: CustomGroup[]
-    groups: (Group[] | Group)[]
     partitionByNewLine: boolean
     order: 'desc' | 'asc'
     ignoreCase: boolean

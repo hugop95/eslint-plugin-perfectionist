@@ -1,5 +1,9 @@
 interface GroupOptions {
-  groups: (string[] | string)[]
+  groups: (
+    | string[]
+    | string
+    | { newlinesBetween: 'ignore' | 'always' | 'never' }
+  )[]
 }
 
 export let getOptionsWithCleanGroups = <T extends GroupOptions>(
@@ -7,9 +11,9 @@ export let getOptionsWithCleanGroups = <T extends GroupOptions>(
 ): T => ({
   ...options,
   groups: options.groups
-    .filter(group => group.length > 0)
+    .filter(group => !Array.isArray(group) || group.length > 0)
     .map(group =>
-      typeof group === 'string' ? group : getCleanedNestedGroups(group),
+      Array.isArray(group) ? getCleanedNestedGroups(group) : group,
     ),
 })
 

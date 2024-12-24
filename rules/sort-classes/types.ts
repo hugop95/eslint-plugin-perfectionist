@@ -10,6 +10,11 @@ import {
 
 export type SortClassesOptions = [
   Partial<{
+    groups: (
+      | { newlinesBetween: 'ignore' | 'always' | 'never' }
+      | Group[]
+      | Group
+    )[]
     type: 'alphabetical' | 'line-length' | 'natural' | 'custom'
     partitionByComment: string[] | boolean | string
     newlinesBetween: 'ignore' | 'always' | 'never'
@@ -18,7 +23,6 @@ export type SortClassesOptions = [
     locales: NonNullable<Intl.LocalesArgument>
     partitionByNewLine: boolean
     customGroups: CustomGroup[]
-    groups: (Group[] | Group)[]
     order: 'desc' | 'asc'
     ignoreCase: boolean
     alphabet: string
