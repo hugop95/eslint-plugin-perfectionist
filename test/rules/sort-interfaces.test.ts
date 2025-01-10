@@ -2218,14 +2218,16 @@ describe(ruleName, () => {
                     b: "b",
                 }
               `,
-              output: dedent`
-                interface Interface {
-                  a: () => null,
-                 b: "b",
-                y: "y",
-                    z: "z",
-                }
-              `,
+              output: [
+                dedent`
+                  interface Interface {
+                    a: () => null,
+                   b: "b",
+                  y: "y",
+                      z: "z",
+                  }
+                `,
+              ],
               options: [
                 {
                   ...options,
@@ -2268,18 +2270,20 @@ describe(ruleName, () => {
                   messageId: 'missedSpacingBetweenInterfaceMembers',
                 },
               ],
-              output: dedent`
-                interface Interface {
-                  a: () => null,
+              output: [
+                dedent`
+                  interface Interface {
+                    a: () => null,
 
-                 y: "y",
-                z: "z",
+                   y: "y",
+                  z: "z",
 
-                    b: {
-                      // Newline stuff
-                    },
-                }
+                      b: {
+                        // Newline stuff
+                      },
+                  }
                 `,
+              ],
               code: dedent`
                 interface Interface {
                   a: () => null,
