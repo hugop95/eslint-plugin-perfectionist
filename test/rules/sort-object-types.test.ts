@@ -2018,6 +2018,17 @@ describe(ruleName, () => {
                 dedent`
                   type Type = {
                     a: () => null,
+
+
+                   b: "b",
+                  y: "y",
+
+                      z: "z",
+                  }
+                `,
+                dedent`
+                  type Type = {
+                    a: () => null,
                    b: "b",
                   y: "y",
                       z: "z",
@@ -2067,6 +2078,18 @@ describe(ruleName, () => {
                 },
               ],
               output: [
+                dedent`
+                  type Type = {
+                    a: () => null,
+
+
+                   y: "y",
+                  z: "z",
+                      b: {
+                        // Newline stuff
+                      },
+                  }
+                  `,
                 dedent`
                   type Type = {
                     a: () => null,
