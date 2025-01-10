@@ -44,6 +44,13 @@ export let makeNewlinesFixes = ({
     let sortedSortingNode = sortedNodes.at(i)!
     let nextSortedSortingNode = sortedNodes.at(i + 1)!
 
+    if (
+      sortingNode.node !== sortedSortingNode.node ||
+      nextSortingNode.node !== nextSortedSortingNode.node
+    ) {
+      continue
+    }
+
     let newlinesBetween = getNewlinesBetweenOption({
       nextSortingNode: nextSortedSortingNode,
       sortingNode: sortedSortingNode,
