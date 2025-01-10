@@ -2222,6 +2222,17 @@ describe(ruleName, () => {
                 dedent`
                   interface Interface {
                     a: () => null,
+
+
+                   b: "b",
+                  y: "y",
+
+                      z: "z",
+                  }
+                `,
+                dedent`
+                  interface Interface {
+                    a: () => null,
                    b: "b",
                   y: "y",
                       z: "z",
@@ -2271,6 +2282,18 @@ describe(ruleName, () => {
                 },
               ],
               output: [
+                dedent`
+                  interface Interface {
+                    a: () => null,
+
+
+                   y: "y",
+                  z: "z",
+                      b: {
+                        // Newline stuff
+                      },
+                  }
+                `,
                 dedent`
                   interface Interface {
                     a: () => null,
