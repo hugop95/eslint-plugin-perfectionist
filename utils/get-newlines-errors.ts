@@ -1,6 +1,6 @@
 import type { TSESLint } from '@typescript-eslint/utils'
 
-import type { SortingNode } from '../types/sorting-node'
+import type { SortingNodeWithGroup } from './sort-nodes-by-groups'
 
 import { getNewlinesBetweenOption } from './get-newlines-between-option'
 import { getLinesBetween } from './get-lines-between'
@@ -16,10 +16,10 @@ interface GetNewlinesErrorsParameters<T extends string> {
     newlinesBetween: 'ignore' | 'always' | 'never'
   }
   sourceCode: TSESLint.SourceCode
+  right: SortingNodeWithGroup
+  left: SortingNodeWithGroup
   missedSpacingError: T
   extraSpacingError: T
-  right: SortingNode
-  left: SortingNode
   rightNum: number
   leftNum: number
 }

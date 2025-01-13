@@ -9,6 +9,7 @@ import type {
   Selector,
 } from './sort-modules/types'
 import type { SortingNodeWithDependencies } from '../utils/sort-nodes-by-dependencies'
+import type { SortingNodeWithGroup } from '../utils/sort-nodes-by-groups'
 
 import {
   buildCustomGroupsArrayJsonSchema,
@@ -40,9 +41,12 @@ import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
 import { doesCustomGroupMatch } from './sort-modules/does-custom-group-match'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
+import {
+  
+  sortNodesByGroups
+} from '../utils/sort-nodes-by-groups'
 import { hasPartitionComment } from '../utils/has-partition-comment'
 import { createNodeIndexMap } from '../utils/create-node-index-map'
-import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { getNewlinesErrors } from '../utils/get-newlines-errors'
 import { getCommentsBefore } from '../utils/get-comments-before'
 import { getNodeDecorators } from '../utils/get-node-decorators'
@@ -98,6 +102,8 @@ let defaultOptions: Required<SortModulesOptions[0]> = {
   alphabet: '',
   order: 'asc',
 }
+
+type SortModulesSortingNode = SortingNodeWithDependencies & SortingNodeWithGroup
 
 export default createEslintRule<SortModulesOptions, MESSAGE_ID>({
   meta: {
@@ -194,7 +200,7 @@ let analyzeModule = ({
   sourceCode: TSESLint.SourceCode
   eslintDisabledLines: number[]
 }): void => {
-  let formattedNodes: SortingNodeWithDependencies[][] = [[]]
+  let formattedNodes: SortModulesSortingNode[][] = [[]]
   for (let node of program.body) {
     let selector: undefined | Selector
     let name: undefined | string
@@ -341,7 +347,7 @@ let analyzeModule = ({
         }
       }
     }
-    let sortingNode: SortingNodeWithDependencies = {
+    let sortingNode: SortModulesSortingNode = {
       isEslintDisabled: isNodeEslintDisabled(node, eslintDisabledLines),
       size: rangeToDiff(node, sourceCode),
       addSafetySemicolonWhenInline,
@@ -371,7 +377,7 @@ let analyzeModule = ({
 
   let sortNodesIgnoringEslintDisabledNodes = (
     ignoreEslintDisabledNodes: boolean,
-  ): SortingNodeWithDependencies[] =>
+  ): SortModulesSortingNode[] =>
     sortNodesByDependencies(
       formattedNodes.flatMap(nodes =>
         sortNodesByGroups(nodes, options, {

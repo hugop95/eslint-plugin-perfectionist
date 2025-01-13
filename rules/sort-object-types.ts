@@ -4,7 +4,7 @@ import type { TSESTree } from '@typescript-eslint/types'
 import type { TSESLint } from '@typescript-eslint/utils'
 
 import type { Modifier, Selector, Options } from './sort-object-types/types'
-import type { SortingNode } from '../types/sorting-node'
+import type { SortingNodeWithGroup } from '../utils/sort-nodes-by-groups'
 
 import {
   buildUseConfigurationIfJsonSchema,
@@ -36,10 +36,13 @@ import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { isMemberOptional } from './sort-object-types/is-member-optional'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
+import {
+  
+  sortNodesByGroups
+} from '../utils/sort-nodes-by-groups'
 import { hasPartitionComment } from '../utils/has-partition-comment'
 import { isNodeFunctionType } from '../utils/is-node-function-type'
 import { createNodeIndexMap } from '../utils/create-node-index-map'
-import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { getCommentsBefore } from '../utils/get-comments-before'
 import { getNewlinesErrors } from '../utils/get-newlines-errors'
 import { createEslintRule } from '../utils/create-eslint-rule'
@@ -67,7 +70,8 @@ type MESSAGE_ID =
   | 'unexpectedObjectTypesGroupOrder'
   | 'unexpectedObjectTypesOrder'
 
-interface SortObjectTypesSortingNode extends SortingNode<TSESTree.TypeElement> {
+interface SortObjectTypesSortingNode
+  extends SortingNodeWithGroup<TSESTree.TypeElement> {
   groupKind: 'required' | 'optional'
 }
 

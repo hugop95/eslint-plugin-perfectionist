@@ -7,6 +7,7 @@ import type {
   Selector,
 } from './sort-classes/types'
 import type { SortingNodeWithDependencies } from '../utils/sort-nodes-by-dependencies'
+import type { SortingNodeWithGroup } from '../utils/sort-nodes-by-groups'
 
 import {
   buildCustomGroupsArrayJsonSchema,
@@ -39,8 +40,11 @@ import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
 import { doesCustomGroupMatch } from './sort-classes/does-custom-group-match'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
+import {
+  
+  sortNodesByGroups
+} from '../utils/sort-nodes-by-groups'
 import { hasPartitionComment } from '../utils/has-partition-comment'
-import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { getCommentsBefore } from '../utils/get-comments-before'
 import { getNewlinesErrors } from '../utils/get-newlines-errors'
 import { createEslintRule } from '../utils/create-eslint-rule'
@@ -106,6 +110,8 @@ let defaultOptions: Required<SortClassesOptions[0]> = {
   alphabet: '',
   order: 'asc',
 }
+
+type SortClassesSortingNode = SortingNodeWithDependencies & SortingNodeWithGroup
 
 export default createEslintRule<SortClassesOptions, MESSAGE_ID>({
   create: context => ({
@@ -294,8 +300,8 @@ export default createEslintRule<SortClassesOptions, MESSAGE_ID>({
         return dependencies
       }
       let overloadSignatureGroups = getOverloadSignatureGroups(node.body)
-      let formattedNodes: SortingNodeWithDependencies[][] = node.body.reduce(
-        (accumulator: SortingNodeWithDependencies[][], member) => {
+      let formattedNodes: SortClassesSortingNode[][] = node.body.reduce(
+        (accumulator: SortClassesSortingNode[][], member) => {
           let name: string
           let dependencies: string[] = []
           let { defineGroup, getGroup } = useGroups(options)
@@ -540,7 +546,7 @@ export default createEslintRule<SortClassesOptions, MESSAGE_ID>({
             .find(overloadSignatures => overloadSignatures.includes(member))
             ?.at(-1)
 
-          let sortingNode: SortingNodeWithDependencies = {
+          let sortingNode: SortClassesSortingNode = {
             dependencyName: getDependencyName({
               nodeNameWithoutStartingHash: name.startsWith('#')
                 ? name.slice(1)
@@ -586,7 +592,7 @@ export default createEslintRule<SortClassesOptions, MESSAGE_ID>({
 
       let sortNodesIgnoringEslintDisabledNodes = (
         ignoreEslintDisabledNodes: boolean,
-      ): SortingNodeWithDependencies[] =>
+      ): SortClassesSortingNode[] =>
         sortNodesByDependencies(
           formattedNodes.flatMap(nodes =>
             sortNodesByGroups(nodes, options, {

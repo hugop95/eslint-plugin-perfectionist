@@ -1,6 +1,6 @@
 import type { TSESTree } from '@typescript-eslint/types'
 
-import type { SortingNode } from '../types/sorting-node'
+import type { SortingNodeWithGroup } from '../utils/sort-nodes-by-groups'
 
 import {
   specialCharactersJsonSchema,
@@ -98,53 +98,54 @@ export default createEslintRule<Options<string[]>, MESSAGE_ID>({
         sourceCode,
       })
 
-      let parts: SortingNode[][] = node.openingElement.attributes.reduce(
-        (
-          accumulator: SortingNode[][],
-          attribute: TSESTree.JSXSpreadAttribute | TSESTree.JSXAttribute,
-        ) => {
-          if (attribute.type === 'JSXSpreadAttribute') {
-            accumulator.push([])
+      let parts: SortingNodeWithGroup[][] =
+        node.openingElement.attributes.reduce(
+          (
+            accumulator: SortingNodeWithGroup[][],
+            attribute: TSESTree.JSXSpreadAttribute | TSESTree.JSXAttribute,
+          ) => {
+            if (attribute.type === 'JSXSpreadAttribute') {
+              accumulator.push([])
+              return accumulator
+            }
+
+            let name =
+              attribute.name.type === 'JSXNamespacedName'
+                ? `${attribute.name.namespace.name}:${attribute.name.name.name}`
+                : attribute.name.name
+
+            let { setCustomGroups, defineGroup, getGroup } = useGroups(options)
+
+            setCustomGroups(options.customGroups, name)
+
+            if (attribute.value === null) {
+              defineGroup('shorthand')
+            } else if (attribute.loc.start.line !== attribute.loc.end.line) {
+              defineGroup('multiline')
+            }
+
+            let jsxNode: SortingNodeWithGroup = {
+              isEslintDisabled: isNodeEslintDisabled(
+                attribute,
+                eslintDisabledLines,
+              ),
+              size: rangeToDiff(attribute, sourceCode),
+              group: getGroup(),
+              node: attribute,
+              name,
+            }
+
+            accumulator.at(-1)!.push(jsxNode)
+
             return accumulator
-          }
-
-          let name =
-            attribute.name.type === 'JSXNamespacedName'
-              ? `${attribute.name.namespace.name}:${attribute.name.name.name}`
-              : attribute.name.name
-
-          let { setCustomGroups, defineGroup, getGroup } = useGroups(options)
-
-          setCustomGroups(options.customGroups, name)
-
-          if (attribute.value === null) {
-            defineGroup('shorthand')
-          } else if (attribute.loc.start.line !== attribute.loc.end.line) {
-            defineGroup('multiline')
-          }
-
-          let jsxNode: SortingNode = {
-            isEslintDisabled: isNodeEslintDisabled(
-              attribute,
-              eslintDisabledLines,
-            ),
-            size: rangeToDiff(attribute, sourceCode),
-            group: getGroup(),
-            node: attribute,
-            name,
-          }
-
-          accumulator.at(-1)!.push(jsxNode)
-
-          return accumulator
-        },
-        [[]],
-      )
+          },
+          [[]],
+        )
 
       for (let nodes of parts) {
         let sortNodesExcludingEslintDisabled = (
           ignoreEslintDisabledNodes: boolean,
-        ): SortingNode[] =>
+        ): SortingNodeWithGroup[] =>
           sortNodesByGroups(nodes, options, { ignoreEslintDisabledNodes })
         let sortedNodes = sortNodesExcludingEslintDisabled(false)
         let sortedNodesExcludingEslintDisabled =

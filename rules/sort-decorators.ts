@@ -1,7 +1,7 @@
 import type { RuleContext } from '@typescript-eslint/utils/ts-eslint'
 import type { TSESTree } from '@typescript-eslint/types'
 
-import type { SortingNode } from '../types/sorting-node'
+import type { SortingNodeWithGroup } from '../utils/sort-nodes-by-groups'
 
 import {
   partitionByCommentJsonSchema,
@@ -64,7 +64,7 @@ export type Options<T extends string[]> = [
 
 type MESSAGE_ID = 'unexpectedDecoratorsGroupOrder' | 'unexpectedDecoratorsOrder'
 
-type SortDecoratorsSortingNode = SortingNode<TSESTree.Decorator>
+type SortDecoratorsSortingNode = SortingNodeWithGroup<TSESTree.Decorator>
 
 type Group<T extends string[]> = 'unknown' | T[number]
 

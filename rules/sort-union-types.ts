@@ -2,7 +2,7 @@ import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema'
 import type { RuleContext } from '@typescript-eslint/utils/ts-eslint'
 import type { TSESTree } from '@typescript-eslint/types'
 
-import type { SortingNode } from '../types/sorting-node'
+import type { SortingNodeWithGroup } from '../utils/sort-nodes-by-groups'
 
 import {
   partitionByCommentJsonSchema,
@@ -206,8 +206,8 @@ export let sortUnionOrIntersectionTypes = <MessageIds extends string>({
     sourceCode,
   })
 
-  let formattedMembers: SortingNode[][] = node.types.reduce(
-    (accumulator: SortingNode[][], type) => {
+  let formattedMembers: SortingNodeWithGroup[][] = node.types.reduce(
+    (accumulator: SortingNodeWithGroup[][], type) => {
       let { defineGroup, getGroup } = useGroups(options)
 
       switch (type.type) {
@@ -270,7 +270,7 @@ export let sortUnionOrIntersectionTypes = <MessageIds extends string>({
 
       let lastGroup = accumulator.at(-1)
       let lastSortingNode = lastGroup?.at(-1)
-      let sortingNode: SortingNode = {
+      let sortingNode: SortingNodeWithGroup = {
         isEslintDisabled: isNodeEslintDisabled(type, eslintDisabledLines),
         size: rangeToDiff(type, sourceCode),
         name: sourceCode.getText(type),
@@ -303,7 +303,7 @@ export let sortUnionOrIntersectionTypes = <MessageIds extends string>({
   for (let nodes of formattedMembers) {
     let sortNodesExcludingEslintDisabled = (
       ignoreEslintDisabledNodes: boolean,
-    ): SortingNode[] =>
+    ): SortingNodeWithGroup[] =>
       sortNodesByGroups(nodes, options, { ignoreEslintDisabledNodes })
     let sortedNodes = sortNodesExcludingEslintDisabled(false)
     let sortedNodesExcludingEslintDisabled =

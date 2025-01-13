@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { GetNewlinesBetweenOptionParameters } from '../../utils/get-newlines-between-option'
-import type { SortingNode } from '../../types/sorting-node'
+import type { SortingNodeWithGroup } from '../../utils/sort-nodes-by-groups'
 
 import { getNewlinesBetweenOption } from '../../utils/get-newlines-between-option'
 
@@ -198,8 +198,8 @@ describe('get-newlines-between-option', () => {
     sortingNode: generateSortingNodeWithGroup(sortingNodeGroup ?? 'group1'),
   })
 
-  let generateSortingNodeWithGroup = (group: string): SortingNode =>
+  let generateSortingNodeWithGroup = (group: string): SortingNodeWithGroup =>
     ({
       group,
-    }) as SortingNode
+    }) as SortingNodeWithGroup
 })

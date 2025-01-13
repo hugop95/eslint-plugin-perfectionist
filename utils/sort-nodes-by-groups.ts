@@ -1,8 +1,16 @@
+import type { TSESTree } from '@typescript-eslint/types'
+
 import type { SortingNode } from '../types/sorting-node'
 import type { CompareOptions } from './compare'
 
 import { getGroupNumber } from './get-group-number'
 import { sortNodes } from './sort-nodes'
+
+export interface SortingNodeWithGroup<
+  Node extends TSESTree.Node = TSESTree.Node,
+> extends SortingNode<Node> {
+  group: string
+}
 
 interface ExtraOptions<T extends SortingNode> {
   /**
@@ -22,7 +30,7 @@ interface GroupOptions {
   )[]
 }
 
-export let sortNodesByGroups = <T extends SortingNode>(
+export let sortNodesByGroups = <T extends SortingNodeWithGroup>(
   nodes: T[],
   options: CompareOptions<T> & GroupOptions,
   extraOptions?: ExtraOptions<T>,

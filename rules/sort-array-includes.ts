@@ -3,8 +3,8 @@ import type { RuleContext } from '@typescript-eslint/utils/ts-eslint'
 import type { TSESTree } from '@typescript-eslint/types'
 import type { TSESLint } from '@typescript-eslint/utils'
 
+import type { SortingNodeWithGroup } from '../utils/sort-nodes-by-groups'
 import type { Selector, Options } from './sort-array-includes/types'
-import type { SortingNode } from '../types/sorting-node'
 
 import {
   buildUseConfigurationIfJsonSchema,
@@ -53,7 +53,7 @@ import { pairwise } from '../utils/pairwise'
 let cachedGroupsByModifiersAndSelectors = new Map<string, string[]>()
 
 interface SortArrayIncludesSortingNode
-  extends SortingNode<TSESTree.SpreadElement | TSESTree.Expression> {
+  extends SortingNodeWithGroup<TSESTree.SpreadElement | TSESTree.Expression> {
   groupKind: 'literal' | 'spread'
 }
 

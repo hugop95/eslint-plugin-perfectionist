@@ -1,10 +1,10 @@
-import type { SortingNode } from '../types/sorting-node'
+import type { SortingNodeWithGroup } from './sort-nodes-by-groups'
 
 import { getGroupNumber } from './get-group-number'
 
 export interface GetNewlinesBetweenOptionParameters {
-  nextSortingNode: SortingNode
-  sortingNode: SortingNode
+  nextSortingNode: SortingNodeWithGroup
+  sortingNode: SortingNodeWithGroup
   options: Options
 }
 
@@ -30,8 +30,8 @@ interface CustomGroup {
  * - If the two nodes are in the same custom group, the `newlinesInside` option
  * of the group is used.
  * @param {GetNewlinesBetweenOptionParameters} props - The function arguments
- * @param {SortingNode} props.nextSortingNode - The next node to sort
- * @param {SortingNode} props.sortingNode - The current node to sort
+ * @param {SortingNodeWithGroup} props.nextSortingNode - The next node to sort
+ * @param {SortingNodeWithGroup} props.sortingNode - The current node to sort
  * @param {Options} props.options - Newlines between related options
  * @returns {'ignore' | 'always' | 'never'} - The `newlinesBetween` option to
  * use

@@ -2,7 +2,7 @@ import type { TSESTree } from '@typescript-eslint/types'
 
 import { builtinModules } from 'node:module'
 
-import type { SortingNode } from '../types/sorting-node'
+import type { SortingNodeWithGroup } from '../utils/sort-nodes-by-groups'
 
 import {
   partitionByCommentJsonSchema,
@@ -104,7 +104,7 @@ type Group<T extends string[]> =
   | 'style'
   | 'type'
 
-interface SortImportsSortingNode extends SortingNode {
+interface SortImportsSortingNode extends SortingNodeWithGroup {
   isIgnored: boolean
 }
 

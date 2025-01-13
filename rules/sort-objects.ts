@@ -1,6 +1,7 @@
 import { TSESTree } from '@typescript-eslint/types'
 
 import type { SortingNodeWithDependencies } from '../utils/sort-nodes-by-dependencies'
+import type { SortingNodeWithGroup } from '../utils/sort-nodes-by-groups'
 import type { Modifier, Selector } from './sort-objects/types'
 import type { Options } from './sort-objects/types'
 
@@ -33,10 +34,13 @@ import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
 import { doesCustomGroupMatch } from './sort-objects/does-custom-group-match'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
+import {
+  
+  sortNodesByGroups
+} from '../utils/sort-nodes-by-groups'
 import { hasPartitionComment } from '../utils/has-partition-comment'
 import { createNodeIndexMap } from '../utils/create-node-index-map'
 import { singleCustomGroupJsonSchema } from './sort-objects/types'
-import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { allModifiers, allSelectors } from './sort-objects/types'
 import { getCommentsBefore } from '../utils/get-comments-before'
 import { getNewlinesErrors } from '../utils/get-newlines-errors'
@@ -85,6 +89,8 @@ let defaultOptions: Required<Options[0]> = {
   order: 'asc',
   groups: [],
 }
+
+type SortObjectsSortingNode = SortingNodeWithDependencies & SortingNodeWithGroup
 
 export default createEslintRule<Options, MESSAGE_ID>({
   create: context => {
@@ -302,9 +308,9 @@ export default createEslintRule<Options, MESSAGE_ID>({
           | TSESTree.RestElement
           | TSESTree.Property
         )[],
-      ): SortingNodeWithDependencies[][] =>
+      ): SortObjectsSortingNode[][] =>
         props.reduce(
-          (accumulator: SortingNodeWithDependencies[][], property) => {
+          (accumulator: SortObjectsSortingNode[][], property) => {
             if (
               property.type === 'SpreadElement' ||
               property.type === 'RestElement'
@@ -383,7 +389,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
               })
             }
 
-            let propertySortingNode: SortingNodeWithDependencies = {
+            let propertySortingNode: SortObjectsSortingNode = {
               isEslintDisabled: isNodeEslintDisabled(
                 property,
                 eslintDisabledLines,
@@ -430,7 +436,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
           : sortNodesByGroups
       let sortNodesIgnoringEslintDisabledNodes = (
         ignoreEslintDisabledNodes: boolean,
-      ): SortingNodeWithDependencies[] =>
+      ): SortObjectsSortingNode[] =>
         sortNodesByDependencies(
           formattedMembers.flatMap(nodes =>
             nodesSortingFunction(nodes, options, {
@@ -463,7 +469,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
 
         let messageIds: MESSAGE_ID[] = []
         let firstUnorderedNodeDependentOnRight:
-          | SortingNodeWithDependencies
+          | SortObjectsSortingNode
           | undefined
 
         if (

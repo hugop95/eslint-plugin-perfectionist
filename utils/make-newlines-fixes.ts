@@ -1,6 +1,6 @@
 import type { TSESLint } from '@typescript-eslint/utils'
 
-import type { SortingNode } from '../types/sorting-node'
+import type { SortingNodeWithGroup } from './sort-nodes-by-groups'
 
 import { getNewlinesBetweenOption } from './get-newlines-between-option'
 import { getLinesBetween } from './get-lines-between'
@@ -17,10 +17,10 @@ interface Options {
 }
 
 interface MakeNewlinesFixesParameters {
+  sortedNodes: SortingNodeWithGroup[]
   sourceCode: TSESLint.SourceCode
-  sortedNodes: SortingNode[]
+  nodes: SortingNodeWithGroup[]
   fixer: TSESLint.RuleFixer
-  nodes: SortingNode[]
   options: Options
 }
 

@@ -1,11 +1,14 @@
-import type { SortingNode } from '../types/sorting-node'
+import type { SortingNodeWithGroup } from './sort-nodes-by-groups'
 
 type Group =
   | { newlinesBetween: 'ignore' | 'always' | 'never' }
   | string[]
   | string
 
-export let getGroupNumber = (groups: Group[], node: SortingNode): number => {
+export let getGroupNumber = (
+  groups: Group[],
+  node: SortingNodeWithGroup,
+): number => {
   for (let max = groups.length, i = 0; i < max; i++) {
     let currentGroup = groups[i]
 

@@ -1,7 +1,7 @@
 import type { RuleContext } from '@typescript-eslint/utils/ts-eslint'
 import type { TSESTree } from '@typescript-eslint/types'
 
-import type { SortingNode } from '../types/sorting-node'
+import type { SortingNodeWithGroup } from '../utils/sort-nodes-by-groups'
 
 import {
   specialCharactersJsonSchema,
@@ -132,7 +132,7 @@ let sortHeritageClauses = (
     sourceCode,
   })
 
-  let nodes: SortingNode[] = heritageClauses!.map(heritageClause => {
+  let nodes: SortingNodeWithGroup[] = heritageClauses!.map(heritageClause => {
     let name = getHeritageClauseExpressionName(heritageClause.expression)
 
     let { setCustomGroups, getGroup } = useGroups(options)
@@ -152,7 +152,7 @@ let sortHeritageClauses = (
 
   let sortNodesExcludingEslintDisabled = (
     ignoreEslintDisabledNodes: boolean,
-  ): SortingNode[] =>
+  ): SortingNodeWithGroup[] =>
     sortNodesByGroups(nodes, options, { ignoreEslintDisabledNodes })
 
   let sortedNodes = sortNodesExcludingEslintDisabled(false)
