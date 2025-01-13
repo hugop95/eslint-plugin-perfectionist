@@ -1,11 +1,9 @@
-import type { TSESTree } from '@typescript-eslint/types'
-
 import type { SortingNode } from '../types/sorting-node'
 
-export let createNodeIndexMap = <Node extends TSESTree.Node>(
-  nodes: SortingNode<Node>[],
-): Map<SortingNode, number> => {
-  let nodeIndexMap = new Map<SortingNode<Node>, number>()
+export let createNodeIndexMap = <T extends SortingNode>(
+  nodes: T[],
+): Map<T, number> => {
+  let nodeIndexMap = new Map<T, number>()
   for (let [index, node] of nodes.entries()) {
     nodeIndexMap.set(node, index)
   }
