@@ -25,10 +25,9 @@ import { hasPartitionComment } from '../utils/has-partition-comment'
 import { createNodeIndexMap } from '../utils/create-node-index-map'
 import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { getCommentsBefore } from '../utils/get-comments-before'
-import { getNewlinesErrors } from '../utils/get-newlines-errors'
 import { createEslintRule } from '../utils/create-eslint-rule'
 import { getLinesBetween } from '../utils/get-lines-between'
-import { getGroupNumber } from '../utils/get-group-number'
+import { getOrderErrors } from '../utils/get-order-errors'
 import { getSourceCode } from '../utils/get-source-code'
 import { toSingleLine } from '../utils/to-single-line'
 import { rangeToDiff } from '../utils/range-to-diff'
@@ -312,41 +311,15 @@ export let sortUnionOrIntersectionTypes = <MessageIds extends string>({
     let nodeIndexMap = createNodeIndexMap(sortedNodes)
 
     pairwise(nodes, (left, right) => {
-      let leftNumber = getGroupNumber(options.groups, left)
-      let rightNumber = getGroupNumber(options.groups, right)
-
-      let leftIndex = nodeIndexMap.get(left)!
-      let rightIndex = nodeIndexMap.get(right)!
-
-      let indexOfRightExcludingEslintDisabled =
-        sortedNodesExcludingEslintDisabled.indexOf(right)
-
-      let messageIds: MessageIds[] = []
-
-      if (
-        leftIndex > rightIndex ||
-        leftIndex >= indexOfRightExcludingEslintDisabled
-      ) {
-        messageIds.push(
-          leftNumber === rightNumber
-            ? availableMessageIds.unexpectedOrder
-            : availableMessageIds.unexpectedGroupOrder,
-        )
-      }
-
-      messageIds = [
-        ...messageIds,
-        ...getNewlinesErrors({
-          missedSpacingError: availableMessageIds.missedSpacingBetweenMembers,
-          extraSpacingError: availableMessageIds.extraSpacingBetweenMembers,
-          rightNum: rightNumber,
-          leftNum: leftNumber,
-          sourceCode,
-          options,
-          right,
-          left,
-        }),
-      ]
+      let messageIds: MessageIds[] = getOrderErrors<MessageIds>({
+        sortedNodesExcludingEslintDisabled,
+        availableMessageIds,
+        nodeIndexMap,
+        sourceCode,
+        options,
+        right,
+        left,
+      })
 
       for (let messageId of messageIds) {
         context.report({

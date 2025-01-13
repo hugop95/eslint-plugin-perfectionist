@@ -36,18 +36,15 @@ import {
   allSelectors,
 } from './sort-modules/types'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
+import { getOrderWithDependenciesErrors } from '../utils/get-order-with-dependencies-errors'
 import { getCustomGroupsCompareOptions } from '../utils/get-custom-groups-compare-options'
 import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
 import { doesCustomGroupMatch } from './sort-modules/does-custom-group-match'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
-import {
-  
-  sortNodesByGroups
-} from '../utils/sort-nodes-by-groups'
 import { hasPartitionComment } from '../utils/has-partition-comment'
 import { createNodeIndexMap } from '../utils/create-node-index-map'
-import { getNewlinesErrors } from '../utils/get-newlines-errors'
+import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { getCommentsBefore } from '../utils/get-comments-before'
 import { getNodeDecorators } from '../utils/get-node-decorators'
 import { createEslintRule } from '../utils/create-eslint-rule'
@@ -401,49 +398,26 @@ let analyzeModule = ({
   let nodeIndexMap = createNodeIndexMap(sortedNodes)
 
   pairwise(nodes, (left, right) => {
-    let leftNumber = getGroupNumber(options.groups, left)
-    let rightNumber = getGroupNumber(options.groups, right)
-
-    let leftIndex = nodeIndexMap.get(left)!
-    let rightIndex = nodeIndexMap.get(right)!
-
-    let indexOfRightExcludingEslintDisabled =
-      sortedNodesExcludingEslintDisabled.indexOf(right)
-
-    let messageIds: MESSAGE_ID[] = []
     let firstUnorderedNodeDependentOnRight = getFirstUnorderedNodeDependentOn(
       right,
       nodes,
     )
-    if (
-      firstUnorderedNodeDependentOnRight ||
-      leftIndex > rightIndex ||
-      leftIndex >= indexOfRightExcludingEslintDisabled
-    ) {
-      if (firstUnorderedNodeDependentOnRight) {
-        messageIds.push('unexpectedModulesDependencyOrder')
-      } else {
-        messageIds.push(
-          leftNumber === rightNumber
-            ? 'unexpectedModulesOrder'
-            : 'unexpectedModulesGroupOrder',
-        )
-      }
-    }
-
-    messageIds = [
-      ...messageIds,
-      ...getNewlinesErrors({
-        missedSpacingError: 'missedSpacingBetweenModulesMembers',
-        extraSpacingError: 'extraSpacingBetweenModulesMembers',
-        rightNum: rightNumber,
-        leftNum: leftNumber,
-        sourceCode,
-        options,
-        right,
-        left,
-      }),
-    ]
+    let messageIds: MESSAGE_ID[] = getOrderWithDependenciesErrors<MESSAGE_ID>({
+      availableMessageIds: {
+        missedSpacingBetweenMembers: 'missedSpacingBetweenModulesMembers',
+        extraSpacingBetweenMembers: 'extraSpacingBetweenModulesMembers',
+        unexpectedDependencyOrder: 'unexpectedModulesDependencyOrder',
+        unexpectedGroupOrder: 'unexpectedModulesGroupOrder',
+        unexpectedOrder: 'unexpectedModulesOrder',
+      },
+      firstUnorderedNodeDependentOnRight,
+      sortedNodesExcludingEslintDisabled,
+      nodeIndexMap,
+      sourceCode,
+      options,
+      right,
+      left,
+    })
 
     for (let messageId of messageIds) {
       context.report({

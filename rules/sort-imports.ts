@@ -28,10 +28,9 @@ import { hasPartitionComment } from '../utils/has-partition-comment'
 import { createNodeIndexMap } from '../utils/create-node-index-map'
 import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { getCommentsBefore } from '../utils/get-comments-before'
-import { getNewlinesErrors } from '../utils/get-newlines-errors'
 import { createEslintRule } from '../utils/create-eslint-rule'
 import { getLinesBetween } from '../utils/get-lines-between'
-import { getGroupNumber } from '../utils/get-group-number'
+import { getOrderErrors } from '../utils/get-order-errors'
 import { getSourceCode } from '../utils/get-source-code'
 import { rangeToDiff } from '../utils/range-to-diff'
 import { getSettings } from '../utils/get-settings'
@@ -529,44 +528,20 @@ export default createEslintRule<Options<string[]>, MESSAGE_ID>({
           let nodeIndexMap = createNodeIndexMap(sortedNodes)
 
           pairwise(nodeList, (left, right) => {
-            let leftNumber = getGroupNumber(options.groups, left)
-            let rightNumber = getGroupNumber(options.groups, right)
-
-            let leftIndex = nodeIndexMap.get(left)!
-            let rightIndex = nodeIndexMap.get(right)!
-
-            let indexOfRightExcludingEslintDisabled =
-              sortedNodesExcludingEslintDisabled.indexOf(right)
-
-            let messageIds: MESSAGE_ID[] = []
-
-            if (
-              leftIndex > rightIndex ||
-              leftIndex >= indexOfRightExcludingEslintDisabled
-            ) {
-              messageIds.push(
-                leftNumber === rightNumber
-                  ? 'unexpectedImportsOrder'
-                  : 'unexpectedImportsGroupOrder',
-              )
-            }
-
-            messageIds = [
-              ...messageIds,
-              ...getNewlinesErrors({
-                options: {
-                  ...options,
-                  customGroups: [],
-                },
-                missedSpacingError: 'missedSpacingBetweenImports',
-                extraSpacingError: 'extraSpacingBetweenImports',
-                rightNum: rightNumber,
-                leftNum: leftNumber,
-                sourceCode,
-                right,
-                left,
-              }),
-            ]
+            let messageIds: MESSAGE_ID[] = getOrderErrors<MESSAGE_ID>({
+              availableMessageIds: {
+                missedSpacingBetweenMembers: 'missedSpacingBetweenImports',
+                extraSpacingBetweenMembers: 'extraSpacingBetweenImports',
+                unexpectedGroupOrder: 'unexpectedImportsGroupOrder',
+                unexpectedOrder: 'unexpectedImportsOrder',
+              },
+              sortedNodesExcludingEslintDisabled,
+              nodeIndexMap,
+              sourceCode,
+              options,
+              right,
+              left,
+            })
 
             for (let messageId of messageIds) {
               context.report({

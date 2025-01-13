@@ -34,19 +34,17 @@ import {
   allSelectors,
 } from './sort-classes/types'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
+import { getOrderWithDependenciesErrors } from '../utils/get-order-with-dependencies-errors'
 import { getCustomGroupsCompareOptions } from '../utils/get-custom-groups-compare-options'
 import { getOverloadSignatureGroups } from './sort-classes/get-overload-signature-groups'
 import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
 import { doesCustomGroupMatch } from './sort-classes/does-custom-group-match'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
-import {
-  
-  sortNodesByGroups
-} from '../utils/sort-nodes-by-groups'
 import { hasPartitionComment } from '../utils/has-partition-comment'
+import { createNodeIndexMap } from '../utils/create-node-index-map'
+import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { getCommentsBefore } from '../utils/get-comments-before'
-import { getNewlinesErrors } from '../utils/get-newlines-errors'
 import { createEslintRule } from '../utils/create-eslint-rule'
 import { getLinesBetween } from '../utils/get-lines-between'
 import { getGroupNumber } from '../utils/get-group-number'
@@ -613,47 +611,28 @@ export default createEslintRule<SortClassesOptions, MESSAGE_ID>({
         sortNodesIgnoringEslintDisabledNodes(true)
       let nodes = formattedNodes.flat()
 
+      let nodeIndexMap = createNodeIndexMap(sortedNodes)
+
       pairwise(nodes, (left, right) => {
-        let leftNumber = getGroupNumber(options.groups, left)
-        let rightNumber = getGroupNumber(options.groups, right)
-
-        let indexOfLeft = sortedNodes.indexOf(left)
-        let indexOfRight = sortedNodes.indexOf(right)
-        let indexOfRightExcludingEslintDisabled =
-          sortedNodesExcludingEslintDisabled.indexOf(right)
-
-        let messageIds: MESSAGE_ID[] = []
         let firstUnorderedNodeDependentOnRight =
           getFirstUnorderedNodeDependentOn(right, nodes)
-        if (
-          firstUnorderedNodeDependentOnRight ||
-          indexOfLeft > indexOfRight ||
-          indexOfLeft >= indexOfRightExcludingEslintDisabled
-        ) {
-          if (firstUnorderedNodeDependentOnRight) {
-            messageIds.push('unexpectedClassesDependencyOrder')
-          } else {
-            messageIds.push(
-              leftNumber === rightNumber
-                ? 'unexpectedClassesOrder'
-                : 'unexpectedClassesGroupOrder',
-            )
-          }
-        }
-
-        messageIds = [
-          ...messageIds,
-          ...getNewlinesErrors({
-            missedSpacingError: 'missedSpacingBetweenClassMembers',
-            extraSpacingError: 'extraSpacingBetweenClassMembers',
-            rightNum: rightNumber,
-            leftNum: leftNumber,
+        let messageIds: MESSAGE_ID[] =
+          getOrderWithDependenciesErrors<MESSAGE_ID>({
+            availableMessageIds: {
+              missedSpacingBetweenMembers: 'missedSpacingBetweenClassMembers',
+              extraSpacingBetweenMembers: 'extraSpacingBetweenClassMembers',
+              unexpectedDependencyOrder: 'unexpectedClassesDependencyOrder',
+              unexpectedGroupOrder: 'unexpectedClassesGroupOrder',
+              unexpectedOrder: 'unexpectedClassesOrder',
+            },
+            firstUnorderedNodeDependentOnRight,
+            sortedNodesExcludingEslintDisabled,
+            nodeIndexMap,
             sourceCode,
             options,
             right,
             left,
-          }),
-        ]
+          })
 
         for (let messageId of messageIds) {
           context.report({

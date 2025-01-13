@@ -36,7 +36,7 @@ import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { getCommentsBefore } from '../utils/get-comments-before'
 import { createEslintRule } from '../utils/create-eslint-rule'
 import { getLinesBetween } from '../utils/get-lines-between'
-import { getGroupNumber } from '../utils/get-group-number'
+import { getOrderErrors } from '../utils/get-order-errors'
 import { getSourceCode } from '../utils/get-source-code'
 import { toSingleLine } from '../utils/to-single-line'
 import { rangeToDiff } from '../utils/range-to-diff'
@@ -321,42 +321,36 @@ export let sortArray = <MessageIds extends string>({
     let nodeIndexMap = createNodeIndexMap(sortedNodes)
 
     pairwise(nodes, (left, right) => {
-      let leftIndex = nodeIndexMap.get(left)!
-      let rightIndex = nodeIndexMap.get(right)!
-
-      let leftNumber = getGroupNumber(options.groups, left)
-      let rightNumber = getGroupNumber(options.groups, right)
-
-      let indexOfRightExcludingEslintDisabled =
-        sortedNodesExcludingEslintDisabled.indexOf(right)
-      if (
-        leftIndex < rightIndex &&
-        leftIndex < indexOfRightExcludingEslintDisabled
-      ) {
-        return
-      }
-
-      context.report({
-        fix: fixer =>
-          makeFixes({
-            sortedNodes: sortedNodesExcludingEslintDisabled,
-            sourceCode,
-            options,
-            fixer,
-            nodes,
-          }),
-        data: {
-          right: toSingleLine(right.name),
-          left: toSingleLine(left.name),
-          rightGroup: right.group,
-          leftGroup: left.group,
-        },
-        messageId:
-          leftNumber === rightNumber
-            ? availableMessageIds.unexpectedOrder
-            : availableMessageIds.unexpectedGroupOrder,
-        node: right.node,
+      let messageIds = getOrderErrors<MessageIds>({
+        sortedNodesExcludingEslintDisabled,
+        availableMessageIds,
+        nodeIndexMap,
+        sourceCode,
+        options,
+        right,
+        left,
       })
+
+      for (let messageId of messageIds) {
+        context.report({
+          fix: fixer =>
+            makeFixes({
+              sortedNodes: sortedNodesExcludingEslintDisabled,
+              sourceCode,
+              options,
+              fixer,
+              nodes,
+            }),
+          data: {
+            right: toSingleLine(right.name),
+            left: toSingleLine(left.name),
+            rightGroup: right.group,
+            leftGroup: left.group,
+          },
+          node: right.node,
+          messageId,
+        })
+      }
     })
   }
 }
