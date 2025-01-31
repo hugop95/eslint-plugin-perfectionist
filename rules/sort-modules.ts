@@ -86,6 +86,7 @@ let defaultOptions: Required<SortModulesOptions[0]> = {
   newlinesBetween: 'ignore',
   specialCharacters: 'keep',
   type: 'alphabetical',
+  fallbackSort: [],
   ignoreCase: true,
   customGroups: [],
   locales: 'en-US',
