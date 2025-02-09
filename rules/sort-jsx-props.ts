@@ -1,6 +1,7 @@
 import { TSESTree } from '@typescript-eslint/types'
 
 import type {
+  DeprecatedCustomGroupsOption,
   NewlinesBetweenOption,
   CommonOptions,
   GroupsOptions,
@@ -41,16 +42,16 @@ import { useGroups } from '../utils/use-groups'
 import { complete } from '../utils/complete'
 import { matches } from '../utils/matches'
 
-type Options<T extends string = string> = Partial<
+type Options = Partial<
   {
     useConfigurationIf: {
       allNamesMatchPattern?: string
       tagMatchesPattern?: string
     }
-    customGroups: Record<T, string[] | string>
+    customGroups: DeprecatedCustomGroupsOption
     newlinesBetween: NewlinesBetweenOption
-    groups: GroupsOptions<Group<T>>
     type: TypeOption | 'unsorted'
+    groups: GroupsOptions<Group>
     partitionByNewLine: boolean
     /**
      * @deprecated for {@link `useConfigurationIf.tagMatchesPattern`}
@@ -65,7 +66,7 @@ type MESSAGE_ID =
   | 'unexpectedJSXPropsGroupOrder'
   | 'unexpectedJSXPropsOrder'
 
-type Group<T extends string> = 'multiline' | 'shorthand' | 'unknown' | T
+type Group = 'multiline' | 'shorthand' | 'unknown' | string
 
 let defaultOptions: Required<Options[0]> = {
   specialCharacters: 'keep',
