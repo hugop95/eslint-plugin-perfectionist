@@ -6,7 +6,6 @@ import type { SortingNode } from '../types/sorting-node'
 
 import {
   customGroupsJsonSchema,
-  buildTypeJsonSchema,
   commonJsonSchemas,
   groupsJsonSchema,
 } from '../utils/common-json-schemas'
@@ -60,7 +59,6 @@ export default createEslintRule<Options, MESSAGE_ID>({
         properties: {
           ...commonJsonSchemas,
           customGroups: customGroupsJsonSchema,
-          type: buildTypeJsonSchema(),
           groups: groupsJsonSchema,
         },
         additionalProperties: false,
