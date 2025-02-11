@@ -18,7 +18,6 @@ import {
   partitionByCommentJsonSchema,
   partitionByNewLineJsonSchema,
   newlinesBetweenJsonSchema,
-  buildTypeJsonSchema,
   commonJsonSchemas,
   groupsJsonSchema,
   regexJsonSchema,
@@ -593,7 +592,6 @@ export default createEslintRule<Options, MESSAGE_ID>({
           partitionByNewLine: partitionByNewLineJsonSchema,
           newlinesBetween: newlinesBetweenJsonSchema,
           internalPattern: regexJsonSchema,
-          type: buildTypeJsonSchema(),
           groups: groupsJsonSchema,
         },
         definitions: {
