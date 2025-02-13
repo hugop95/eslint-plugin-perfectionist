@@ -37,6 +37,7 @@ export let getCustomGroupsCompareOptions = <Options extends BaseOptions>(
 
   return {
     ...options,
+    fallbackSort: customGroup?.fallbackSort ?? options.fallbackSort,
     order: customGroup?.order ?? options.order,
     type: customGroup?.type ?? options.type,
   }
