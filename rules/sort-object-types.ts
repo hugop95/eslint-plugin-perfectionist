@@ -18,7 +18,7 @@ import {
   partitionByNewLineJsonSchema,
   newlinesBetweenJsonSchema,
   customGroupsJsonSchema,
-  commonJsonSchemas,
+  buildCommonJsonSchemas,
   groupsJsonSchema,
   regexJsonSchema,
 } from '../utils/common-json-schemas'
@@ -91,7 +91,11 @@ let defaultOptions: Required<Options[0]> = {
 export let jsonSchema: JSONSchema4 = {
   items: {
     properties: {
-      ...commonJsonSchemas,
+      ...buildCommonJsonSchemas({
+        additionalFallbackSortProperties: {
+          sortBy: sortByJsonSchema,
+        },
+      }),
       customGroups: {
         oneOf: [
           customGroupsJsonSchema,
@@ -362,6 +366,12 @@ export let sortObjectTypeElements = <MessageIds extends string>({
     let compareOptions: CompareOptions<SortObjectTypesSortingNode> &
       Required<Options[0]> = {
       ...options,
+      fallbackSort: {
+        ...options.fallbackSort,
+        nodeValueGetter: buildNodeValueGetter(
+          options.fallbackSort.sortBy ?? options.sortBy,
+        ),
+      },
       nodeValueGetter: buildNodeValueGetter(options.sortBy),
     }
     let sortNodesExcludingEslintDisabled = (

@@ -28,6 +28,7 @@ export type Options = Partial<
     customGroups:
       | CustomGroupsOption<SingleCustomGroup>
       | DeprecatedCustomGroupsOption
+    fallbackSort: { sortBy?: 'value' | 'name' } & FallbackSortOption
     /**
      * @deprecated for {@link `groups`}
      */
@@ -41,7 +42,7 @@ export type Options = Partial<
      */
     ignorePattern: RegexOption
     sortBy: 'value' | 'name'
-  } & CommonOptions
+  } & Omit<CommonOptions, 'fallbackSort'>
 >[]
 
 export type SingleCustomGroup = (
