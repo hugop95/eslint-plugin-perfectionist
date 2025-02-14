@@ -99,7 +99,10 @@ export let jsonSchema: JSONSchema4 = {
       customGroups: {
         oneOf: [
           customGroupsJsonSchema,
-          buildCustomGroupsArrayJsonSchema({ singleCustomGroupJsonSchema }),
+          buildCustomGroupsArrayJsonSchema({
+            additionalFallbackSortProperties: { sortBy: sortByJsonSchema },
+            singleCustomGroupJsonSchema,
+          }),
         ],
       },
       useConfigurationIf: buildUseConfigurationIfJsonSchema({

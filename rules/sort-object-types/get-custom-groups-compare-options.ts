@@ -24,6 +24,12 @@ export let getCustomGroupsCompareOptions = (
 
   return {
     ...options,
+    fallbackSort: {
+      ...options.fallbackSort,
+      nodeValueGetter: buildNodeValueGetter(
+        options.fallbackSort.sortBy ?? options.sortBy,
+      ),
+    },
     nodeValueGetter: buildNodeValueGetter(sortBy),
     order: customGroup?.order ?? options.order,
     type: customGroup?.type ?? options.type,

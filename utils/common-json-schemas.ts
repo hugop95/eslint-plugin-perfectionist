@@ -202,32 +202,42 @@ export let buildUseConfigurationIfJsonSchema = ({
   type: 'object',
 })
 
-let commonCustomGroupJsonSchemas: Record<string, JSONSchema4> = {
+let buildCommonCustomGroupJsonSchemas = ({
+  additionalFallbackSortProperties,
+}: {
+  additionalFallbackSortProperties?: Record<string, JSONSchema4>
+} = {}): Record<string, JSONSchema4> => ({
   newlinesInside: {
     description:
       'Specifies how new lines should be handled between members of the custom group.',
     enum: ['always', 'never'],
     type: 'string',
   },
+  fallbackSort: buildFallbackSortJsonSchema({
+    additionalProperties: additionalFallbackSortProperties,
+  }),
   groupName: {
     description: 'Custom group name.',
     type: 'string',
   },
-  fallbackSort: fallbackSortJsonSchema,
   order: orderJsonSchema,
   type: typeJsonSchema,
-}
+})
 
 export let buildCustomGroupsArrayJsonSchema = ({
+  additionalFallbackSortProperties,
   singleCustomGroupJsonSchema,
 }: {
+  additionalFallbackSortProperties?: Record<string, JSONSchema4>
   singleCustomGroupJsonSchema?: Record<string, JSONSchema4>
 }): JSONSchema4 => ({
   items: {
     oneOf: [
       {
         properties: {
-          ...commonCustomGroupJsonSchemas,
+          ...buildCommonCustomGroupJsonSchemas({
+            additionalFallbackSortProperties,
+          }),
           anyOf: {
             items: {
               properties: {
@@ -246,7 +256,9 @@ export let buildCustomGroupsArrayJsonSchema = ({
       },
       {
         properties: {
-          ...commonCustomGroupJsonSchemas,
+          ...buildCommonCustomGroupJsonSchemas({
+            additionalFallbackSortProperties,
+          }),
           ...singleCustomGroupJsonSchema,
         },
         description: 'Custom group.',

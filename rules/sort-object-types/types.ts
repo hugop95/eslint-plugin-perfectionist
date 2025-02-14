@@ -6,6 +6,7 @@ import type {
   PartitionByCommentOption,
   NewlinesBetweenOption,
   CustomGroupsOption,
+  FallbackSortOption,
   CommonOptions,
   GroupsOptions,
   RegexOption,
@@ -21,13 +22,18 @@ import {
 
 export type Options = Partial<
   {
+    customGroups:
+      | CustomGroupsOption<
+          SingleCustomGroup,
+          {
+            fallbackSort?: { sortBy?: 'value' | 'name' } & FallbackSortOption
+          }
+        >
+      | DeprecatedCustomGroupsOption
     useConfigurationIf: {
       declarationMatchesPattern?: RegexOption
       allNamesMatchPattern?: RegexOption
     }
-    customGroups:
-      | CustomGroupsOption<SingleCustomGroup>
-      | DeprecatedCustomGroupsOption
     fallbackSort: { sortBy?: 'value' | 'name' } & FallbackSortOption
     /**
      * @deprecated for {@link `groups`}
