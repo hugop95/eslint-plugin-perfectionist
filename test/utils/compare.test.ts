@@ -14,6 +14,7 @@ describe('compare', () => {
       locales: 'en-US' as const,
       order: 'asc' as const,
       ignoreCase: false,
+      alphabet: '',
     }
 
     it('sorts by order asc', () => {
@@ -79,6 +80,7 @@ describe('compare', () => {
       type: 'natural' as const,
       order: 'asc' as const,
       ignoreCase: false,
+      alphabet: '',
     }
 
     it('sorts by order asc', () => {
@@ -144,6 +146,7 @@ describe('compare', () => {
       locales: 'en-US' as const,
       order: 'desc' as const,
       ignoreCase: false,
+      alphabet: '',
     }
 
     it('sorts by order asc', () => {
@@ -278,6 +281,7 @@ describe('compare', () => {
       locales: 'en-US' as const,
       order: 'desc' as const,
       ignoreCase: false,
+      alphabet: '',
     }
 
     it('does not sort', () => {
@@ -289,6 +293,38 @@ describe('compare', () => {
     })
   })
 
+  describe('"nodeValueGetter"', () => {
+    let compareOptions = {
+      specialCharacters: 'keep' as const,
+      type: 'alphabetical' as const,
+      locales: 'en-US' as const,
+      order: 'asc' as const,
+      ignoreCase: false,
+      alphabet: '',
+    }
+
+    it('sorts using the "nodeValueGetter"', () => {
+      let nodeAaa = createTestNode({
+        additionalProperties: { value: 'b' },
+        name: 'a',
+      })
+      let nodeBbb = createTestNode({
+        additionalProperties: { value: 'a' },
+        name: 'b',
+      })
+      expect(
+        compare(nodeAaa, nodeBbb, {
+          ...compareOptions,
+          nodeValueGetter: node =>
+            'value' in node ? (node.value as string) : '',
+          fallbackSort: { type: 'unsorted' },
+          type: 'alphabetical',
+          order: 'asc',
+        }),
+      ).toBe(1)
+    })
+  })
+
   describe('fallback sorting', () => {
     let compareOptions = {
       specialCharacters: 'keep' as const,
@@ -296,6 +332,7 @@ describe('compare', () => {
       locales: 'en-US' as const,
       order: 'desc' as const,
       ignoreCase: false,
+      alphabet: '',
     }
 
     it('sorts using the fallback configuration', () => {
@@ -330,11 +367,59 @@ describe('compare', () => {
         }),
       ).toBe(-1)
     })
+
+    it('sorts handles `fallbackSort.nodeValueGetter`', () => {
+      let nodeAaa = createTestNode({
+        additionalProperties: { value: 'b' },
+        name: 'aaa',
+      })
+      let nodeBbb = createTestNode({
+        additionalProperties: { value: 'a' },
+        name: 'bbb',
+      })
+      expect(
+        compare(nodeAaa, nodeBbb, {
+          ...compareOptions,
+          fallbackSort: {
+            nodeValueGetter: node =>
+              'value' in node ? (node.value as string) : '',
+            type: 'alphabetical',
+            order: 'asc',
+          } as const,
+        }),
+      ).toBe(1)
+
+      expect(
+        compare(nodeBbb, nodeAaa, {
+          ...compareOptions,
+          fallbackSort: {
+            type: 'alphabetical',
+            order: 'desc',
+          } as const,
+        }),
+      ).toBe(-1)
+
+      expect(
+        compare(nodeBbb, nodeAaa, {
+          ...compareOptions,
+          fallbackSort: {
+            type: 'alphabetical',
+          } as const,
+        }),
+      ).toBe(-1)
+    })
   })
 
-  let createTestNode = ({ name }: { name: string }): SortingNode =>
+  let createTestNode = ({
+    additionalProperties,
+    name,
+  }: {
+    additionalProperties?: object
+    name: string
+  }): SortingNode =>
     ({
       size: name.length,
       name,
+      ...additionalProperties,
     }) as SortingNode
 })

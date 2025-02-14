@@ -3,63 +3,21 @@ import { compare as createNaturalCompare } from 'natural-orderby'
 import type {
   SpecialCharactersOption,
   FallbackSortOption,
-  OrderOption,
+  CommonOptions,
 } from '../types/common-options'
 import type { SortingNode } from '../types/sorting-node'
 
 import { convertBooleanToSign } from './convert-boolean-to-sign'
 
-export type CompareOptions<T extends SortingNode> =
-  | AlphabeticalCompareOptions<T>
-  | LineLengthCompareOptions<T>
-  | UnsortedCompareOptions<T>
-  | NaturalCompareOptions<T>
-  | CustomCompareOptions<T>
-
-interface BaseCompareOptions<T extends SortingNode> {
-  /**
-   * Custom function to get the value of the node. By default, returns the
-   * node's name.
-   */
-  nodeValueGetter?: ((node: T) => string) | null
-  fallbackSort: FallbackSortOption
-  order: OrderOption
-}
-
-interface AlphabeticalCompareOptions<T extends SortingNode>
-  extends BaseCompareOptions<T> {
-  specialCharacters: SpecialCharactersOption
-  locales: NonNullable<Intl.LocalesArgument>
-  type: 'alphabetical'
-  ignoreCase: boolean
-}
-
-interface NaturalCompareOptions<T extends SortingNode>
-  extends BaseCompareOptions<T> {
-  specialCharacters: SpecialCharactersOption
-  locales: NonNullable<Intl.LocalesArgument>
-  ignoreCase: boolean
-  type: 'natural'
-}
-
-interface CustomCompareOptions<T extends SortingNode>
-  extends BaseCompareOptions<T> {
-  specialCharacters: SpecialCharactersOption
-  ignoreCase: boolean
-  alphabet: string
-  type: 'custom'
-}
-
-interface LineLengthCompareOptions<T extends SortingNode>
-  extends BaseCompareOptions<T> {
+export type CompareOptions<T extends SortingNode> = {
+  fallbackSort: {
+    nodeValueGetter?: NodeValueGetterFunction<T> | null
+  } & FallbackSortOption
+  nodeValueGetter?: NodeValueGetterFunction<T> | null
   maxLineLength?: number
-  type: 'line-length'
-}
+} & Omit<CommonOptions, 'fallbackSort'>
 
-interface UnsortedCompareOptions<T extends SortingNode>
-  extends BaseCompareOptions<T> {
-  type: 'unsorted'
-}
+export type NodeValueGetterFunction<T extends SortingNode> = (node: T) => string
 
 type SortingFunction<T extends SortingNode> = (a: T, b: T) => number
 
@@ -71,8 +29,52 @@ export let compare = <T extends SortingNode>(
   b: T,
   options: CompareOptions<T>,
 ): number => {
-  let sortingFunction: SortingFunction<T>
   let nodeValueGetter = options.nodeValueGetter ?? ((node: T) => node.name)
+  let compareValue = computeCompareValue({
+    nodeValueGetter,
+    options,
+    a,
+    b,
+  })
+
+  if (compareValue) {
+    return compareValue
+  }
+
+  let { fallbackSort, order } = options
+  return computeCompareValue({
+    options: {
+      ...options,
+      order: fallbackSort.order ?? order,
+      type: fallbackSort.type,
+    },
+    nodeValueGetter: fallbackSort.nodeValueGetter ?? nodeValueGetter,
+    a,
+    b,
+  })
+}
+
+let computeCompareValue = <T extends SortingNode>({
+  nodeValueGetter,
+  options,
+  a,
+  b,
+}: {
+  options: Pick<
+    CompareOptions<T>,
+    | 'specialCharacters'
+    | 'maxLineLength'
+    | 'ignoreCase'
+    | 'alphabet'
+    | 'locales'
+    | 'order'
+    | 'type'
+  >
+  nodeValueGetter: NodeValueGetterFunction<T>
+  a: T
+  b: T
+}): number => {
+  let sortingFunction: SortingFunction<T>
 
   switch (options.type) {
     case 'alphabetical':
@@ -91,24 +93,15 @@ export let compare = <T extends SortingNode>(
       break
   }
 
-  let compareValue =
-    convertBooleanToSign(options.order === 'asc') * sortingFunction(a, b)
-
-  if (compareValue) {
-    return compareValue
-  }
-
-  let { fallbackSort, order } = options
-  return compare(a, b, {
-    ...options,
-    order: fallbackSort.order ?? order,
-    type: fallbackSort.type,
-    fallbackSort,
-  } as CompareOptions<T>)
+  return convertBooleanToSign(options.order === 'asc') * sortingFunction(a, b)
 }
 
 let getAlphabeticalSortingFunction = <T extends SortingNode>(
-  { specialCharacters, ignoreCase, locales }: AlphabeticalCompareOptions<T>,
+  {
+    specialCharacters,
+    ignoreCase,
+    locales,
+  }: Pick<CompareOptions<T>, 'specialCharacters' | 'ignoreCase' | 'locales'>,
   nodeValueGetter: (node: T) => string,
 ): SortingFunction<T> => {
   let formatString = getFormatStringFunction(ignoreCase, specialCharacters)
@@ -120,7 +113,11 @@ let getAlphabeticalSortingFunction = <T extends SortingNode>(
 }
 
 let getNaturalSortingFunction = <T extends SortingNode>(
-  { specialCharacters, ignoreCase, locales }: NaturalCompareOptions<T>,
+  {
+    specialCharacters,
+    ignoreCase,
+    locales,
+  }: Pick<CompareOptions<T>, 'specialCharacters' | 'ignoreCase' | 'locales'>,
   nodeValueGetter: (node: T) => string,
 ): SortingFunction<T> => {
   let naturalCompare = createNaturalCompare({
@@ -135,7 +132,11 @@ let getNaturalSortingFunction = <T extends SortingNode>(
 }
 
 let getCustomSortingFunction = <T extends SortingNode>(
-  { specialCharacters, ignoreCase, alphabet }: CustomCompareOptions<T>,
+  {
+    specialCharacters,
+    ignoreCase,
+    alphabet,
+  }: Pick<CompareOptions<T>, 'specialCharacters' | 'ignoreCase' | 'alphabet'>,
   nodeValueGetter: (node: T) => string,
 ): SortingFunction<T> => {
   let formatString = getFormatStringFunction(ignoreCase, specialCharacters)
@@ -172,7 +173,7 @@ let getCustomSortingFunction = <T extends SortingNode>(
 
 let getLineLengthSortingFunction =
   <T extends SortingNode>(
-    { maxLineLength }: LineLengthCompareOptions<T>,
+    { maxLineLength }: Pick<CompareOptions<T>, 'maxLineLength'>,
     nodeValueGetter: (node: T) => string,
   ): SortingFunction<T> =>
   (aNode: T, bNode: T) => {

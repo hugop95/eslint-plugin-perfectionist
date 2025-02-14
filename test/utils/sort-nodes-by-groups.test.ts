@@ -12,6 +12,7 @@ describe('sort-nodes-by-groups', () => {
     ignoreCase: false,
     locales: 'en-US',
     order: 'asc',
+    alphabet: '',
   } as const
 
   it('sorts nodes by groups', () => {
