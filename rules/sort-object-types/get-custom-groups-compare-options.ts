@@ -1,32 +1,53 @@
+import type { NodeValueGetterFunction } from '../../utils/compare'
 import type { SortObjectTypesSortingNode, Options } from './types'
-import type { CompareOptions } from '../../utils/compare'
 
+import { getCustomGroupsCompareOptions as baseGetCustomGroupsCompareOptions } from '../../utils/get-custom-groups-compare-options'
 import { buildNodeValueGetter } from './build-node-value-getter'
 
-export let getCustomGroupsCompareOptions = (
-  options: Required<Options[0]>,
-  groupNumber: number,
-): CompareOptions<SortObjectTypesSortingNode> & Required<Options[0]> => {
-  if (!Array.isArray(options.customGroups)) {
-    return options
-  }
-  let group = options.groups[groupNumber]
-  let customGroup =
-    typeof group === 'string'
-      ? options.customGroups.find(
-          currentGroup => group === currentGroup.groupName,
-        )
-      : null
+type InputOptions = Pick<
+  Required<Options[0]>,
+  'fallbackSort' | 'customGroups' | 'sortBy' | 'groups' | 'order' | 'type'
+>
 
-  let sortBy =
-    customGroup && 'sortBy' in customGroup ? customGroup.sortBy : options.sortBy
-  sortBy ??= options.sortBy
+export let getCustomGroupsCompareOptions = (
+  options: InputOptions,
+  groupNumber: number,
+): {
+  options: Pick<
+    Required<Options[0]>,
+    'fallbackSort' | 'sortBy' | 'order' | 'type'
+  >
+  fallbackSortNodeValueGetter?: NodeValueGetterFunction<SortObjectTypesSortingNode> | null
+  nodeValueGetter?: NodeValueGetterFunction<SortObjectTypesSortingNode> | null
+} => {
+  let baseCompareOptions = baseGetCustomGroupsCompareOptions(
+    options,
+    groupNumber,
+  )
+
+  let { fallbackSort, customGroups, sortBy, groups } = options
+  let fallbackSortBy = fallbackSort.sortBy
+  if (Array.isArray(customGroups)) {
+    let group = groups[groupNumber]
+    let customGroup =
+      typeof group === 'string'
+        ? customGroups.find(currentGroup => group === currentGroup.groupName)
+        : null
+
+    if (customGroup) {
+      sortBy = 'sortBy' in customGroup ? (customGroup.sortBy ?? sortBy) : sortBy
+      fallbackSortBy = customGroup.fallbackSort?.sortBy ?? fallbackSortBy
+    }
+  }
 
   return {
-    ...options,
+    fallbackSortNodeValueGetter: fallbackSortBy
+      ? buildNodeValueGetter(fallbackSortBy)
+      : null,
+    options: {
+      ...baseCompareOptions,
+      sortBy,
+    },
     nodeValueGetter: buildNodeValueGetter(sortBy),
-    order: customGroup?.order ?? options.order,
-    type: customGroup?.type ?? options.type,
-    sortBy,
   }
 }

@@ -9,7 +9,6 @@ import type {
   Selector,
   Options,
 } from './sort-object-types/types'
-import type { BaseSortNodesByGroupsOptions } from '../utils/sort-nodes-by-groups'
 
 import {
   buildUseConfigurationIfJsonSchema,
@@ -18,7 +17,7 @@ import {
   partitionByNewLineJsonSchema,
   newlinesBetweenJsonSchema,
   customGroupsJsonSchema,
-  commonJsonSchemas,
+  buildCommonJsonSchemas,
   groupsJsonSchema,
   regexJsonSchema,
 } from '../utils/common-json-schemas'
@@ -38,7 +37,6 @@ import { validateGeneratedGroupsConfiguration } from '../utils/validate-generate
 import { getCustomGroupsCompareOptions } from './sort-object-types/get-custom-groups-compare-options'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
 import { doesCustomGroupMatch } from './sort-object-types/does-custom-group-match'
-import { buildNodeValueGetter } from './sort-object-types/build-node-value-getter'
 import { getMatchingContextOptions } from '../utils/get-matching-context-options'
 import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
@@ -70,7 +68,7 @@ type MESSAGE_ID =
   | 'unexpectedObjectTypesOrder'
 
 let defaultOptions: Required<Options[0]> = {
-  fallbackSort: { type: 'unsorted' },
+  fallbackSort: { type: 'unsorted', sortBy: 'name' },
   partitionByComment: false,
   partitionByNewLine: false,
   newlinesBetween: 'ignore',
@@ -91,11 +89,18 @@ let defaultOptions: Required<Options[0]> = {
 export let jsonSchema: JSONSchema4 = {
   items: {
     properties: {
-      ...commonJsonSchemas,
+      ...buildCommonJsonSchemas({
+        additionalFallbackSortProperties: {
+          sortBy: sortByJsonSchema,
+        },
+      }),
       customGroups: {
         oneOf: [
           customGroupsJsonSchema,
-          buildCustomGroupsArrayJsonSchema({ singleCustomGroupJsonSchema }),
+          buildCustomGroupsArrayJsonSchema({
+            additionalFallbackSortProperties: { sortBy: sortByJsonSchema },
+            singleCustomGroupJsonSchema,
+          }),
         ],
       },
       useConfigurationIf: buildUseConfigurationIfJsonSchema({
@@ -359,25 +364,35 @@ export let sortObjectTypeElements = <MessageIds extends string>({
       ),
     )
 
-    let compareOptions: CompareOptions<SortObjectTypesSortingNode> &
-      Required<Options[0]> = {
-      ...options,
-      nodeValueGetter: buildNodeValueGetter(options.sortBy),
-    }
     let sortNodesExcludingEslintDisabled = (
       ignoreEslintDisabledNodes: boolean,
     ): SortObjectTypesSortingNode[] =>
       filteredGroupKindNodes.flatMap(groupedNodes =>
-        sortNodesByGroups(groupedNodes, compareOptions, {
-          isNodeIgnoredForGroup: (node, groupCompareOptions) => {
-            if (groupCompareOptions.sortBy === 'value') {
+        sortNodesByGroups({
+          getOptionsByGroupNumber: groupNumber => {
+            let {
+              fallbackSortNodeValueGetter,
+              options: overriddenOptions,
+              nodeValueGetter,
+            } = getCustomGroupsCompareOptions(options, groupNumber)
+            return {
+              options: {
+                ...options,
+                ...overriddenOptions,
+              },
+              fallbackSortNodeValueGetter,
+              nodeValueGetter,
+            }
+          },
+          isNodeIgnoredForGroup: (node, groupOptions) => {
+            if (groupOptions.sortBy === 'value') {
               return !node.value
             }
             return false
           },
-          getGroupCompareOptions: groupNumber =>
-            getCustomGroupsCompareOptions(compareOptions, groupNumber),
           ignoreEslintDisabledNodes,
+          groups: options.groups,
+          nodes: groupedNodes,
         }),
       )
 
