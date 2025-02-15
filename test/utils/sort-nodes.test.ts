@@ -12,12 +12,19 @@ describe('sort-nodes', () => {
     ignoreCase: false,
     locales: 'en-US',
     order: 'asc',
+    alphabet: '',
   } as const
 
   it('sorts nodes', () => {
     let a = createTestNode({ name: 'a' })
     let b = createTestNode({ name: 'b' })
-    expect(sortNodes([b, a], compareOptions)).toStrictEqual([a, b])
+    expect(
+      sortNodes({
+        ignoreEslintDisabledNodes: false,
+        options: compareOptions,
+        nodes: [b, a],
+      }),
+    ).toStrictEqual([a, b])
   })
 
   describe('ignoreEslintDisabledNodes', () => {
@@ -27,16 +34,20 @@ describe('sort-nodes', () => {
 
     it('should ignore eslint disabled nodes if "ignoreEslintDisabledNodes" is true', () => {
       expect(
-        sortNodes([nodeB, nodeC, nodeA], compareOptions, {
+        sortNodes({
           ignoreEslintDisabledNodes: true,
+          nodes: [nodeB, nodeC, nodeA],
+          options: compareOptions,
         }),
       ).toStrictEqual([nodeA, nodeC, nodeB])
     })
 
     it('should not ignore eslint disabled nodes if "ignoreEslintDisabledNodes" is false', () => {
       expect(
-        sortNodes([nodeB, nodeC, nodeA], compareOptions, {
+        sortNodes({
           ignoreEslintDisabledNodes: false,
+          nodes: [nodeB, nodeC, nodeA],
+          options: compareOptions,
         }),
       ).toStrictEqual([nodeA, nodeB, nodeC])
     })
@@ -48,9 +59,11 @@ describe('sort-nodes', () => {
       let nodeB = createTestNode({ name: 'b' })
       let nodeC = createTestNode({ name: 'c' })
       expect(
-        sortNodes([nodeB, nodeC, nodeA], compareOptions, {
+        sortNodes({
           isNodeIgnored: node => node === nodeC,
           ignoreEslintDisabledNodes: false,
+          nodes: [nodeB, nodeC, nodeA],
+          options: compareOptions,
         }),
       ).toStrictEqual([nodeA, nodeC, nodeB])
     })

@@ -9,7 +9,7 @@ import type {
   Selector,
   Options,
 } from './sort-object-types/types'
-import type { CompareOptions } from '../utils/compare'
+import type { BaseSortNodesByGroupsOptions } from '../utils/sort-nodes-by-groups'
 
 import {
   buildUseConfigurationIfJsonSchema,
