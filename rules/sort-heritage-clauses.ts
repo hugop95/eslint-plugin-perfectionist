@@ -6,17 +6,23 @@ import type { SortingNode } from '../types/sorting-node'
 
 import {
   buildCustomGroupsArrayJsonSchema,
+  newlinesBetweenJsonSchema,
   customGroupsJsonSchema,
   commonJsonSchemas,
   groupsJsonSchema,
 } from '../utils/common-json-schemas'
+import {
+  MISSED_SPACING_ERROR,
+  EXTRA_SPACING_ERROR,
+  GROUP_ORDER_ERROR,
+  ORDER_ERROR,
+} from '../utils/report-errors'
 import { buildGetCustomGroupOverriddenOptionsFunction } from '../utils/get-custom-groups-compare-options'
 import { validateGeneratedGroupsConfiguration } from '../utils/validate-generated-groups-configuration'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
 import { singleCustomGroupJsonSchema } from './sort-heritage-clauses/types'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
-import { GROUP_ORDER_ERROR, ORDER_ERROR } from '../utils/report-errors'
 import { doesCustomGroupMatch } from '../utils/does-custom-group-match'
 import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { createEslintRule } from '../utils/create-eslint-rule'
@@ -29,11 +35,14 @@ import { complete } from '../utils/complete'
 
 type MESSAGE_ID =
   | 'unexpectedHeritageClausesGroupOrder'
+  | 'missedSpacingBetweenHeritageClauses'
+  | 'extraSpacingBetweenHeritageClauses'
   | 'unexpectedHeritageClausesOrder'
 
 let defaultOptions: Required<Options[0]> = {
   fallbackSort: { type: 'unsorted' },
   specialCharacters: 'keep',
+  newlinesBetween: 'ignore',
   type: 'alphabetical',
   ignoreCase: true,
   customGroups: [],
@@ -57,6 +66,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
               }),
             ],
           },
+          newlinesBetween: newlinesBetweenJsonSchema,
           groups: groupsJsonSchema,
         },
         additionalProperties: false,
@@ -65,14 +75,16 @@ export default createEslintRule<Options, MESSAGE_ID>({
       uniqueItems: true,
       type: 'array',
     },
+    messages: {
+      missedSpacingBetweenHeritageClauses: MISSED_SPACING_ERROR,
+      extraSpacingBetweenHeritageClauses: EXTRA_SPACING_ERROR,
+      unexpectedHeritageClausesGroupOrder: GROUP_ORDER_ERROR,
+      unexpectedHeritageClausesOrder: ORDER_ERROR,
+    },
     docs: {
       url: 'https://perfectionist.dev/rules/sort-heritage-clauses',
       description: 'Enforce sorted heritage clauses.',
       recommended: true,
-    },
-    messages: {
-      unexpectedHeritageClausesGroupOrder: GROUP_ORDER_ERROR,
-      unexpectedHeritageClausesOrder: ORDER_ERROR,
     },
     type: 'suggestion',
     fixable: 'code',
@@ -156,6 +168,8 @@ let sortHeritageClauses = (
 
   reportAllErrors<MESSAGE_ID>({
     availableMessageIds: {
+      missedSpacingBetweenMembers: 'missedSpacingBetweenHeritageClauses',
+      extraSpacingBetweenMembers: 'extraSpacingBetweenHeritageClauses',
       unexpectedGroupOrder: 'unexpectedHeritageClausesGroupOrder',
       unexpectedOrder: 'unexpectedHeritageClausesOrder',
     },
