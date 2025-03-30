@@ -5,6 +5,20 @@ import type {
   GroupsOptions,
 } from '../../types/common-options'
 
+export type Selector =
+  | IntersectionSelector
+  | ConditionalSelector
+  | FunctionSelector
+  | OperatorSelector
+  | KeywordSelector
+  | LiteralSelector
+  | NullishSelector
+  | ImportSelector
+  | ObjectSelector
+  | NamedSelector
+  | TupleSelector
+  | UnionSelector
+
 export type Options = Partial<
   {
     partitionByComment: PartitionByCommentOption
@@ -14,17 +28,17 @@ export type Options = Partial<
   } & CommonOptions
 >[]
 
-type Group =
-  | 'intersection'
-  | 'conditional'
-  | 'function'
-  | 'operator'
-  | 'keyword'
-  | 'literal'
-  | 'nullish'
-  | 'unknown'
-  | 'import'
-  | 'object'
-  | 'named'
-  | 'tuple'
-  | 'union'
+type Group = 'unknown' | Selector | string
+
+type IntersectionSelector = 'intersection'
+type ConditionalSelector = 'conditional'
+type FunctionSelector = 'function'
+type OperatorSelector = 'operator'
+type KeywordSelector = 'keyword'
+type LiteralSelector = 'literal'
+type NullishSelector = 'nullish'
+type ImportSelector = 'import'
+type ObjectSelector = 'object'
+type NamedSelector = 'named'
+type TupleSelector = 'tuple'
+type UnionSelector = 'union'
