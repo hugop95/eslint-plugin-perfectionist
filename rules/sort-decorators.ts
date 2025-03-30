@@ -9,6 +9,7 @@ import type {
 import {
   buildCustomGroupsArrayJsonSchema,
   partitionByCommentJsonSchema,
+  partitionByNewLineJsonSchema,
   newlinesBetweenJsonSchema,
   customGroupsJsonSchema,
   commonJsonSchemas,
@@ -20,6 +21,7 @@ import {
   GROUP_ORDER_ERROR,
   ORDER_ERROR,
 } from '../utils/report-errors'
+import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
 import { buildGetCustomGroupOverriddenOptionsFunction } from '../utils/get-custom-groups-compare-options'
 import { validateGeneratedGroupsConfiguration } from '../utils/validate-generated-groups-configuration'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
@@ -49,6 +51,7 @@ let defaultOptions: Required<Options[0]> = {
   fallbackSort: { type: 'unsorted' },
   specialCharacters: 'keep',
   partitionByComment: false,
+  partitionByNewLine: false,
   newlinesBetween: 'ignore',
   sortOnProperties: true,
   sortOnParameters: true,
@@ -104,6 +107,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
             type: 'boolean',
           },
           partitionByComment: partitionByCommentJsonSchema,
+          partitionByNewline: partitionByNewLineJsonSchema,
           newlinesBetween: newlinesBetweenJsonSchema,
           groups: groupsJsonSchema,
         },
@@ -137,6 +141,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
       selectors: [],
       options,
     })
+    validateNewlinesAndPartitionConfiguration(options)
 
     return {
       Decorator: decorator => {
