@@ -5,15 +5,19 @@ import type { Options } from './sort-heritage-clauses/types'
 import type { SortingNode } from '../types/sorting-node'
 
 import {
-  deprecatedCustomGroupsJsonSchema,
+  buildCustomGroupsArrayJsonSchema,
+  customGroupsJsonSchema,
   commonJsonSchemas,
   groupsJsonSchema,
 } from '../utils/common-json-schemas'
+import { buildGetCustomGroupOverriddenOptionsFunction } from '../utils/get-custom-groups-compare-options'
 import { validateGeneratedGroupsConfiguration } from '../utils/validate-generated-groups-configuration'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
+import { singleCustomGroupJsonSchema } from './sort-heritage-clauses/types'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
 import { GROUP_ORDER_ERROR, ORDER_ERROR } from '../utils/report-errors'
+import { doesCustomGroupMatch } from '../utils/does-custom-group-match'
 import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { createEslintRule } from '../utils/create-eslint-rule'
 import { reportAllErrors } from '../utils/report-all-errors'
@@ -32,7 +36,7 @@ let defaultOptions: Required<Options[0]> = {
   specialCharacters: 'keep',
   type: 'alphabetical',
   ignoreCase: true,
-  customGroups: {},
+  customGroups: [],
   locales: 'en-US',
   alphabet: '',
   order: 'asc',
@@ -45,7 +49,14 @@ export default createEslintRule<Options, MESSAGE_ID>({
       items: {
         properties: {
           ...commonJsonSchemas,
-          customGroups: deprecatedCustomGroupsJsonSchema,
+          customGroups: {
+            oneOf: [
+              customGroupsJsonSchema,
+              buildCustomGroupsArrayJsonSchema({
+                singleCustomGroupJsonSchema,
+              }),
+            ],
+          },
           groups: groupsJsonSchema,
         },
         additionalProperties: false,
@@ -72,8 +83,8 @@ export default createEslintRule<Options, MESSAGE_ID>({
     let options = complete(context.options.at(0), settings, defaultOptions)
     validateCustomSortConfiguration(options)
     validateGeneratedGroupsConfiguration({
-      selectors: [],
       modifiers: [],
+      selectors: [],
       options,
     })
 
@@ -105,10 +116,17 @@ let sortHeritageClauses = (
     sourceCode,
   })
 
-  let nodes: SortingNode[] = heritageClauses.map(heritageClause => {
+  let nodes: SortingNode[] = heritageClauses!.map(heritageClause => {
     let name = getHeritageClauseExpressionName(heritageClause.expression)
 
     let group = computeGroup({
+      customGroupMatcher: customGroup =>
+        doesCustomGroupMatch({
+          elementName: name,
+          selectors: [],
+          modifiers: [],
+          customGroup,
+        }),
       predefinedGroups: [],
       options,
       name,
@@ -129,7 +147,8 @@ let sortHeritageClauses = (
     ignoreEslintDisabledNodes: boolean,
   ): SortingNode[] =>
     sortNodesByGroups({
-      getOptionsByGroupNumber: () => ({ options }),
+      getOptionsByGroupNumber:
+        buildGetCustomGroupOverriddenOptionsFunction(options),
       ignoreEslintDisabledNodes,
       groups: options.groups,
       nodes,
