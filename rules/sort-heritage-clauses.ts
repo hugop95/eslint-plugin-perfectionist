@@ -7,6 +7,7 @@ import type { SortingNode } from '../types/sorting-node'
 import {
   buildCustomGroupsArrayJsonSchema,
   partitionByNewLineJsonSchema,
+  partitionByCommentJsonSchema,
   newlinesBetweenJsonSchema,
   customGroupsJsonSchema,
   commonJsonSchemas,
@@ -47,6 +48,7 @@ let defaultOptions: Required<Options[0]> = {
   specialCharacters: 'keep',
   newlinesBetween: 'ignore',
   partitionByNewLine: false,
+  partitionByComment: false,
   type: 'alphabetical',
   ignoreCase: true,
   customGroups: [],
@@ -71,6 +73,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
             ],
           },
           partitionByNewline: partitionByNewLineJsonSchema,
+          partitionByComment: partitionByCommentJsonSchema,
           newlinesBetween: newlinesBetweenJsonSchema,
           groups: groupsJsonSchema,
         },
