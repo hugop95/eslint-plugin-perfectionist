@@ -207,7 +207,7 @@ You can also enforce the newline behavior between two specific groups through th
 
 See the [`groups`](#newlines-between-groups) option.
 
-This option is only applicable when `partitionByNewLine` is `false`.
+This option is only applicable when [`partitionByNewLine`](#partitionbynewline) is `false`.
 
 ### [DEPRECATED] groupKind
 
@@ -264,7 +264,7 @@ You may place `newlinesBetween` objects between your groups to enforce the newli
 
 See the [`newlinesBetween`](#newlinesbetween) option.
 
-This feature is only applicable when `partitionByNewLine` is false.
+This feature is only applicable when [`partitionByNewLine`](#partitionbynewline) is `false`.
 
 ```ts
 {
@@ -282,7 +282,7 @@ This feature is only applicable when `partitionByNewLine` is false.
 <sub>
   type: `Array<CustomGroupDefinition | CustomGroupAnyOfDefinition>`
 </sub>
-<sub>default: `{}`</sub>
+<sub>default: `[]`</sub>
 
 You can define your own groups and use regexp patterns to match specific exports.
 
@@ -322,12 +322,12 @@ An export will match a `CustomGroupAnyOfDefinition` group if it matches all the 
 
 #### Attributes
 
-- `groupName`: The group's name, which needs to be put in the `groups` option.
+- `groupName`: The group's name, which needs to be put in the [`groups`](#groups) option.
 - `selector`: Filter on the `selector` of the element.
 - `elementNamePattern`: If entered, will check that the name of the element matches the pattern entered.
-- `type`: Overrides the sort type for that custom group. `unsorted` will not sort the group.
-- `order`: Overrides the sort order for that custom group
-- `fallbackSort`: Overrides the fallbackSort option for that custom group
+- `type`: Overrides the [`type`](#type) option for that custom group. `unsorted` will not sort the group
+- `order`: Overrides the [`order`](#order) option for that custom group.
+- `fallbackSort`: Overrides the [`fallbackSort`](#fallbacksort) option for that custom group.
 - `newlinesInside`: Enforces a specific newline behavior between elements of the group.
 
 #### Match importance

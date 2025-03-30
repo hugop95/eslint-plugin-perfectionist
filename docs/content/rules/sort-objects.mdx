@@ -36,7 +36,7 @@ If you use the [`sort-keys`](https://eslint.org/docs/latest/rules/sort-keys) rul
       date: new Date('2023-09-15'),
       description: 'Annual conference discussing the latest in technology.',
       location: {
-        address: '123 Tech Street'
+        address: '123 Tech Street',
         city: 'San Francisco',
         country: 'USA',
         postalCode: '94103',
@@ -89,7 +89,7 @@ If you use the [`sort-keys`](https://eslint.org/docs/latest/rules/sort-keys) rul
         }
       ],
       location: {
-        address: '123 Tech Street'
+        address: '123 Tech Street',
         city: 'San Francisco',
         venue: 'Tech Center',
         postalCode: '94103',
@@ -135,7 +135,7 @@ If you use the [`sort-keys`](https://eslint.org/docs/latest/rules/sort-keys) rul
       ],
       location: {
         state: 'CA',
-        address: '123 Tech Street'
+        address: '123 Tech Street',
         city: 'San Francisco',
         postalCode: '94103',
         country: 'USA',
@@ -287,7 +287,7 @@ You can also enforce the newline behavior between two specific groups through th
 
 See the [`groups`](#newlines-between-groups) option.
 
-This option is only applicable when `partitionByNewLine` is `false`.
+This option is only applicable when [`partitionByNewLine`](#partitionbynewline) is `false`.
 
 ### styledComponents
 
@@ -497,7 +497,7 @@ You may place `newlinesBetween` objects between your groups to enforce the newli
 
 See the [`newlinesBetween`](#newlinesbetween) option.
 
-This feature is only applicable when `partitionByNewLine` is false.
+This feature is only applicable when [`partitionByNewLine`](#partitionbynewline) is `false`.
 
 ```ts
 {
@@ -587,14 +587,14 @@ An object will match a `CustomGroupAnyOfDefinition` group if it matches all the 
 
 #### Attributes
 
-- `groupName`: The group's name, which needs to be put in the `groups` option.
+- `groupName`: The group's name, which needs to be put in the [`groups`](#groups) option.
 - `selector`: Filter on the `selector` of the element.
 - `modifiers`: Filter on the `modifiers` of the element. (All the modifiers of the element must be present in that list)
 - `elementNamePattern`: If entered, will check that the name of the element matches the pattern entered.
 - `elementValuePattern`: Only for non-function properties. If entered, will check that the value of the property matches the pattern entered.
-- `type`: Overrides the sort type for that custom group. `unsorted` will not sort the group.
-- `order`: Overrides the sort order for that custom group
-- `fallbackSort`: Overrides the fallbackSort option for that custom group
+- `type`: Overrides the [`type`](#type) option for that custom group. `unsorted` will not sort the group
+- `order`: Overrides the [`order`](#order) option for that custom group.
+- `fallbackSort`: Overrides the [`fallbackSort`](#fallbacksort) option for that custom group.
 - `newlinesInside`: Enforces a specific newline behavior between elements of the group.
 
 #### Match importance
