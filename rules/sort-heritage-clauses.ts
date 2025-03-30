@@ -6,6 +6,7 @@ import type { SortingNode } from '../types/sorting-node'
 
 import {
   buildCustomGroupsArrayJsonSchema,
+  partitionByNewLineJsonSchema,
   newlinesBetweenJsonSchema,
   customGroupsJsonSchema,
   commonJsonSchemas,
@@ -17,6 +18,7 @@ import {
   GROUP_ORDER_ERROR,
   ORDER_ERROR,
 } from '../utils/report-errors'
+import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
 import { buildGetCustomGroupOverriddenOptionsFunction } from '../utils/get-custom-groups-compare-options'
 import { validateGeneratedGroupsConfiguration } from '../utils/validate-generated-groups-configuration'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
@@ -27,6 +29,7 @@ import { doesCustomGroupMatch } from '../utils/does-custom-group-match'
 import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { createEslintRule } from '../utils/create-eslint-rule'
 import { reportAllErrors } from '../utils/report-all-errors'
+import { shouldPartition } from '../utils/should-partition'
 import { computeGroup } from '../utils/compute-group'
 import { rangeToDiff } from '../utils/range-to-diff'
 import { getSettings } from '../utils/get-settings'
@@ -43,6 +46,7 @@ let defaultOptions: Required<Options[0]> = {
   fallbackSort: { type: 'unsorted' },
   specialCharacters: 'keep',
   newlinesBetween: 'ignore',
+  partitionByNewLine: false,
   type: 'alphabetical',
   ignoreCase: true,
   customGroups: [],
@@ -66,6 +70,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
               }),
             ],
           },
+          partitionByNewline: partitionByNewLineJsonSchema,
           newlinesBetween: newlinesBetweenJsonSchema,
           groups: groupsJsonSchema,
         },
@@ -99,6 +104,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
       selectors: [],
       options,
     })
+    validateNewlinesAndPartitionConfiguration(options)
 
     return {
       TSInterfaceDeclaration: declaration =>
@@ -128,7 +134,8 @@ let sortHeritageClauses = (
     sourceCode,
   })
 
-  let nodes: SortingNode[] = heritageClauses!.map(heritageClause => {
+  let formattedMembers: SortingNode[][] = [[]]
+  for (let heritageClause of heritageClauses) {
     let name = getHeritageClauseExpressionName(heritageClause.expression)
 
     let group = computeGroup({
@@ -143,7 +150,8 @@ let sortHeritageClauses = (
       options,
       name,
     })
-    return {
+
+    let sortingNode: SortingNode = {
       isEslintDisabled: isNodeEslintDisabled(
         heritageClause,
         eslintDisabledLines,
@@ -154,32 +162,48 @@ let sortHeritageClauses = (
       group,
       name,
     }
-  })
 
-  let sortNodesExcludingEslintDisabled = (
-    ignoreEslintDisabledNodes: boolean,
-  ): SortingNode[] =>
-    sortNodesByGroups({
-      getOptionsByGroupIndex:
-        buildGetCustomGroupOverriddenOptionsFunction(options),
-      ignoreEslintDisabledNodes,
-      groups: options.groups,
+    let lastSortingNode = formattedMembers.at(-1)?.at(-1)
+    if (
+      shouldPartition({
+        lastSortingNode,
+        sortingNode,
+        sourceCode,
+        options,
+      })
+    ) {
+      formattedMembers.push([])
+    }
+
+    formattedMembers.at(-1)!.push(sortingNode)
+  }
+
+  for (let nodes of formattedMembers) {
+    let sortNodesExcludingEslintDisabled = (
+      ignoreEslintDisabledNodes: boolean,
+    ): SortingNode[] =>
+      sortNodesByGroups({
+        getOptionsByGroupIndex:
+          buildGetCustomGroupOverriddenOptionsFunction(options),
+        ignoreEslintDisabledNodes,
+        groups: options.groups,
+        nodes,
+      })
+
+    reportAllErrors<MESSAGE_ID>({
+      availableMessageIds: {
+        missedSpacingBetweenMembers: 'missedSpacingBetweenHeritageClauses',
+        extraSpacingBetweenMembers: 'extraSpacingBetweenHeritageClauses',
+        unexpectedGroupOrder: 'unexpectedHeritageClausesGroupOrder',
+        unexpectedOrder: 'unexpectedHeritageClausesOrder',
+      },
+      sortNodesExcludingEslintDisabled,
+      sourceCode,
+      options,
+      context,
       nodes,
     })
-
-  reportAllErrors<MESSAGE_ID>({
-    availableMessageIds: {
-      missedSpacingBetweenMembers: 'missedSpacingBetweenHeritageClauses',
-      extraSpacingBetweenMembers: 'extraSpacingBetweenHeritageClauses',
-      unexpectedGroupOrder: 'unexpectedHeritageClausesGroupOrder',
-      unexpectedOrder: 'unexpectedHeritageClausesOrder',
-    },
-    sortNodesExcludingEslintDisabled,
-    sourceCode,
-    options,
-    context,
-    nodes,
-  })
+  }
 }
 
 let getHeritageClauseExpressionName = (
