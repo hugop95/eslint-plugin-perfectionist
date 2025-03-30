@@ -1,4 +1,4 @@
-import type { Options as SortUnionTypesOptions } from './sort-union-types'
+import type { Options as SortUnionTypesOptions } from './sort-union-types/types'
 
 import {
   MISSED_SPACING_ERROR,
@@ -44,7 +44,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
       description: 'Enforce sorted intersection types.',
       recommended: true,
     },
-    schema: [jsonSchema],
+    schema: jsonSchema,
     type: 'suggestion',
     fixable: 'code',
   },
