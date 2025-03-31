@@ -11,7 +11,9 @@ import { createModuleResolutionCache } from 'typescript'
 import { RuleTester as EslintRuleTester } from 'eslint'
 import dedent from 'dedent'
 
-import type { MESSAGE_ID, Options } from '../../rules/sort-imports'
+import type { GroupsOptions } from '../../types/common-options'
+import type { Options } from '../../rules/sort-imports/types'
+import type { MESSAGE_ID } from '../../rules/sort-imports'
 
 import * as readClosestTsConfigUtilities from '../../rules/sort-imports/read-closest-ts-config-by-path'
 import * as getTypescriptImportUtilities from '../../rules/sort-imports/get-typescript-import'
@@ -6767,7 +6769,7 @@ describe(ruleName, () => {
 
     describe(`${ruleName}: checks compatibility between 'sortSideEffects' and 'groups'`, () => {
       let createRule = (
-        groups: Options[0]['groups'],
+        groups: GroupsOptions<string>,
         sortSideEffects: boolean = false,
       ): RuleListener =>
         rule.create({
