@@ -9,6 +9,7 @@ import type {
   RegexOption,
   TypeOption,
 } from '../../types/common-options'
+import type { JoinWithDash } from '../../types/join-with-dash'
 import type { SortingNode } from '../../types/sorting-node'
 
 export type Options = Partial<{
@@ -34,27 +35,88 @@ export type Options = Partial<{
   alphabet: string
 }>[]
 
+export type Selector =
+  | SideEffectStyleSelector
+  | ExternalTypeSelector
+  | InternalTypeSelector
+  | BuiltinTypeSelector
+  | SiblingTypeSelector
+  | SideEffectSelector
+  | ParentTypeSelector
+  | IndexTypeSelector
+  | InternalSelector
+  | ExternalSelector
+  | SiblingSelector
+  | BuiltinSelector
+  | ParentSelector
+  | ObjectSelector
+  | IndexSelector
+  | StyleSelector
+  | TypeSelector
+
 export interface SortImportsSortingNode extends SortingNode {
   isIgnored: boolean
 }
 
-type Group =
-  | 'side-effect-style'
-  | 'external-type'
-  | 'internal-type'
-  | 'builtin-type'
-  | 'sibling-type'
-  | 'parent-type'
-  | 'side-effect'
-  | 'index-type'
-  | 'internal'
-  | 'external'
-  | 'sibling'
-  | 'unknown'
-  | 'builtin'
-  | 'parent'
-  | 'object'
-  | 'index'
-  | 'style'
-  | 'type'
-  | string
+export type Modifier = ValueModifier | TypeModifier
+
+type ValueGroup = JoinWithDash<[ValueModifier, Selector]>
+
+type Group = ValueGroup | TypeGroup | 'unknown' | string
+
+type TypeGroup = JoinWithDash<[TypeModifier, Selector]>
+
+type SideEffectStyleSelector = 'side-effect-style'
+/**
+ * @deprecated For {@link `TypeModifier`}
+ */
+type ExternalTypeSelector = 'external-type'
+
+/**
+ * @deprecated For {@link `TypeModifier`}
+ */
+type InternalTypeSelector = 'internal-type'
+
+/**
+ * @deprecated For {@link `TypeModifier`}
+ */
+type BuiltinTypeSelector = 'builtin-type'
+
+/**
+ * @deprecated For {@link `TypeModifier`}
+ */
+type SiblingTypeSelector = 'sibling-type'
+
+/**
+ * @deprecated For {@link `TypeModifier`}
+ */
+type ParentTypeSelector = 'parent-type'
+
+type SideEffectSelector = 'side-effect'
+
+/**
+ * @deprecated For {@link `TypeModifier`}
+ */
+type IndexTypeSelector = 'index-type'
+
+type InternalSelector = 'internal'
+
+type ExternalSelector = 'external'
+
+type SiblingSelector = 'sibling'
+
+type BuiltinSelector = 'builtin'
+
+type ParentSelector = 'parent'
+
+type ObjectSelector = 'object'
+
+type IndexSelector = 'index'
+
+type StyleSelector = 'style'
+
+type ValueModifier = 'value'
+
+type TypeModifier = 'type'
+
+type TypeSelector = 'type'

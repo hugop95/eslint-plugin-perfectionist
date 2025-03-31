@@ -49,16 +49,35 @@ let isPredefinedGroup = (
   if (input === 'unknown') {
     return true
   }
+
   let singleWordSelector = input.split('-').at(-1)
   if (!singleWordSelector) {
     return false
   }
+
   let twoWordsSelector = input.split('-').slice(-2).join('-')
   let isTwoWordSelectorValid = allSelectors.includes(twoWordsSelector)
-  if (!allSelectors.includes(singleWordSelector) && !isTwoWordSelectorValid) {
+
+  let threeWordsSelector = input.split('-').slice(-3).join('-')
+  let isThreeWordSelectorValid = allSelectors.includes(threeWordsSelector)
+
+  if (
+    !allSelectors.includes(singleWordSelector) &&
+    !isTwoWordSelectorValid &&
+    !isThreeWordSelectorValid
+  ) {
     return false
   }
-  let modifiers = input.split('-').slice(0, isTwoWordSelectorValid ? -2 : -1)
+
+  let toRemove: number
+  if (isThreeWordSelectorValid) {
+    toRemove = -3
+  } else if (isTwoWordSelectorValid) {
+    toRemove = -2
+  } else {
+    toRemove = -1
+  }
+  let modifiers = input.split('-').slice(0, toRemove)
   return (
     new Set(modifiers).size === modifiers.length &&
     modifiers.every(modifier => allModifiers.includes(modifier))
