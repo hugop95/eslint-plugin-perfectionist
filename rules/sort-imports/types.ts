@@ -1,9 +1,12 @@
+import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema'
+
 import type {
   DeprecatedCustomGroupsOption,
   PartitionByCommentOption,
   SpecialCharactersOption,
   NewlinesBetweenOption,
   FallbackSortOption,
+  CustomGroupsOption,
   GroupsOptions,
   OrderOption,
   RegexOption,
@@ -12,11 +15,19 @@ import type {
 import type { JoinWithDash } from '../../types/join-with-dash'
 import type { SortingNode } from '../../types/sorting-node'
 
+import {
+  buildCustomGroupModifiersJsonSchema,
+  buildCustomGroupSelectorJsonSchema,
+  regexJsonSchema,
+} from '../../utils/common-json-schemas'
+
 export type Options = Partial<{
-  customGroups: {
-    value?: DeprecatedCustomGroupsOption
-    type?: DeprecatedCustomGroupsOption
-  }
+  customGroups:
+    | {
+        value?: DeprecatedCustomGroupsOption
+        type?: DeprecatedCustomGroupsOption
+      }
+    | CustomGroupsOption<SingleCustomGroup>
   partitionByComment: PartitionByCommentOption
   specialCharacters: SpecialCharactersOption
   locales: NonNullable<Intl.LocalesArgument>
@@ -55,6 +66,13 @@ export type Selector =
   | StyleSelector
   | ValueSelector
   | TypeSelector
+
+export type SingleCustomGroup = {
+  modifiers?: Modifier[]
+  selector?: Selector
+} & {
+  elementNamePattern?: RegexOption
+}
 
 export interface SortImportsSortingNode extends SortingNode {
   isIgnored: boolean
@@ -133,3 +151,30 @@ type TypeModifier = 'type'
  * @deprecated for the modifier
  */
 type TypeSelector = 'type'
+
+export let allSelectors: Selector[] = [
+  'side-effect-style',
+  'side-effect',
+  'external',
+  'internal',
+  'builtin',
+  'sibling',
+  'parent',
+  'object',
+  'import',
+  'index',
+  'style',
+]
+
+export let allModifiers: Modifier[] = ['value', 'type']
+
+/**
+ * Ideally, we should generate as many schemas as there are selectors, and ensure
+ * that users do not enter invalid modifiers for a given selector
+ */
+export let singleCustomGroupJsonSchema: Record<string, JSONSchema4> = {
+  modifiers: buildCustomGroupModifiersJsonSchema(allModifiers),
+  selector: buildCustomGroupSelectorJsonSchema(allSelectors),
+  elementValuePattern: regexJsonSchema,
+  elementNamePattern: regexJsonSchema,
+}
