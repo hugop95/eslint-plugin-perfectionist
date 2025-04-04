@@ -294,8 +294,8 @@ export default createEslintRule<Options, MESSAGE_ID>({
     }
   },
   meta: {
-    schema: [
-      {
+    schema: {
+      items: {
         properties: {
           ...commonJsonSchemas,
           customGroups: {
@@ -374,7 +374,9 @@ export default createEslintRule<Options, MESSAGE_ID>({
         id: 'sort-imports',
         type: 'object',
       },
-    ],
+      uniqueItems: true,
+      type: 'array',
+    },
     messages: {
       missedSpacingBetweenImports: MISSED_SPACING_ERROR,
       extraSpacingBetweenImports: EXTRA_SPACING_ERROR,
