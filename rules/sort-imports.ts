@@ -1,7 +1,13 @@
 import type { TSESTree } from '@typescript-eslint/types'
 import type { TSESLint } from '@typescript-eslint/utils'
 
-import type { SortImportsSortingNode, Options } from './sort-imports/types'
+import type {
+  SortImportsSortingNode,
+  Selector,
+  Modifier,
+  Options,
+} from './sort-imports/types'
+import type { DeprecatedCustomGroupsOption } from '../types/common-options'
 
 import {
   partitionByCommentJsonSchema,
@@ -19,23 +25,29 @@ import {
 } from '../utils/report-errors'
 import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
 import { validateSideEffectsConfiguration } from './sort-imports/validate-side-effects-configuration'
-import { computeCommonPredefinedGroups } from './sort-imports/compute-common-predefined-groups'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
 import { readClosestTsConfigByPath } from './sort-imports/read-closest-ts-config-by-path'
 import { validateGroupsConfiguration } from '../utils/validate-groups-configuration'
 import { getOptionsWithCleanGroups } from '../utils/get-options-with-clean-groups'
+import { computeCommonSelectors } from './sort-imports/compute-common-selectors'
 import { isSideEffectOnlyGroup } from './sort-imports/is-side-effect-only-group'
+import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
 import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { createEslintRule } from '../utils/create-eslint-rule'
 import { reportAllErrors } from '../utils/report-all-errors'
 import { shouldPartition } from '../utils/should-partition'
+import { computeGroup } from '../utils/compute-group'
 import { rangeToDiff } from '../utils/range-to-diff'
 import { getSettings } from '../utils/get-settings'
 import { isSortable } from '../utils/is-sortable'
-import { useGroups } from '../utils/use-groups'
 import { complete } from '../utils/complete'
+
+/**
+ * Cache computed groups by modifiers and selectors for performance
+ */
+let cachedGroupsByModifiersAndSelectors = new Map<string, string[]>()
 
 export type MESSAGE_ID =
   | 'missedSpacingBetweenImports'
@@ -133,30 +145,44 @@ export default createEslintRule<Options, MESSAGE_ID>({
         | TSESTree.VariableDeclaration
         | TSESTree.ImportDeclaration,
     ): void => {
-      let { setCustomGroups, defineGroup, getGroup } = useGroups(options)
-
       let name = getNodeName({
         sourceCode,
         node,
       })
 
-      let commonPredefinedGroups = computeCommonPredefinedGroups({
+      let commonSelectors = computeCommonSelectors({
         tsConfigOutput,
         filename,
         options,
         name,
       })
 
+      let selectors: Selector[] = []
+      let modifiers: Modifier[] = []
+      let group: string | null = null
+
       if (node.type !== 'VariableDeclaration' && node.importKind === 'type') {
         if (node.type === 'ImportDeclaration') {
-          setCustomGroups(options.customGroups.type, name)
+          group = computeGroupGroupExceptUnknown({
+            customGroups: options.customGroups.type,
+            options,
+            name,
+          })
 
-          for (let group of commonPredefinedGroups) {
-            defineGroup(`${group}-type`)
+          for (let selector of commonSelectors) {
+            selectors.push(`${selector}-type`)
           }
         }
 
-        defineGroup('type')
+        selectors.push('type')
+        modifiers.push('type')
+
+        group ??= computeGroupGroupExceptUnknown({
+          selectors,
+          modifiers,
+          options,
+          name,
+        })
       }
 
       let isSideEffect = isSideEffectImport({ sourceCode, node })
@@ -165,27 +191,43 @@ export default createEslintRule<Options, MESSAGE_ID>({
         node.type === 'ImportDeclaration' ||
         node.type === 'VariableDeclaration'
       ) {
+        modifiers.push('value')
+
         let isStyleValue = isStyle(name)
         isStyleSideEffect = isSideEffect && isStyleValue
 
-        setCustomGroups(options.customGroups.value, name)
+        group ??= computeGroupGroupExceptUnknown({
+          customGroups: options.customGroups.value,
+          options,
+          name,
+        })
 
         if (isStyleSideEffect) {
-          defineGroup('side-effect-style')
+          selectors.push('side-effect-style')
         }
 
         if (isSideEffect) {
-          defineGroup('side-effect')
+          selectors.push('side-effect')
         }
 
         if (isStyleValue) {
-          defineGroup('style')
+          selectors.push('style')
         }
 
-        for (let group of commonPredefinedGroups) {
-          defineGroup(group)
+        for (let selector of commonSelectors) {
+          selectors.push(selector)
         }
       }
+
+      selectors.push('import')
+
+      group ??=
+        computeGroupGroupExceptUnknown({
+          modifiers,
+          selectors,
+          options,
+          name,
+        }) ?? 'unknown'
 
       sortingNodes.push({
         isIgnored:
@@ -196,7 +238,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
         isEslintDisabled: isNodeEslintDisabled(node, eslintDisabledLines),
         size: rangeToDiff(node, sourceCode),
         addSafetySemicolonWhenInline: true,
-        group: getGroup(),
+        group,
         name,
         node,
         ...(options.type === 'line-length' &&
@@ -481,4 +523,42 @@ let getNodeName = ({
   let callExpression = node.declarations[0].init as TSESTree.CallExpression
   let { value } = callExpression.arguments[0] as TSESTree.Literal
   return value!.toString()
+}
+
+let computeGroupGroupExceptUnknown = ({
+  customGroups,
+  selectors,
+  modifiers,
+  options,
+  name,
+}: {
+  options: Omit<
+    Required<Options[0]>,
+    'tsconfigRootDir' | 'maxLineLength' | 'customGroups'
+  >
+  customGroups?: DeprecatedCustomGroupsOption | undefined
+  selectors?: Selector[]
+  modifiers?: Modifier[]
+  name: string
+}): string | null => {
+  let predefinedGroups =
+    modifiers && selectors
+      ? generatePredefinedGroups({
+          cache: cachedGroupsByModifiersAndSelectors,
+          selectors,
+          modifiers,
+        })
+      : []
+  let computedCustomGroup = computeGroup({
+    options: {
+      ...options,
+      customGroups,
+    },
+    predefinedGroups,
+    name,
+  })
+  if (computedCustomGroup === 'unknown') {
+    return null
+  }
+  return computedCustomGroup
 }
