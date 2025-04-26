@@ -21,7 +21,7 @@ describe(ruleName, () => {
   RuleTester.it = it
 
   let ruleTester = new RuleTesterWithPerformanceBenchmark({
-    defaultMaxMsDuration: 300,
+    defaultMaxMsDuration: 100,
   })
   let eslintRuleTester = new EslintRuleTester()
 
