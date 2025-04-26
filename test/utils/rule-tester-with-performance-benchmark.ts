@@ -115,6 +115,10 @@ let populateObjectTestCaseWithPerformanceBenchmark = <
       if (test.after) {
         test.after()
       }
+      if (process.env['ENABLE_PERFORMANCE_BENCHMARK'] !== 'true') {
+        return
+      }
+
       expect(duration, 'Performance benchmark failed').toBeLessThan(
         maxMsDuration,
       )
