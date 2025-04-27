@@ -47,7 +47,7 @@ import { complete } from '../utils/complete'
 /**
  * Cache computed groups by modifiers and selectors for performance
  */
-let cachedGroupsByModifiersAndSelectors = new Map<string, string[]>()
+const CACHED_GROUPS_BY_MODIFIERS_AND_SELECTORS = new Map<string, string[]>()
 
 type MESSAGE_ID =
   | 'missedSpacingBetweenArrayIncludesMembers'
@@ -60,7 +60,7 @@ interface SortArrayIncludesSortingNode
   groupKind: 'literal' | 'spread'
 }
 
-export let defaultOptions: Required<Options[0]> = {
+export const DEFAULT_OPTIONS: Required<Options[0]> = {
   fallbackSort: { type: 'unsorted' },
   groupKind: 'literals-first',
   specialCharacters: 'keep',
@@ -146,7 +146,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
     type: 'suggestion',
     fixable: 'code',
   },
-  defaultOptions: [defaultOptions],
+  defaultOptions: [DEFAULT_OPTIONS],
   name: 'sort-array-includes',
 })
 
@@ -178,7 +178,7 @@ export let sortArray = <MessageIds extends string>({
     contextOptions: context.options,
   })
 
-  let options = complete(matchedContextOptions[0], settings, defaultOptions)
+  let options = complete(matchedContextOptions[0], settings, DEFAULT_OPTIONS)
   validateCustomSortConfiguration(options)
   validateGeneratedGroupsConfiguration({
     selectors: allSelectors,
@@ -213,7 +213,7 @@ export let sortArray = <MessageIds extends string>({
 
       let name = getNodeName({ sourceCode, element })
       let predefinedGroups = generatePredefinedGroups({
-        cache: cachedGroupsByModifiersAndSelectors,
+        cache: CACHED_GROUPS_BY_MODIFIERS_AND_SELECTORS,
         selectors: [selector],
         modifiers: [],
       })

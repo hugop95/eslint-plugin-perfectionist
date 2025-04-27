@@ -38,7 +38,7 @@ type MESSAGE_ID =
   | 'unexpectedVariableDeclarationsDependencyOrder'
   | 'unexpectedVariableDeclarationsOrder'
 
-let defaultOptions: Required<Options[0]> = {
+const DEFAULT_OPTIONS: Required<Options[0]> = {
   fallbackSort: { type: 'unsorted' },
   specialCharacters: 'keep',
   partitionByNewLine: false,
@@ -58,7 +58,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
       }
 
       let settings = getSettings(context.settings)
-      let options = complete(context.options.at(0), settings, defaultOptions)
+      let options = complete(context.options.at(0), settings, DEFAULT_OPTIONS)
       validateCustomSortConfiguration(options)
 
       let { sourceCode, id } = context
@@ -265,5 +265,5 @@ export default createEslintRule<Options, MESSAGE_ID>({
     fixable: 'code',
   },
   name: 'sort-variable-declarations',
-  defaultOptions: [defaultOptions],
+  defaultOptions: [DEFAULT_OPTIONS],
 })

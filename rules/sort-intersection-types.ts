@@ -17,7 +17,7 @@ type MESSAGE_ID =
 
 type Options = SortUnionTypesOptions
 
-let defaultOptions: Required<Options[0]> = {
+const DEFAULT_OPTIONS: Required<Options[0]> = {
   fallbackSort: { type: 'unsorted' },
   specialCharacters: 'keep',
   newlinesBetween: 'ignore',
@@ -64,6 +64,6 @@ export default createEslintRule<Options, MESSAGE_ID>({
       })
     },
   }),
-  defaultOptions: [defaultOptions],
+  defaultOptions: [DEFAULT_OPTIONS],
   name: 'sort-intersection-types',
 })

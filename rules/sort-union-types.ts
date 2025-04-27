@@ -49,7 +49,7 @@ type MESSAGE_ID =
   | 'extraSpacingBetweenUnionTypes'
   | 'unexpectedUnionTypesOrder'
 
-let defaultOptions: Required<Options[0]> = {
+const DEFAULT_OPTIONS: Required<Options[0]> = {
   fallbackSort: { type: 'unsorted' },
   specialCharacters: 'keep',
   newlinesBetween: 'ignore',
@@ -111,7 +111,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
     type: 'suggestion',
     fixable: 'code',
   },
-  defaultOptions: [defaultOptions],
+  defaultOptions: [DEFAULT_OPTIONS],
   name: 'sort-union-types',
 })
 
@@ -133,7 +133,7 @@ export let sortUnionOrIntersectionTypes = <MessageIds extends string>({
 }): void => {
   let settings = getSettings(context.settings)
 
-  let options = complete(context.options.at(0), settings, defaultOptions)
+  let options = complete(context.options.at(0), settings, DEFAULT_OPTIONS)
   validateCustomSortConfiguration(options)
   validateGeneratedGroupsConfiguration({
     selectors: allSelectors,

@@ -51,9 +51,9 @@ type MESSAGE_ID =
 /**
  * Cache computed groups by modifiers and selectors for performance
  */
-let cachedGroupsByModifiersAndSelectors = new Map<string, string[]>()
+const CACHED_GROUPS_BY_MODIFIERS_AND_SELECTORS = new Map<string, string[]>()
 
-let defaultOptions: Required<Options[0]> = {
+const DEFAULT_OPTIONS: Required<Options[0]> = {
   fallbackSort: { type: 'unsorted' },
   specialCharacters: 'keep',
   partitionByNewLine: false,
@@ -78,7 +78,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
       }
 
       let settings = getSettings(context.settings)
-      let options = complete(context.options.at(0), settings, defaultOptions)
+      let options = complete(context.options.at(0), settings, DEFAULT_OPTIONS)
       validateCustomSortConfiguration(options)
       validateGeneratedGroupsConfiguration({
         modifiers: allModifiers,
@@ -123,7 +123,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
         }
 
         let predefinedGroups = generatePredefinedGroups({
-          cache: cachedGroupsByModifiersAndSelectors,
+          cache: CACHED_GROUPS_BY_MODIFIERS_AND_SELECTORS,
           selectors: [selector],
           modifiers,
         })
@@ -253,6 +253,6 @@ export default createEslintRule<Options, MESSAGE_ID>({
     type: 'suggestion',
     fixable: 'code',
   },
-  defaultOptions: [defaultOptions],
+  defaultOptions: [DEFAULT_OPTIONS],
   name: 'sort-named-exports',
 })
