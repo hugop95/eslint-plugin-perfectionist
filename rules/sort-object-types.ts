@@ -11,15 +11,15 @@ import type {
 } from './sort-object-types/types'
 
 import {
+  DEPRECATED_CUSTOM_GROUPS_JSON_SCHEMA,
   buildUseConfigurationIfJsonSchema,
+  PARTITION_BY_NEW_LINE_JSON_SCHEMA,
   buildCustomGroupsArrayJsonSchema,
-  deprecatedCustomGroupsJsonSchema,
-  partitionByCommentJsonSchema,
-  partitionByNewLineJsonSchema,
-  newlinesBetweenJsonSchema,
+  PARTITION_BY_COMMENT_JSON_SCHEMA,
+  NEWLINES_BETWEEN_JSON_SCHEMA,
   buildCommonJsonSchemas,
-  groupsJsonSchema,
-  regexJsonSchema,
+  GROUPS_JSON_SCHEMA,
+  REGEX_JSON_SCHEMA,
 } from '../utils/common-json-schemas'
 import {
   MISSED_SPACING_ERROR,
@@ -29,7 +29,7 @@ import {
 } from '../utils/report-errors'
 import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
 import {
-  singleCustomGroupJsonSchema,
+  SINGLE_CUSTOM_GROUP_JSON_SCHEMA,
   ALL_MODIFIERS,
   ALL_SELECTORS,
 } from './sort-object-types/types'
@@ -95,10 +95,10 @@ export const JSON_SCHEMA: JSONSchema4 = {
       }),
       customGroups: {
         oneOf: [
-          deprecatedCustomGroupsJsonSchema,
+          DEPRECATED_CUSTOM_GROUPS_JSON_SCHEMA,
           buildCustomGroupsArrayJsonSchema({
             additionalFallbackSortProperties: { sortBy: sortByJsonSchema },
-            singleCustomGroupJsonSchema,
+            singleCustomGroupJsonSchema: SINGLE_CUSTOM_GROUP_JSON_SCHEMA,
           }),
         ],
       },
@@ -109,15 +109,15 @@ export const JSON_SCHEMA: JSONSchema4 = {
       },
       useConfigurationIf: buildUseConfigurationIfJsonSchema({
         additionalProperties: {
-          declarationMatchesPattern: regexJsonSchema,
+          declarationMatchesPattern: REGEX_JSON_SCHEMA,
         },
       }),
-      partitionByComment: partitionByCommentJsonSchema,
-      partitionByNewLine: partitionByNewLineJsonSchema,
-      newlinesBetween: newlinesBetweenJsonSchema,
-      ignorePattern: regexJsonSchema,
+      partitionByNewLine: PARTITION_BY_NEW_LINE_JSON_SCHEMA,
+      partitionByComment: PARTITION_BY_COMMENT_JSON_SCHEMA,
+      newlinesBetween: NEWLINES_BETWEEN_JSON_SCHEMA,
+      ignorePattern: REGEX_JSON_SCHEMA,
+      groups: GROUPS_JSON_SCHEMA,
       sortBy: sortByJsonSchema,
-      groups: groupsJsonSchema,
     },
     additionalProperties: false,
     type: 'object',

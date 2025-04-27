@@ -10,10 +10,10 @@ import type {
 import type { SortingNode } from '../types/sorting-node'
 
 import {
-  deprecatedCustomGroupsJsonSchema,
-  partitionByCommentJsonSchema,
-  commonJsonSchemas,
-  groupsJsonSchema,
+  DEPRECATED_CUSTOM_GROUPS_JSON_SCHEMA,
+  PARTITION_BY_COMMENT_JSON_SCHEMA,
+  COMMON_JSON_SCHEMAS,
+  GROUPS_JSON_SCHEMA,
 } from '../utils/common-json-schemas'
 import { validateGeneratedGroupsConfiguration } from '../utils/validate-generated-groups-configuration'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
@@ -134,7 +134,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
     schema: [
       {
         properties: {
-          ...commonJsonSchemas,
+          ...COMMON_JSON_SCHEMAS,
           sortOnParameters: {
             description:
               'Controls whether sorting should be enabled for method parameter decorators.',
@@ -160,9 +160,9 @@ export default createEslintRule<Options, MESSAGE_ID>({
               'Controls whether sorting should be enabled for class decorators.',
             type: 'boolean',
           },
-          partitionByComment: partitionByCommentJsonSchema,
-          customGroups: deprecatedCustomGroupsJsonSchema,
-          groups: groupsJsonSchema,
+          partitionByComment: PARTITION_BY_COMMENT_JSON_SCHEMA,
+          customGroups: DEPRECATED_CUSTOM_GROUPS_JSON_SCHEMA,
+          groups: GROUPS_JSON_SCHEMA,
         },
         additionalProperties: false,
         type: 'object',

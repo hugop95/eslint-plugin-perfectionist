@@ -11,12 +11,12 @@ import type {
 import type { SortingNodeWithDependencies } from '../utils/sort-nodes-by-dependencies'
 
 import {
+  PARTITION_BY_NEW_LINE_JSON_SCHEMA,
   buildCustomGroupsArrayJsonSchema,
-  partitionByCommentJsonSchema,
-  partitionByNewLineJsonSchema,
-  newlinesBetweenJsonSchema,
-  commonJsonSchemas,
-  groupsJsonSchema,
+  PARTITION_BY_COMMENT_JSON_SCHEMA,
+  NEWLINES_BETWEEN_JSON_SCHEMA,
+  COMMON_JSON_SCHEMAS,
+  GROUPS_JSON_SCHEMA,
 } from '../utils/common-json-schemas'
 import {
   DEPENDENCY_ORDER_ERROR,
@@ -26,12 +26,12 @@ import {
   ORDER_ERROR,
 } from '../utils/report-errors'
 import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
-import { buildGetCustomGroupOverriddenOptionsFunction } from '../utils/get-custom-groups-compare-options'
 import {
-  singleCustomGroupJsonSchema,
+  SINGLE_CUSTOM_GROUP_JSON_SCHEMA,
   ALL_MODIFIERS,
   ALL_SELECTORS,
 } from './sort-modules/types'
+import { buildGetCustomGroupOverriddenOptionsFunction } from '../utils/get-custom-groups-compare-options'
 import { validateGeneratedGroupsConfiguration } from '../utils/validate-generated-groups-configuration'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
 import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
@@ -98,14 +98,14 @@ export default createEslintRule<SortModulesOptions, MESSAGE_ID>({
     schema: [
       {
         properties: {
-          ...commonJsonSchemas,
+          ...COMMON_JSON_SCHEMAS,
           customGroups: buildCustomGroupsArrayJsonSchema({
-            singleCustomGroupJsonSchema,
+            singleCustomGroupJsonSchema: SINGLE_CUSTOM_GROUP_JSON_SCHEMA,
           }),
-          partitionByComment: partitionByCommentJsonSchema,
-          partitionByNewLine: partitionByNewLineJsonSchema,
-          newlinesBetween: newlinesBetweenJsonSchema,
-          groups: groupsJsonSchema,
+          partitionByNewLine: PARTITION_BY_NEW_LINE_JSON_SCHEMA,
+          partitionByComment: PARTITION_BY_COMMENT_JSON_SCHEMA,
+          newlinesBetween: NEWLINES_BETWEEN_JSON_SCHEMA,
+          groups: GROUPS_JSON_SCHEMA,
         },
         additionalProperties: false,
         type: 'object',

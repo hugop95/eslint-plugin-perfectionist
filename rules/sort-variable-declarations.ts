@@ -7,9 +7,9 @@ import type {
 import type { SortingNodeWithDependencies } from '../utils/sort-nodes-by-dependencies'
 
 import {
-  partitionByCommentJsonSchema,
-  partitionByNewLineJsonSchema,
-  commonJsonSchemas,
+  PARTITION_BY_NEW_LINE_JSON_SCHEMA,
+  PARTITION_BY_COMMENT_JSON_SCHEMA,
+  COMMON_JSON_SCHEMAS,
 } from '../utils/common-json-schemas'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
 import { sortNodesByDependencies } from '../utils/sort-nodes-by-dependencies'
@@ -244,9 +244,9 @@ export default createEslintRule<Options, MESSAGE_ID>({
     schema: [
       {
         properties: {
-          ...commonJsonSchemas,
-          partitionByComment: partitionByCommentJsonSchema,
-          partitionByNewLine: partitionByNewLineJsonSchema,
+          ...COMMON_JSON_SCHEMAS,
+          partitionByNewLine: PARTITION_BY_NEW_LINE_JSON_SCHEMA,
+          partitionByComment: PARTITION_BY_COMMENT_JSON_SCHEMA,
         },
         additionalProperties: false,
         type: 'object',

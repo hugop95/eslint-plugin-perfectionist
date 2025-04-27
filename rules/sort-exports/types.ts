@@ -13,7 +13,7 @@ import type { JoinWithDash } from '../../types/join-with-dash'
 import {
   buildCustomGroupModifiersJsonSchema,
   buildCustomGroupSelectorJsonSchema,
-  regexJsonSchema,
+  REGEX_JSON_SCHEMA,
 } from '../../utils/common-json-schemas'
 
 export type Options = Partial<
@@ -54,8 +54,8 @@ type TypeModifier = 'type'
 export const ALL_SELECTORS: Selector[] = ['export']
 export const ALL_MODIFIERS: Modifier[] = ['value', 'type']
 
-export let singleCustomGroupJsonSchema: Record<string, JSONSchema4> = {
+export const SINGLE_CUSTOM_GROUP_JSON_SCHEMA: Record<string, JSONSchema4> = {
   modifiers: buildCustomGroupModifiersJsonSchema(ALL_MODIFIERS),
   selector: buildCustomGroupSelectorJsonSchema(ALL_SELECTORS),
-  elementNamePattern: regexJsonSchema,
+  elementNamePattern: REGEX_JSON_SCHEMA,
 }

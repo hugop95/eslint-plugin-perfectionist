@@ -11,7 +11,7 @@ import type {
 
 import {
   buildCustomGroupSelectorJsonSchema,
-  regexJsonSchema,
+  REGEX_JSON_SCHEMA,
 } from '../../utils/common-json-schemas'
 
 export type Options = Partial<
@@ -46,7 +46,7 @@ type SpreadSelector = 'spread'
 
 export const ALL_SELECTORS: Selector[] = ['literal', 'spread']
 
-export let singleCustomGroupJsonSchema: Record<string, JSONSchema4> = {
+export const SINGLE_CUSTOM_GROUP_JSON_SCHEMA: Record<string, JSONSchema4> = {
   selector: buildCustomGroupSelectorJsonSchema(ALL_SELECTORS),
-  elementNamePattern: regexJsonSchema,
+  elementNamePattern: REGEX_JSON_SCHEMA,
 }

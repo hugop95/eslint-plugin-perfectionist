@@ -6,12 +6,12 @@ import type {
 } from './sort-named-imports/types'
 
 import {
+  PARTITION_BY_NEW_LINE_JSON_SCHEMA,
   buildCustomGroupsArrayJsonSchema,
-  partitionByCommentJsonSchema,
-  partitionByNewLineJsonSchema,
-  newlinesBetweenJsonSchema,
-  commonJsonSchemas,
-  groupsJsonSchema,
+  PARTITION_BY_COMMENT_JSON_SCHEMA,
+  NEWLINES_BETWEEN_JSON_SCHEMA,
+  COMMON_JSON_SCHEMAS,
+  GROUPS_JSON_SCHEMA,
 } from '../utils/common-json-schemas'
 import {
   MISSED_SPACING_ERROR,
@@ -21,7 +21,7 @@ import {
 } from '../utils/report-errors'
 import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
 import {
-  singleCustomGroupJsonSchema,
+  SINGLE_CUSTOM_GROUP_JSON_SCHEMA,
   ALL_MODIFIERS,
   ALL_SELECTORS,
 } from './sort-named-imports/types'
@@ -216,23 +216,23 @@ export default createEslintRule<Options, MESSAGE_ID>({
     schema: {
       items: {
         properties: {
-          ...commonJsonSchemas,
+          ...COMMON_JSON_SCHEMAS,
           groupKind: {
             description: '[DEPRECATED] Specifies top-level groups.',
             enum: ['mixed', 'values-first', 'types-first'],
             type: 'string',
           },
+          customGroups: buildCustomGroupsArrayJsonSchema({
+            singleCustomGroupJsonSchema: SINGLE_CUSTOM_GROUP_JSON_SCHEMA,
+          }),
           ignoreAlias: {
             description: 'Controls whether to ignore alias names.',
             type: 'boolean',
           },
-          customGroups: buildCustomGroupsArrayJsonSchema({
-            singleCustomGroupJsonSchema,
-          }),
-          partitionByComment: partitionByCommentJsonSchema,
-          partitionByNewLine: partitionByNewLineJsonSchema,
-          newlinesBetween: newlinesBetweenJsonSchema,
-          groups: groupsJsonSchema,
+          partitionByNewLine: PARTITION_BY_NEW_LINE_JSON_SCHEMA,
+          partitionByComment: PARTITION_BY_COMMENT_JSON_SCHEMA,
+          newlinesBetween: NEWLINES_BETWEEN_JSON_SCHEMA,
+          groups: GROUPS_JSON_SCHEMA,
         },
         additionalProperties: false,
         type: 'object',

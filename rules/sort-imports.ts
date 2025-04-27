@@ -14,14 +14,14 @@ import type {
 } from '../types/common-options'
 
 import {
+  DEPRECATED_CUSTOM_GROUPS_JSON_SCHEMA,
+  PARTITION_BY_NEW_LINE_JSON_SCHEMA,
   buildCustomGroupsArrayJsonSchema,
-  deprecatedCustomGroupsJsonSchema,
-  partitionByCommentJsonSchema,
-  partitionByNewLineJsonSchema,
-  newlinesBetweenJsonSchema,
-  commonJsonSchemas,
-  groupsJsonSchema,
-  regexJsonSchema,
+  PARTITION_BY_COMMENT_JSON_SCHEMA,
+  NEWLINES_BETWEEN_JSON_SCHEMA,
+  COMMON_JSON_SCHEMAS,
+  GROUPS_JSON_SCHEMA,
+  REGEX_JSON_SCHEMA,
 } from '../utils/common-json-schemas'
 import {
   DEPENDENCY_ORDER_ERROR,
@@ -44,8 +44,8 @@ import { sortNodesByDependencies } from '../utils/sort-nodes-by-dependencies'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
 import { doesCustomGroupMatch } from '../utils/does-custom-group-match'
+import { SINGLE_CUSTOM_GROUP_JSON_SCHEMA } from './sort-imports/types'
 import { ALL_MODIFIERS, ALL_SELECTORS } from './sort-imports/types'
-import { singleCustomGroupJsonSchema } from './sort-imports/types'
 import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { ALL_DEPRECATED_SELECTORS } from './sort-imports/types'
 import { createEslintRule } from '../utils/create-eslint-rule'
@@ -418,17 +418,17 @@ export default createEslintRule<Options, MESSAGE_ID>({
     schema: {
       items: {
         properties: {
-          ...commonJsonSchemas,
+          ...COMMON_JSON_SCHEMAS,
           customGroups: {
             oneOf: [
               {
                 properties: {
                   value: {
-                    ...deprecatedCustomGroupsJsonSchema,
+                    ...DEPRECATED_CUSTOM_GROUPS_JSON_SCHEMA,
                     description: 'Specifies custom groups for value imports.',
                   },
                   type: {
-                    ...deprecatedCustomGroupsJsonSchema,
+                    ...DEPRECATED_CUSTOM_GROUPS_JSON_SCHEMA,
                     description: 'Specifies custom groups for type imports.',
                   },
                 },
@@ -437,7 +437,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
                 type: 'object',
               },
               buildCustomGroupsArrayJsonSchema({
-                singleCustomGroupJsonSchema,
+                singleCustomGroupJsonSchema: SINGLE_CUSTOM_GROUP_JSON_SCHEMA,
               }),
             ],
           },
@@ -461,11 +461,11 @@ export default createEslintRule<Options, MESSAGE_ID>({
             description: 'Specifies the tsConfig root directory.',
             type: 'string',
           },
-          partitionByComment: partitionByCommentJsonSchema,
-          partitionByNewLine: partitionByNewLineJsonSchema,
-          newlinesBetween: newlinesBetweenJsonSchema,
-          internalPattern: regexJsonSchema,
-          groups: groupsJsonSchema,
+          partitionByNewLine: PARTITION_BY_NEW_LINE_JSON_SCHEMA,
+          partitionByComment: PARTITION_BY_COMMENT_JSON_SCHEMA,
+          newlinesBetween: NEWLINES_BETWEEN_JSON_SCHEMA,
+          internalPattern: REGEX_JSON_SCHEMA,
+          groups: GROUPS_JSON_SCHEMA,
         },
         additionalProperties: false,
         type: 'object',

@@ -8,7 +8,7 @@ import { makeSingleNodeCommentAfterFixes } from '../utils/make-single-node-comme
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
 import { reportErrors, ORDER_ERROR, RIGHT, LEFT } from '../utils/report-errors'
 import { createNodeIndexMap } from '../utils/create-node-index-map'
-import { commonJsonSchemas } from '../utils/common-json-schemas'
+import { COMMON_JSON_SCHEMAS } from '../utils/common-json-schemas'
 import { createEslintRule } from '../utils/create-eslint-rule'
 import { rangeToDiff } from '../utils/range-to-diff'
 import { getSettings } from '../utils/get-settings'
@@ -259,7 +259,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
     schema: [
       {
         properties: {
-          ...commonJsonSchemas,
+          ...COMMON_JSON_SCHEMAS,
         },
         additionalProperties: false,
         type: 'object',

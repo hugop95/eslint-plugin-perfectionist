@@ -6,12 +6,12 @@ import type { Selector, Options } from './sort-union-types/types'
 import type { SortingNode } from '../types/sorting-node'
 
 import {
+  PARTITION_BY_NEW_LINE_JSON_SCHEMA,
   buildCustomGroupsArrayJsonSchema,
-  partitionByCommentJsonSchema,
-  partitionByNewLineJsonSchema,
-  newlinesBetweenJsonSchema,
-  commonJsonSchemas,
-  groupsJsonSchema,
+  PARTITION_BY_COMMENT_JSON_SCHEMA,
+  NEWLINES_BETWEEN_JSON_SCHEMA,
+  COMMON_JSON_SCHEMAS,
+  GROUPS_JSON_SCHEMA,
 } from '../utils/common-json-schemas'
 import {
   MISSED_SPACING_ERROR,
@@ -66,14 +66,14 @@ const DEFAULT_OPTIONS: Required<Options[0]> = {
 
 export const JSON_SCHEMA: JSONSchema4 = {
   properties: {
-    ...commonJsonSchemas,
+    ...COMMON_JSON_SCHEMAS,
     customGroups: buildCustomGroupsArrayJsonSchema({
       singleCustomGroupJsonSchema,
     }),
-    partitionByComment: partitionByCommentJsonSchema,
-    partitionByNewLine: partitionByNewLineJsonSchema,
-    newlinesBetween: newlinesBetweenJsonSchema,
-    groups: groupsJsonSchema,
+    partitionByNewLine: PARTITION_BY_NEW_LINE_JSON_SCHEMA,
+    partitionByComment: PARTITION_BY_COMMENT_JSON_SCHEMA,
+    newlinesBetween: NEWLINES_BETWEEN_JSON_SCHEMA,
+    groups: GROUPS_JSON_SCHEMA,
   },
   additionalProperties: false,
   type: 'object',
