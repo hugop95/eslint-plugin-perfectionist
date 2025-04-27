@@ -88,7 +88,7 @@ export let computeCommonSelectors = ({
   return commonSelectors
 }
 
-let bunModules = new Set([
+const BUN_MODULES = new Set([
   'detect-libc',
   'bun:sqlite',
   'bun:test',
@@ -99,14 +99,18 @@ let bunModules = new Set([
   'bun',
   'ws',
 ])
-let nodeBuiltinModules = new Set(builtinModules)
-let builtinPrefixOnlyModules = new Set(['node:sqlite', 'node:test', 'node:sea'])
+const NODE_BUILDTIN_MODULES = new Set(builtinModules)
+const BUILTIN_PREFIX_ONLY_MODULES = new Set([
+  'node:sqlite',
+  'node:test',
+  'node:sea',
+])
 let isCoreModule = (value: string, environment: 'node' | 'bun'): boolean => {
   let valueToCheck = value.startsWith('node:') ? value.split('node:')[1] : value
   return (
-    (!!valueToCheck && nodeBuiltinModules.has(valueToCheck)) ||
-    builtinPrefixOnlyModules.has(value) ||
-    (environment === 'bun' ? bunModules.has(value) : false)
+    (!!valueToCheck && NODE_BUILDTIN_MODULES.has(valueToCheck)) ||
+    BUILTIN_PREFIX_ONLY_MODULES.has(value) ||
+    (environment === 'bun' ? BUN_MODULES.has(value) : false)
   )
 }
 

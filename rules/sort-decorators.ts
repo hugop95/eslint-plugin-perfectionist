@@ -53,7 +53,7 @@ type SortDecoratorsSortingNode = SortingNode<TSESTree.Decorator>
 
 type Group = 'unknown' | string
 
-let defaultOptions: Required<Options[0]> = {
+const DEFAULT_OPTIONS: Required<Options[0]> = {
   fallbackSort: { type: 'unsorted' },
   specialCharacters: 'keep',
   partitionByComment: false,
@@ -75,7 +75,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
   create: context => {
     let settings = getSettings(context.settings)
 
-    let options = complete(context.options.at(0), settings, defaultOptions)
+    let options = complete(context.options.at(0), settings, DEFAULT_OPTIONS)
     validateCustomSortConfiguration(options)
     validateGeneratedGroupsConfiguration({
       selectors: [],
@@ -180,7 +180,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
     type: 'suggestion',
     fixable: 'code',
   },
-  defaultOptions: [defaultOptions],
+  defaultOptions: [DEFAULT_OPTIONS],
   name: 'sort-decorators',
 })
 

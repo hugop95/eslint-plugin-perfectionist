@@ -1,6 +1,6 @@
 import type { ReadClosestTsConfigByPathValue } from './read-closest-ts-config-by-path'
 
-let regexByTsconfigPathCache = new Map<string, RegExp>()
+const REGEX_BY_TSCONFIG_PATH_CACHE = new Map<string, RegExp>()
 
 export let matchesTsconfigPaths = ({
   tsConfigOutput,
@@ -19,12 +19,12 @@ export let matchesTsconfigPaths = ({
 }
 
 let getRegexByTsconfigPath = (path: string): RegExp => {
-  let existingRegex = regexByTsconfigPathCache.get(path)
+  let existingRegex = REGEX_BY_TSCONFIG_PATH_CACHE.get(path)
   if (existingRegex) {
     return existingRegex
   }
   let regex = new RegExp(`^${escapeRegExp(path).replaceAll('*', '(.+)')}$`)
-  regexByTsconfigPathCache.set(path, regex)
+  REGEX_BY_TSCONFIG_PATH_CACHE.set(path, regex)
   return regex
 }
 

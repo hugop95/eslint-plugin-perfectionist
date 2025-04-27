@@ -60,9 +60,9 @@ import { complete } from '../utils/complete'
 /**
  * Cache computed groups by modifiers and selectors for performance
  */
-let cachedGroupsByModifiersAndSelectors = new Map<string, string[]>()
+const CACHED_GROUPS_BY_MODIFIERS_AND_SELECTORS = new Map<string, string[]>()
 
-let defaultGroups = [
+const DEFAULT_OPTIONS = [
   'type-import',
   ['value-builtin', 'value-external'],
   'type-internal',
@@ -93,8 +93,8 @@ export default createEslintRule<Options, MESSAGE_ID>({
         partitionByNewLine: false,
         newlinesBetween: 'always',
         specialCharacters: 'keep',
+        groups: DEFAULT_OPTIONS,
         sortSideEffects: false,
-        groups: defaultGroups,
         type: 'alphabetical',
         environment: 'node',
         customGroups: [],
@@ -494,8 +494,8 @@ export default createEslintRule<Options, MESSAGE_ID>({
       partitionByNewLine: false,
       specialCharacters: 'keep',
       newlinesBetween: 'always',
+      groups: DEFAULT_OPTIONS,
       sortSideEffects: false,
-      groups: defaultGroups,
       type: 'alphabetical',
       environment: 'node',
       ignoreCase: true,
@@ -529,7 +529,7 @@ let hasSpecifier = (
   node.type === 'ImportDeclaration' &&
   node.specifiers.some(nodeSpecifier => nodeSpecifier.type === specifier)
 
-let styleExtensions = [
+const STYLE_EXTENSIONS = [
   '.less',
   '.scss',
   '.sass',
@@ -540,7 +540,7 @@ let styleExtensions = [
 ]
 let isStyle = (value: string): boolean => {
   let [cleanedValue] = value.split('?')
-  return styleExtensions.some(extension => cleanedValue?.endsWith(extension))
+  return STYLE_EXTENSIONS.some(extension => cleanedValue?.endsWith(extension))
 }
 
 let isSideEffectImport = ({
@@ -604,7 +604,7 @@ let computeGroupExceptUnknown = ({
   let predefinedGroups =
     modifiers && selectors
       ? generatePredefinedGroups({
-          cache: cachedGroupsByModifiersAndSelectors,
+          cache: CACHED_GROUPS_BY_MODIFIERS_AND_SELECTORS,
           selectors,
           modifiers,
         })

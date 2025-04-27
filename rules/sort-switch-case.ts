@@ -27,7 +27,7 @@ type MESSAGE_ID = 'unexpectedSwitchCaseOrder'
 
 type Options = [Partial<CommonOptions>]
 
-let defaultOptions: Required<Options[0]> = {
+const DEFAULT_OPTIONS: Required<Options[0]> = {
   fallbackSort: { type: 'unsorted' },
   specialCharacters: 'keep',
   type: 'alphabetical',
@@ -46,7 +46,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
 
       let settings = getSettings(context.settings)
 
-      let options = complete(context.options.at(0), settings, defaultOptions)
+      let options = complete(context.options.at(0), settings, DEFAULT_OPTIONS)
       validateCustomSortConfiguration(options)
 
       let { sourceCode } = context
@@ -276,7 +276,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
     type: 'suggestion',
     fixable: 'code',
   },
-  defaultOptions: [defaultOptions],
+  defaultOptions: [DEFAULT_OPTIONS],
   name: 'sort-switch-case',
 })
 

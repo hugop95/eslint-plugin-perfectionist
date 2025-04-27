@@ -55,7 +55,7 @@ import { matches } from '../utils/matches'
 /**
  * Cache computed groups by modifiers and selectors for performance
  */
-let cachedGroupsByModifiersAndSelectors = new Map<string, string[]>()
+const CACHED_GROUPS_BY_MODIFIERS_AND_SELECTORS = new Map<string, string[]>()
 
 type MESSAGE_ID =
   | 'missedSpacingBetweenObjectMembers'
@@ -64,7 +64,7 @@ type MESSAGE_ID =
   | 'unexpectedObjectsGroupOrder'
   | 'unexpectedObjectsOrder'
 
-let defaultOptions: Required<Options[0]> = {
+const DEFAULT_OPTIONS: Required<Options[0]> = {
   fallbackSort: { type: 'unsorted' },
   partitionByNewLine: false,
   partitionByComment: false,
@@ -126,7 +126,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
         )
       })
 
-      let options = complete(matchedContextOptions, settings, defaultOptions)
+      let options = complete(matchedContextOptions, settings, DEFAULT_OPTIONS)
       validateCustomSortConfiguration(options)
       validateGeneratedGroupsConfiguration({
         selectors: allSelectors,
@@ -310,7 +310,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
 
             let name = getNodeName({ sourceCode, property })
             let predefinedGroups = generatePredefinedGroups({
-              cache: cachedGroupsByModifiersAndSelectors,
+              cache: CACHED_GROUPS_BY_MODIFIERS_AND_SELECTORS,
               selectors,
               modifiers,
             })
@@ -496,7 +496,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
     type: 'suggestion',
     fixable: 'code',
   },
-  defaultOptions: [defaultOptions],
+  defaultOptions: [DEFAULT_OPTIONS],
   name: 'sort-objects',
 })
 

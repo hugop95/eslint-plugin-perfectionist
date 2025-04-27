@@ -56,7 +56,7 @@ import { matches } from '../utils/matches'
 /**
  * Cache computed groups by modifiers and selectors for performance
  */
-let cachedGroupsByModifiersAndSelectors = new Map<string, string[]>()
+const CACHED_GROUPS_BY_MODIFIERS_AND_SELECTORS = new Map<string, string[]>()
 
 type MESSAGE_ID =
   | 'unexpectedClassesDependencyOrder'
@@ -65,7 +65,7 @@ type MESSAGE_ID =
   | 'unexpectedClassesGroupOrder'
   | 'unexpectedClassesOrder'
 
-let defaultOptions: Required<SortClassesOptions[0]> = {
+const DEFAULT_OPTIONS: Required<SortClassesOptions[0]> = {
   groups: [
     'index-signature',
     ['static-property', 'static-accessor-property'],
@@ -117,7 +117,7 @@ export default createEslintRule<SortClassesOptions, MESSAGE_ID>({
       }
 
       let settings = getSettings(context.settings)
-      let options = complete(context.options.at(0), settings, defaultOptions)
+      let options = complete(context.options.at(0), settings, DEFAULT_OPTIONS)
       validateCustomSortConfiguration(options)
       validateGeneratedGroupsConfiguration({
         modifiers: allModifiers,
@@ -509,7 +509,7 @@ export default createEslintRule<SortClassesOptions, MESSAGE_ID>({
           }
 
           let predefinedGroups = generatePredefinedGroups({
-            cache: cachedGroupsByModifiersAndSelectors,
+            cache: CACHED_GROUPS_BY_MODIFIERS_AND_SELECTORS,
             selectors,
             modifiers,
           })
@@ -672,6 +672,6 @@ export default createEslintRule<SortClassesOptions, MESSAGE_ID>({
     type: 'suggestion',
     fixable: 'code',
   },
-  defaultOptions: [defaultOptions],
+  defaultOptions: [DEFAULT_OPTIONS],
   name: 'sort-classes',
 })

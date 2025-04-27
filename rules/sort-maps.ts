@@ -43,7 +43,7 @@ type MESSAGE_ID =
   | 'unexpectedMapElementsGroupOrder'
   | 'unexpectedMapElementsOrder'
 
-let defaultOptions: Required<Options[0]> = {
+const DEFAULT_OPTIONS: Required<Options[0]> = {
   fallbackSort: { type: 'unsorted' },
   specialCharacters: 'keep',
   partitionByComment: false,
@@ -87,7 +87,11 @@ export default createEslintRule<Options, MESSAGE_ID>({
         contextOptions: context.options,
       })
 
-      let options = complete(matchedContextOptions[0], settings, defaultOptions)
+      let options = complete(
+        matchedContextOptions[0],
+        settings,
+        DEFAULT_OPTIONS,
+      )
       validateCustomSortConfiguration(options)
       validateGeneratedGroupsConfiguration({
         selectors: [],
@@ -226,7 +230,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
     type: 'suggestion',
     fixable: 'code',
   },
-  defaultOptions: [defaultOptions],
+  defaultOptions: [DEFAULT_OPTIONS],
   name: 'sort-maps',
 })
 

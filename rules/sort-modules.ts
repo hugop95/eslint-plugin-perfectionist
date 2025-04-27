@@ -56,7 +56,7 @@ import { complete } from '../utils/complete'
 /**
  * Cache computed groups by modifiers and selectors for performance
  */
-let cachedGroupsByModifiersAndSelectors = new Map<string, string[]>()
+const CACHED_GROUPS_BY_MODIFIERS_AND_SELECTORS = new Map<string, string[]>()
 
 type MESSAGE_ID =
   | 'missedSpacingBetweenModulesMembers'
@@ -65,7 +65,7 @@ type MESSAGE_ID =
   | 'unexpectedModulesGroupOrder'
   | 'unexpectedModulesOrder'
 
-let defaultOptions: Required<SortModulesOptions[0]> = {
+const DEFAULT_OPTIONS: Required<SortModulesOptions[0]> = {
   groups: [
     'declare-enum',
     'export-enum',
@@ -128,7 +128,7 @@ export default createEslintRule<SortModulesOptions, MESSAGE_ID>({
   },
   create: context => {
     let settings = getSettings(context.settings)
-    let options = complete(context.options.at(0), settings, defaultOptions)
+    let options = complete(context.options.at(0), settings, DEFAULT_OPTIONS)
     validateCustomSortConfiguration(options)
     validateGeneratedGroupsConfiguration({
       modifiers: allModifiers,
@@ -157,7 +157,7 @@ export default createEslintRule<SortModulesOptions, MESSAGE_ID>({
       },
     }
   },
-  defaultOptions: [defaultOptions],
+  defaultOptions: [DEFAULT_OPTIONS],
   name: 'sort-modules',
 })
 
@@ -290,7 +290,7 @@ let analyzeModule = ({
     }
 
     let predefinedGroups = generatePredefinedGroups({
-      cache: cachedGroupsByModifiersAndSelectors,
+      cache: CACHED_GROUPS_BY_MODIFIERS_AND_SELECTORS,
       selectors: [selector],
       modifiers,
     })

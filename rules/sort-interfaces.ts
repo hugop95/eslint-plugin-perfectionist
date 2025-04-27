@@ -17,7 +17,7 @@ type MESSAGE_ID =
   | 'extraSpacingBetweenInterfaceMembers'
   | 'unexpectedInterfacePropertiesOrder'
 
-let defaultOptions: Required<Options[0]> = {
+const DEFAULT_OPTIONS: Required<Options[0]> = {
   fallbackSort: { type: 'unsorted' },
   partitionByComment: false,
   partitionByNewLine: false,
@@ -67,6 +67,6 @@ export default createEslintRule<Options, MESSAGE_ID>({
     type: 'suggestion',
     fixable: 'code',
   },
-  defaultOptions: [defaultOptions],
+  defaultOptions: [DEFAULT_OPTIONS],
   name: 'sort-interfaces',
 })
