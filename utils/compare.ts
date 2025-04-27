@@ -21,7 +21,7 @@ interface CompareParameters<T extends SortingNode> {
 type SortingFunction<T extends SortingNode> = (a: T, b: T) => number
 
 type IndexByCharacters = Map<string, number>
-let alphabetCache = new Map<string, IndexByCharacters>()
+const ALPHABET_CACHE = new Map<string, IndexByCharacters>()
 
 export let compare = <T extends SortingNode>({
   fallbackSortNodeValueGetter,
@@ -136,13 +136,13 @@ let getCustomSortingFunction = <T extends SortingNode>(
   nodeValueGetter: NodeValueGetterFunction<T>,
 ): SortingFunction<T> => {
   let formatString = getFormatStringFunction(ignoreCase, specialCharacters)
-  let indexByCharacters = alphabetCache.get(alphabet)
+  let indexByCharacters = ALPHABET_CACHE.get(alphabet)
   if (!indexByCharacters) {
     indexByCharacters = new Map()
     for (let [index, character] of [...alphabet].entries()) {
       indexByCharacters.set(character, index)
     }
-    alphabetCache.set(alphabet, indexByCharacters)
+    ALPHABET_CACHE.set(alphabet, indexByCharacters)
   }
   return (aNode: T, bNode: T) => {
     let aValue = formatString(nodeValueGetter(aNode))
