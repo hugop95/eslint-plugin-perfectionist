@@ -4,12 +4,12 @@ import type { Modifier, Selector, Options } from './sort-exports/types'
 import type { SortingNode } from '../types/sorting-node'
 
 import {
+  PARTITION_BY_NEW_LINE_JSON_SCHEMA,
   buildCustomGroupsArrayJsonSchema,
-  partitionByCommentJsonSchema,
-  partitionByNewLineJsonSchema,
-  newlinesBetweenJsonSchema,
-  commonJsonSchemas,
-  groupsJsonSchema,
+  PARTITION_BY_COMMENT_JSON_SCHEMA,
+  NEWLINES_BETWEEN_JSON_SCHEMA,
+  COMMON_JSON_SCHEMAS,
+  GROUPS_JSON_SCHEMA,
 } from '../utils/common-json-schemas'
 import {
   MISSED_SPACING_ERROR,
@@ -25,8 +25,8 @@ import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
 import { doesCustomGroupMatch } from '../utils/does-custom-group-match'
+import { SINGLE_CUSTOM_GROUP_JSON_SCHEMA } from './sort-exports/types'
 import { ALL_MODIFIERS, ALL_SELECTORS } from './sort-exports/types'
-import { singleCustomGroupJsonSchema } from './sort-exports/types'
 import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { createEslintRule } from '../utils/create-eslint-rule'
 import { reportAllErrors } from '../utils/report-all-errors'
@@ -206,19 +206,19 @@ export default createEslintRule<Options, MESSAGE_ID>({
     schema: {
       items: {
         properties: {
-          ...commonJsonSchemas,
+          ...COMMON_JSON_SCHEMAS,
           groupKind: {
             description: '[DEPRECATED] Specifies top-level groups.',
             enum: ['mixed', 'values-first', 'types-first'],
             type: 'string',
           },
           customGroups: buildCustomGroupsArrayJsonSchema({
-            singleCustomGroupJsonSchema,
+            singleCustomGroupJsonSchema: SINGLE_CUSTOM_GROUP_JSON_SCHEMA,
           }),
-          partitionByComment: partitionByCommentJsonSchema,
-          partitionByNewLine: partitionByNewLineJsonSchema,
-          newlinesBetween: newlinesBetweenJsonSchema,
-          groups: groupsJsonSchema,
+          partitionByNewLine: PARTITION_BY_NEW_LINE_JSON_SCHEMA,
+          partitionByComment: PARTITION_BY_COMMENT_JSON_SCHEMA,
+          newlinesBetween: NEWLINES_BETWEEN_JSON_SCHEMA,
+          groups: GROUPS_JSON_SCHEMA,
         },
         additionalProperties: false,
         type: 'object',

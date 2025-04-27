@@ -13,7 +13,7 @@ import type { JoinWithDash } from '../../types/join-with-dash'
 import {
   buildCustomGroupModifiersJsonSchema,
   buildCustomGroupSelectorJsonSchema,
-  regexJsonSchema,
+  REGEX_JSON_SCHEMA,
 } from '../../utils/common-json-schemas'
 
 export type SingleCustomGroup = (
@@ -165,9 +165,9 @@ export const ALL_MODIFIERS: Modifier[] = [
  * Ideally, we should generate as many schemas as there are selectors, and ensure
  * that users do not enter invalid modifiers for a given selector
  */
-export let singleCustomGroupJsonSchema: Record<string, JSONSchema4> = {
+export const SINGLE_CUSTOM_GROUP_JSON_SCHEMA: Record<string, JSONSchema4> = {
   modifiers: buildCustomGroupModifiersJsonSchema(ALL_MODIFIERS),
   selector: buildCustomGroupSelectorJsonSchema(ALL_SELECTORS),
-  decoratorNamePattern: regexJsonSchema,
-  elementNamePattern: regexJsonSchema,
+  decoratorNamePattern: REGEX_JSON_SCHEMA,
+  elementNamePattern: REGEX_JSON_SCHEMA,
 }

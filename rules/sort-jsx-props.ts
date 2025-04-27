@@ -5,14 +5,14 @@ import type { SortingNode } from '../types/sorting-node'
 import type { Options } from './sort-jsx-props/types'
 
 import {
+  DEPRECATED_CUSTOM_GROUPS_JSON_SCHEMA,
   buildUseConfigurationIfJsonSchema,
+  PARTITION_BY_NEW_LINE_JSON_SCHEMA,
   buildCustomGroupsArrayJsonSchema,
-  deprecatedCustomGroupsJsonSchema,
-  partitionByNewLineJsonSchema,
-  newlinesBetweenJsonSchema,
-  commonJsonSchemas,
-  groupsJsonSchema,
-  regexJsonSchema,
+  NEWLINES_BETWEEN_JSON_SCHEMA,
+  COMMON_JSON_SCHEMAS,
+  GROUPS_JSON_SCHEMA,
+  REGEX_JSON_SCHEMA,
 } from '../utils/common-json-schemas'
 import {
   MISSED_SPACING_ERROR,
@@ -27,10 +27,10 @@ import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-c
 import { getMatchingContextOptions } from '../utils/get-matching-context-options'
 import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
+import { SINGLE_CUSTOM_GROUP_JSON_SCHEMA } from './sort-jsx-props/types'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
 import { doesCustomGroupMatch } from '../utils/does-custom-group-match'
 import { ALL_MODIFIERS, ALL_SELECTORS } from './sort-jsx-props/types'
-import { singleCustomGroupJsonSchema } from './sort-jsx-props/types'
 import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { createEslintRule } from '../utils/create-eslint-rule'
 import { reportAllErrors } from '../utils/report-all-errors'
@@ -226,24 +226,24 @@ export default createEslintRule<Options, MESSAGE_ID>({
     schema: {
       items: {
         properties: {
-          ...commonJsonSchemas,
+          ...COMMON_JSON_SCHEMAS,
           customGroups: {
             oneOf: [
-              deprecatedCustomGroupsJsonSchema,
+              DEPRECATED_CUSTOM_GROUPS_JSON_SCHEMA,
               buildCustomGroupsArrayJsonSchema({
-                singleCustomGroupJsonSchema,
+                singleCustomGroupJsonSchema: SINGLE_CUSTOM_GROUP_JSON_SCHEMA,
               }),
             ],
           },
           useConfigurationIf: buildUseConfigurationIfJsonSchema({
             additionalProperties: {
-              tagMatchesPattern: regexJsonSchema,
+              tagMatchesPattern: REGEX_JSON_SCHEMA,
             },
           }),
-          partitionByNewLine: partitionByNewLineJsonSchema,
-          newlinesBetween: newlinesBetweenJsonSchema,
-          ignorePattern: regexJsonSchema,
-          groups: groupsJsonSchema,
+          partitionByNewLine: PARTITION_BY_NEW_LINE_JSON_SCHEMA,
+          newlinesBetween: NEWLINES_BETWEEN_JSON_SCHEMA,
+          ignorePattern: REGEX_JSON_SCHEMA,
+          groups: GROUPS_JSON_SCHEMA,
         },
         additionalProperties: false,
         type: 'object',

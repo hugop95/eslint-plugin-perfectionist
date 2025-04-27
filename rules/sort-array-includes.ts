@@ -8,12 +8,12 @@ import type { SortingNode } from '../types/sorting-node'
 
 import {
   buildUseConfigurationIfJsonSchema,
+  PARTITION_BY_NEW_LINE_JSON_SCHEMA,
   buildCustomGroupsArrayJsonSchema,
-  partitionByCommentJsonSchema,
-  partitionByNewLineJsonSchema,
-  newlinesBetweenJsonSchema,
-  commonJsonSchemas,
-  groupsJsonSchema,
+  PARTITION_BY_COMMENT_JSON_SCHEMA,
+  NEWLINES_BETWEEN_JSON_SCHEMA,
+  COMMON_JSON_SCHEMAS,
+  GROUPS_JSON_SCHEMA,
 } from '../utils/common-json-schemas'
 import {
   MISSED_SPACING_ERROR,
@@ -25,7 +25,7 @@ import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-new
 import { buildGetCustomGroupOverriddenOptionsFunction } from '../utils/get-custom-groups-compare-options'
 import { validateGeneratedGroupsConfiguration } from '../utils/validate-generated-groups-configuration'
 import {
-  singleCustomGroupJsonSchema,
+  SINGLE_CUSTOM_GROUP_JSON_SCHEMA,
   ALL_SELECTORS,
 } from './sort-array-includes/types'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
@@ -80,20 +80,20 @@ export const DEFAULT_OPTIONS: Required<Options[0]> = {
 export const JSON_SCHEMA: JSONSchema4 = {
   items: {
     properties: {
-      ...commonJsonSchemas,
+      ...COMMON_JSON_SCHEMAS,
       groupKind: {
         description: '[DEPRECATED] Specifies top-level groups.',
         enum: ['mixed', 'literals-first', 'spreads-first'],
         type: 'string',
       },
       customGroups: buildCustomGroupsArrayJsonSchema({
-        singleCustomGroupJsonSchema,
+        singleCustomGroupJsonSchema: SINGLE_CUSTOM_GROUP_JSON_SCHEMA,
       }),
       useConfigurationIf: buildUseConfigurationIfJsonSchema(),
-      partitionByComment: partitionByCommentJsonSchema,
-      partitionByNewLine: partitionByNewLineJsonSchema,
-      newlinesBetween: newlinesBetweenJsonSchema,
-      groups: groupsJsonSchema,
+      partitionByNewLine: PARTITION_BY_NEW_LINE_JSON_SCHEMA,
+      partitionByComment: PARTITION_BY_COMMENT_JSON_SCHEMA,
+      newlinesBetween: NEWLINES_BETWEEN_JSON_SCHEMA,
+      groups: GROUPS_JSON_SCHEMA,
     },
     additionalProperties: false,
     type: 'object',

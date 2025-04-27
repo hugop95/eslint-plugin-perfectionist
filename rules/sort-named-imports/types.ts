@@ -15,7 +15,7 @@ import type { SortingNode } from '../../types/sorting-node'
 import {
   buildCustomGroupModifiersJsonSchema,
   buildCustomGroupSelectorJsonSchema,
-  regexJsonSchema,
+  REGEX_JSON_SCHEMA,
 } from '../../utils/common-json-schemas'
 
 export type Options = Partial<
@@ -61,8 +61,8 @@ type TypeModifier = 'type'
 export const ALL_SELECTORS: Selector[] = ['import']
 export const ALL_MODIFIERS: Modifier[] = ['value', 'type']
 
-export let singleCustomGroupJsonSchema: Record<string, JSONSchema4> = {
+export const SINGLE_CUSTOM_GROUP_JSON_SCHEMA: Record<string, JSONSchema4> = {
   modifiers: buildCustomGroupModifiersJsonSchema(ALL_MODIFIERS),
   selector: buildCustomGroupSelectorJsonSchema(ALL_SELECTORS),
-  elementNamePattern: regexJsonSchema,
+  elementNamePattern: REGEX_JSON_SCHEMA,
 }

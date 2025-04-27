@@ -9,9 +9,9 @@ import type {
 import type { SortingNode } from '../types/sorting-node'
 
 import {
-  deprecatedCustomGroupsJsonSchema,
-  commonJsonSchemas,
-  groupsJsonSchema,
+  DEPRECATED_CUSTOM_GROUPS_JSON_SCHEMA,
+  COMMON_JSON_SCHEMAS,
+  GROUPS_JSON_SCHEMA,
 } from '../utils/common-json-schemas'
 import { validateGeneratedGroupsConfiguration } from '../utils/validate-generated-groups-configuration'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
@@ -59,9 +59,9 @@ export default createEslintRule<Options, MESSAGE_ID>({
     schema: [
       {
         properties: {
-          ...commonJsonSchemas,
-          customGroups: deprecatedCustomGroupsJsonSchema,
-          groups: groupsJsonSchema,
+          ...COMMON_JSON_SCHEMAS,
+          customGroups: DEPRECATED_CUSTOM_GROUPS_JSON_SCHEMA,
+          groups: GROUPS_JSON_SCHEMA,
         },
         additionalProperties: false,
         type: 'object',

@@ -5,11 +5,11 @@ import type { Selector, Options } from './sort-variable-declarations/types'
 
 import {
   buildCustomGroupsArrayJsonSchema,
-  partitionByCommentJsonSchema,
-  partitionByNewLineJsonSchema,
-  newlinesBetweenJsonSchema,
-  commonJsonSchemas,
-  groupsJsonSchema,
+  NEWLINES_BETWEEN_JSON_SCHEMA,
+  GROUPS_JSON_SCHEMA,
+  PARTITION_BY_NEW_LINE_JSON_SCHEMA,
+  PARTITION_BY_COMMENT_JSON_SCHEMA,
+  COMMON_JSON_SCHEMAS,
 } from '../utils/common-json-schemas'
 import {
   DEPENDENCY_ORDER_ERROR,
@@ -196,14 +196,14 @@ export default createEslintRule<Options, MESSAGE_ID>({
     schema: [
       {
         properties: {
-          ...commonJsonSchemas,
+          ...COMMON_JSON_SCHEMAS,
           customGroups: buildCustomGroupsArrayJsonSchema({
             singleCustomGroupJsonSchema,
           }),
-          partitionByComment: partitionByCommentJsonSchema,
-          partitionByNewLine: partitionByNewLineJsonSchema,
-          newlinesBetween: newlinesBetweenJsonSchema,
-          groups: groupsJsonSchema,
+          partitionByComment: PARTITION_BY_NEW_LINE_JSON_SCHEMA,
+          partitionByNewLine: PARTITION_BY_COMMENT_JSON_SCHEMA,
+          newlinesBetween: NEWLINES_BETWEEN_JSON_SCHEMA,
+          groups: GROUPS_JSON_SCHEMA,
         },
         additionalProperties: false,
         type: 'object',

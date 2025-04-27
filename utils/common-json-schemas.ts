@@ -1,25 +1,25 @@
 import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema'
 
-let typeJsonSchema: JSONSchema4 = {
+const TYPE_JSON_SCHEMA: JSONSchema4 = {
   enum: ['alphabetical', 'natural', 'line-length', 'custom', 'unsorted'],
   description: 'Specifies the sorting method.',
   type: 'string',
 }
 
-let orderJsonSchema: JSONSchema4 = {
+const ORDER_JSON_SCHEMA: JSONSchema4 = {
   description:
     'Specifies whether to sort items in ascending or descending order.',
   enum: ['asc', 'desc'],
   type: 'string',
 }
 
-let alphabetJsonSchema: JSONSchema4 = {
+const ALPHABET_JSON_SCHEMA: JSONSchema4 = {
   description:
     "Used only when the `type` option is set to `'custom'`. Specifies the custom alphabet for sorting.",
   type: 'string',
 }
 
-let localesJsonSchema: JSONSchema4 = {
+const LOCALES_JSON_SCHEMA: JSONSchema4 = {
   oneOf: [
     {
       type: 'string',
@@ -34,12 +34,12 @@ let localesJsonSchema: JSONSchema4 = {
   description: 'Specifies the sorting locales.',
 }
 
-let ignoreCaseJsonSchema: JSONSchema4 = {
+const IGNORE_CASE_JSON_SCHEMA: JSONSchema4 = {
   description: 'Controls whether sorting should be case-sensitive or not.',
   type: 'boolean',
 }
 
-let specialCharactersJsonSchema: JSONSchema4 = {
+const SPECIAL_CHARACTERS_JSON_SCHEMA: JSONSchema4 = {
   description:
     'Specifies whether to trim, remove, or keep special characters before sorting.',
   enum: ['remove', 'trim', 'keep'],
@@ -52,8 +52,8 @@ let buildFallbackSortJsonSchema = ({
   additionalProperties?: Record<string, JSONSchema4>
 } = {}): JSONSchema4 => ({
   properties: {
-    order: orderJsonSchema,
-    type: typeJsonSchema,
+    order: ORDER_JSON_SCHEMA,
+    type: TYPE_JSON_SCHEMA,
     ...additionalProperties,
   },
   description: 'Fallback sort order.',
@@ -70,24 +70,24 @@ export let buildCommonJsonSchemas = ({
   fallbackSort: buildFallbackSortJsonSchema({
     additionalProperties: additionalFallbackSortProperties,
   }),
-  specialCharacters: specialCharactersJsonSchema,
-  ignoreCase: ignoreCaseJsonSchema,
-  alphabet: alphabetJsonSchema,
-  locales: localesJsonSchema,
-  order: orderJsonSchema,
-  type: typeJsonSchema,
+  specialCharacters: SPECIAL_CHARACTERS_JSON_SCHEMA,
+  ignoreCase: IGNORE_CASE_JSON_SCHEMA,
+  alphabet: ALPHABET_JSON_SCHEMA,
+  locales: LOCALES_JSON_SCHEMA,
+  order: ORDER_JSON_SCHEMA,
+  type: TYPE_JSON_SCHEMA,
 })
 
-export let commonJsonSchemas: Record<string, JSONSchema4> =
+export const COMMON_JSON_SCHEMAS: Record<string, JSONSchema4> =
   buildCommonJsonSchemas()
 
-export let newlinesBetweenJsonSchema: JSONSchema4 = {
+export const NEWLINES_BETWEEN_JSON_SCHEMA: JSONSchema4 = {
   description: 'Specifies how to handle new lines between groups.',
   enum: ['ignore', 'always', 'never'],
   type: 'string',
 }
 
-export let groupsJsonSchema: JSONSchema4 = {
+export const GROUPS_JSON_SCHEMA: JSONSchema4 = {
   items: {
     oneOf: [
       {
@@ -101,7 +101,7 @@ export let groupsJsonSchema: JSONSchema4 = {
       },
       {
         properties: {
-          newlinesBetween: newlinesBetweenJsonSchema,
+          newlinesBetween: NEWLINES_BETWEEN_JSON_SCHEMA,
         },
         required: ['newlinesBetween'],
         additionalProperties: false,
@@ -113,7 +113,7 @@ export let groupsJsonSchema: JSONSchema4 = {
   type: 'array',
 }
 
-export let deprecatedCustomGroupsJsonSchema: JSONSchema4 = {
+export const DEPRECATED_CUSTOM_GROUPS_JSON_SCHEMA: JSONSchema4 = {
   additionalProperties: {
     oneOf: [
       {
@@ -131,7 +131,7 @@ export let deprecatedCustomGroupsJsonSchema: JSONSchema4 = {
   type: 'object',
 }
 
-let singleRegexJsonSchema: JSONSchema4 = {
+const SINGLE_REGEX_JSON_SCHEMA: JSONSchema4 = {
   oneOf: [
     {
       properties: {
@@ -158,35 +158,35 @@ let singleRegexJsonSchema: JSONSchema4 = {
   description: 'Regular expression.',
 }
 
-export let regexJsonSchema: JSONSchema4 = {
+export const REGEX_JSON_SCHEMA: JSONSchema4 = {
   oneOf: [
     {
-      items: singleRegexJsonSchema,
+      items: SINGLE_REGEX_JSON_SCHEMA,
       type: 'array',
     },
-    singleRegexJsonSchema,
+    SINGLE_REGEX_JSON_SCHEMA,
   ],
   description: 'Regular expression.',
 }
 
-let allowedPartitionByCommentJsonSchemas: JSONSchema4[] = [
+const ALLOWED_PARTITION_BY_COMMENT_JSON_SCHEMA: JSONSchema4[] = [
   {
     type: 'boolean',
   },
-  regexJsonSchema,
+  REGEX_JSON_SCHEMA,
 ]
-export let partitionByCommentJsonSchema: JSONSchema4 = {
+export const PARTITION_BY_COMMENT_JSON_SCHEMA: JSONSchema4 = {
   oneOf: [
-    ...allowedPartitionByCommentJsonSchemas,
+    ...ALLOWED_PARTITION_BY_COMMENT_JSON_SCHEMA,
     {
       properties: {
         block: {
           description: 'Enables specific block comments to separate the nodes.',
-          oneOf: allowedPartitionByCommentJsonSchemas,
+          oneOf: ALLOWED_PARTITION_BY_COMMENT_JSON_SCHEMA,
         },
         line: {
           description: 'Enables specific line comments to separate the nodes.',
-          oneOf: allowedPartitionByCommentJsonSchemas,
+          oneOf: ALLOWED_PARTITION_BY_COMMENT_JSON_SCHEMA,
         },
       },
       additionalProperties: false,
@@ -198,7 +198,7 @@ export let partitionByCommentJsonSchema: JSONSchema4 = {
     'Enables the use of comments to separate the nodes into logical groups.',
 }
 
-export let partitionByNewLineJsonSchema: JSONSchema4 = {
+export const PARTITION_BY_NEW_LINE_JSON_SCHEMA: JSONSchema4 = {
   description:
     'Enables the use of newlines to separate the nodes into logical groups.',
   type: 'boolean',
@@ -212,7 +212,7 @@ export let buildUseConfigurationIfJsonSchema = ({
   description:
     'Specifies filters to match a particular options configuration for a given element to sort.',
   properties: {
-    allNamesMatchPattern: regexJsonSchema,
+    allNamesMatchPattern: REGEX_JSON_SCHEMA,
     ...additionalProperties,
   },
   additionalProperties: false,
@@ -237,8 +237,8 @@ let buildCommonCustomGroupJsonSchemas = ({
     description: 'Custom group name.',
     type: 'string',
   },
-  order: orderJsonSchema,
-  type: typeJsonSchema,
+  order: ORDER_JSON_SCHEMA,
+  type: TYPE_JSON_SCHEMA,
 })
 
 export let buildCustomGroupsArrayJsonSchema = ({

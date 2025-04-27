@@ -9,7 +9,7 @@ import type {
   RegexOption,
 } from '../../types/common-options'
 
-import { regexJsonSchema } from '../../utils/common-json-schemas'
+import { REGEX_JSON_SCHEMA } from '../../utils/common-json-schemas'
 
 export type Options = Partial<
   {
@@ -30,6 +30,6 @@ export interface SingleCustomGroup {
 
 type Group = 'unknown' | string
 
-export let singleCustomGroupJsonSchema: Record<string, JSONSchema4> = {
-  elementNamePattern: regexJsonSchema,
+export const SINGLE_CUSTOM_GROUP_JSON_SCHEMA: Record<string, JSONSchema4> = {
+  elementNamePattern: REGEX_JSON_SCHEMA,
 }
