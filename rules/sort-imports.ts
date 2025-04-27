@@ -44,11 +44,11 @@ import { sortNodesByDependencies } from '../utils/sort-nodes-by-dependencies'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
 import { doesCustomGroupMatch } from '../utils/does-custom-group-match'
+import { ALL_MODIFIERS, ALL_SELECTORS } from './sort-imports/types'
 import { singleCustomGroupJsonSchema } from './sort-imports/types'
 import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
-import { allModifiers, allSelectors } from './sort-imports/types'
+import { ALL_DEPRECATED_SELECTORS } from './sort-imports/types'
 import { createEslintRule } from '../utils/create-eslint-rule'
-import { allDeprecatedSelectors } from './sort-imports/types'
 import { reportAllErrors } from '../utils/report-all-errors'
 import { shouldPartition } from '../utils/should-partition'
 import { computeGroup } from '../utils/compute-group'
@@ -115,8 +115,8 @@ export default createEslintRule<Options, MESSAGE_ID>({
               ...options.customGroups.value,
             },
       },
-      selectors: [...allSelectors, ...allDeprecatedSelectors],
-      modifiers: allModifiers,
+      selectors: [...ALL_SELECTORS, ...ALL_DEPRECATED_SELECTORS],
+      modifiers: ALL_MODIFIERS,
     })
     validateCustomSortConfiguration(options)
     validateNewlinesAndPartitionConfiguration(options)
@@ -436,7 +436,9 @@ export default createEslintRule<Options, MESSAGE_ID>({
                 additionalProperties: false,
                 type: 'object',
               },
-              buildCustomGroupsArrayJsonSchema({ singleCustomGroupJsonSchema }),
+              buildCustomGroupsArrayJsonSchema({
+                singleCustomGroupJsonSchema,
+              }),
             ],
           },
           maxLineLength: {

@@ -172,7 +172,7 @@ type TypeModifier = 'type'
 
 type TypeSelector = 'type'
 
-export let allSelectors: Selector[] = [
+export const ALL_SELECTORS: Selector[] = [
   'side-effect-style',
   'tsconfig-path',
   'side-effect',
@@ -188,7 +188,7 @@ export let allSelectors: Selector[] = [
   'type',
 ]
 
-export let allDeprecatedSelectors: Selector[] = [
+export const ALL_DEPRECATED_SELECTORS: Selector[] = [
   'internal-type',
   'external-type',
   'sibling-type',
@@ -198,7 +198,7 @@ export let allDeprecatedSelectors: Selector[] = [
   'object',
 ]
 
-export let allModifiers: Modifier[] = [
+export const ALL_MODIFIERS: Modifier[] = [
   'default',
   'named',
   'require',
@@ -214,8 +214,8 @@ export let allModifiers: Modifier[] = [
  * that users do not enter invalid modifiers for a given selector
  */
 export let singleCustomGroupJsonSchema: Record<string, JSONSchema4> = {
-  modifiers: buildCustomGroupModifiersJsonSchema(allModifiers),
-  selector: buildCustomGroupSelectorJsonSchema(allSelectors),
+  modifiers: buildCustomGroupModifiersJsonSchema(ALL_MODIFIERS),
+  selector: buildCustomGroupSelectorJsonSchema(ALL_SELECTORS),
   elementValuePattern: regexJsonSchema,
   elementNamePattern: regexJsonSchema,
 }

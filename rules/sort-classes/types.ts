@@ -264,7 +264,7 @@ type MethodSelector = 'method'
 
 type AsyncModifier = 'async'
 
-export let allSelectors: Selector[] = [
+export const ALL_SELECTORS: Selector[] = [
   'accessor-property',
   'index-signature',
   'constructor',
@@ -276,7 +276,7 @@ export let allSelectors: Selector[] = [
   'method',
 ]
 
-export let allModifiers: Modifier[] = [
+export const ALL_MODIFIERS: Modifier[] = [
   'async',
   'protected',
   'private',
@@ -295,8 +295,8 @@ export let allModifiers: Modifier[] = [
  * that users do not enter invalid modifiers for a given selector
  */
 export let singleCustomGroupJsonSchema: Record<string, JSONSchema4> = {
-  modifiers: buildCustomGroupModifiersJsonSchema(allModifiers),
-  selector: buildCustomGroupSelectorJsonSchema(allSelectors),
+  modifiers: buildCustomGroupModifiersJsonSchema(ALL_MODIFIERS),
+  selector: buildCustomGroupSelectorJsonSchema(ALL_SELECTORS),
   decoratorNamePattern: regexJsonSchema,
   elementValuePattern: regexJsonSchema,
   elementNamePattern: regexJsonSchema,

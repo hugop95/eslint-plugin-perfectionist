@@ -24,11 +24,11 @@ import {
 import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
 import { buildGetCustomGroupOverriddenOptionsFunction } from '../utils/get-custom-groups-compare-options'
 import { validateGeneratedGroupsConfiguration } from '../utils/validate-generated-groups-configuration'
-import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
 import {
   singleCustomGroupJsonSchema,
-  allSelectors,
+  ALL_SELECTORS,
 } from './sort-array-includes/types'
+import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
 import { getMatchingContextOptions } from '../utils/get-matching-context-options'
 import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
@@ -77,7 +77,7 @@ export const DEFAULT_OPTIONS: Required<Options[0]> = {
   groups: [],
 }
 
-export let jsonSchema: JSONSchema4 = {
+export const JSON_SCHEMA: JSONSchema4 = {
   items: {
     properties: {
       ...commonJsonSchemas,
@@ -142,7 +142,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
       url: 'https://perfectionist.dev/rules/sort-array-includes',
       recommended: true,
     },
-    schema: jsonSchema,
+    schema: JSON_SCHEMA,
     type: 'suggestion',
     fixable: 'code',
   },
@@ -181,7 +181,7 @@ export let sortArray = <MessageIds extends string>({
   let options = complete(matchedContextOptions[0], settings, DEFAULT_OPTIONS)
   validateCustomSortConfiguration(options)
   validateGeneratedGroupsConfiguration({
-    selectors: allSelectors,
+    selectors: ALL_SELECTORS,
     modifiers: [],
     options,
   })

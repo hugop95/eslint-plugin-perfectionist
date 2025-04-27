@@ -86,13 +86,13 @@ type ShorthandModifier = 'shorthand'
 
 type PropertySelector = 'prop'
 
-export let allSelectors: Selector[] = ['multiline', 'prop', 'shorthand']
+export const ALL_SELECTORS: Selector[] = ['multiline', 'prop', 'shorthand']
 
-export let allModifiers: Modifier[] = ['shorthand', 'multiline']
+export const ALL_MODIFIERS: Modifier[] = ['shorthand', 'multiline']
 
 export let singleCustomGroupJsonSchema: Record<string, JSONSchema4> = {
-  modifiers: buildCustomGroupModifiersJsonSchema(allModifiers),
-  selector: buildCustomGroupSelectorJsonSchema(allSelectors),
+  modifiers: buildCustomGroupModifiersJsonSchema(ALL_MODIFIERS),
+  selector: buildCustomGroupSelectorJsonSchema(ALL_SELECTORS),
   elementValuePattern: regexJsonSchema,
   elementNamePattern: regexJsonSchema,
 }
