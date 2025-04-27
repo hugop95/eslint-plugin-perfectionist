@@ -22,8 +22,8 @@ import {
 import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
 import {
   singleCustomGroupJsonSchema,
-  allModifiers,
-  allSelectors,
+  ALL_MODIFIERS,
+  ALL_SELECTORS,
 } from './sort-named-exports/types'
 import { buildGetCustomGroupOverriddenOptionsFunction } from '../utils/get-custom-groups-compare-options'
 import { validateGeneratedGroupsConfiguration } from '../utils/validate-generated-groups-configuration'
@@ -81,8 +81,8 @@ export default createEslintRule<Options, MESSAGE_ID>({
       let options = complete(context.options.at(0), settings, DEFAULT_OPTIONS)
       validateCustomSortConfiguration(options)
       validateGeneratedGroupsConfiguration({
-        modifiers: allModifiers,
-        selectors: allSelectors,
+        modifiers: ALL_MODIFIERS,
+        selectors: ALL_SELECTORS,
         options,
       })
       validateNewlinesAndPartitionConfiguration(options)

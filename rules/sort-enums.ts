@@ -263,7 +263,9 @@ export default createEslintRule<Options, MESSAGE_ID>({
           customGroups: {
             oneOf: [
               deprecatedCustomGroupsJsonSchema,
-              buildCustomGroupsArrayJsonSchema({ singleCustomGroupJsonSchema }),
+              buildCustomGroupsArrayJsonSchema({
+                singleCustomGroupJsonSchema,
+              }),
             ],
           },
           forceNumericSort: {

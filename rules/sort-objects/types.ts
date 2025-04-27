@@ -122,22 +122,22 @@ type MemberSelector = 'member'
 
 type MethodSelector = 'method'
 
-export let allSelectors: Selector[] = [
+export const ALL_SELECTORS: Selector[] = [
   'member',
   'method',
   'multiline',
   'property',
 ]
 
-export let allModifiers: Modifier[] = ['optional', 'required', 'multiline']
+export const ALL_MODIFIERS: Modifier[] = ['optional', 'required', 'multiline']
 
 /**
  * Ideally, we should generate as many schemas as there are selectors, and ensure
  * that users do not enter invalid modifiers for a given selector
  */
 export let singleCustomGroupJsonSchema: Record<string, JSONSchema4> = {
-  modifiers: buildCustomGroupModifiersJsonSchema(allModifiers),
-  selector: buildCustomGroupSelectorJsonSchema(allSelectors),
+  modifiers: buildCustomGroupModifiersJsonSchema(ALL_MODIFIERS),
+  selector: buildCustomGroupSelectorJsonSchema(ALL_SELECTORS),
   elementValuePattern: regexJsonSchema,
   elementNamePattern: regexJsonSchema,
 }

@@ -64,7 +64,7 @@ const DEFAULT_OPTIONS: Required<Options[0]> = {
   groups: [],
 }
 
-export let jsonSchema: JSONSchema4 = {
+export const JSON_SCHEMA: JSONSchema4 = {
   items: {
     properties: {
       ...commonJsonSchemas,
@@ -111,7 +111,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
       description: 'Enforce sorted union types.',
       recommended: true,
     },
-    schema: jsonSchema,
+    schema: JSON_SCHEMA,
     type: 'suggestion',
     fixable: 'code',
   },

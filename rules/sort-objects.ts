@@ -26,12 +26,12 @@ import {
 } from '../utils/report-errors'
 import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
 import { buildGetCustomGroupOverriddenOptionsFunction } from '../utils/get-custom-groups-compare-options'
-import { validateGeneratedGroupsConfiguration } from '../utils/validate-generated-groups-configuration'
 import {
   singleCustomGroupJsonSchema,
-  allModifiers,
-  allSelectors,
+  ALL_MODIFIERS,
+  ALL_SELECTORS,
 } from './sort-objects/types'
+import { validateGeneratedGroupsConfiguration } from '../utils/validate-generated-groups-configuration'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
 import { getFirstNodeParentWithType } from './sort-objects/get-first-node-parent-with-type'
 import { getMatchingContextOptions } from '../utils/get-matching-context-options'
@@ -129,8 +129,8 @@ export default createEslintRule<Options, MESSAGE_ID>({
       let options = complete(matchedContextOptions, settings, DEFAULT_OPTIONS)
       validateCustomSortConfiguration(options)
       validateGeneratedGroupsConfiguration({
-        selectors: allSelectors,
-        modifiers: allModifiers,
+        selectors: ALL_SELECTORS,
+        modifiers: ALL_MODIFIERS,
         options,
       })
       validateNewlinesAndPartitionConfiguration(options)
@@ -448,7 +448,9 @@ export default createEslintRule<Options, MESSAGE_ID>({
           customGroups: {
             oneOf: [
               deprecatedCustomGroupsJsonSchema,
-              buildCustomGroupsArrayJsonSchema({ singleCustomGroupJsonSchema }),
+              buildCustomGroupsArrayJsonSchema({
+                singleCustomGroupJsonSchema,
+              }),
             ],
           },
           useConfigurationIf: buildUseConfigurationIfJsonSchema({

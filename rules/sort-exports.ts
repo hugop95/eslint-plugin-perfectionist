@@ -25,8 +25,8 @@ import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
 import { doesCustomGroupMatch } from '../utils/does-custom-group-match'
+import { ALL_MODIFIERS, ALL_SELECTORS } from './sort-exports/types'
 import { singleCustomGroupJsonSchema } from './sort-exports/types'
-import { allModifiers, allSelectors } from './sort-exports/types'
 import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { createEslintRule } from '../utils/create-eslint-rule'
 import { reportAllErrors } from '../utils/report-all-errors'
@@ -77,8 +77,8 @@ export default createEslintRule<Options, MESSAGE_ID>({
     let options = complete(context.options.at(0), settings, DEFAULT_OPTIONS)
     validateCustomSortConfiguration(options)
     validateGeneratedGroupsConfiguration({
-      modifiers: allModifiers,
-      selectors: allSelectors,
+      modifiers: ALL_MODIFIERS,
+      selectors: ALL_SELECTORS,
       options,
     })
     validateNewlinesAndPartitionConfiguration(options)

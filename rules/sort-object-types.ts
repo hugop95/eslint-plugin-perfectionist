@@ -30,8 +30,8 @@ import {
 import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
 import {
   singleCustomGroupJsonSchema,
-  allModifiers,
-  allSelectors,
+  ALL_MODIFIERS,
+  ALL_SELECTORS,
 } from './sort-object-types/types'
 import { validateGeneratedGroupsConfiguration } from '../utils/validate-generated-groups-configuration'
 import { getCustomGroupsCompareOptions } from './sort-object-types/get-custom-groups-compare-options'
@@ -85,7 +85,7 @@ const DEFAULT_OPTIONS: Required<Options[0]> = {
   groups: [],
 }
 
-export let jsonSchema: JSONSchema4 = {
+export const JSON_SCHEMA: JSONSchema4 = {
   items: {
     properties: {
       ...buildCommonJsonSchemas({
@@ -156,7 +156,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
       description: 'Enforce sorted object types.',
       recommended: true,
     },
-    schema: jsonSchema,
+    schema: JSON_SCHEMA,
     type: 'suggestion',
     fixable: 'code',
   },
@@ -206,8 +206,8 @@ export let sortObjectTypeElements = <MessageIds extends string>({
   let options = complete(matchedContextOptions, settings, DEFAULT_OPTIONS)
   validateCustomSortConfiguration(options)
   validateGeneratedGroupsConfiguration({
-    selectors: allSelectors,
-    modifiers: allModifiers,
+    selectors: ALL_SELECTORS,
+    modifiers: ALL_MODIFIERS,
     options,
   })
   validateNewlinesAndPartitionConfiguration(options)

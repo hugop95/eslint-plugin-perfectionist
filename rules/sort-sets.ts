@@ -6,7 +6,7 @@ import {
   GROUP_ORDER_ERROR,
   ORDER_ERROR,
 } from '../utils/report-errors'
-import { DEFAULT_OPTIONS, jsonSchema, sortArray } from './sort-array-includes'
+import { DEFAULT_OPTIONS, JSON_SCHEMA, sortArray } from './sort-array-includes'
 import { createEslintRule } from '../utils/create-eslint-rule'
 
 type MESSAGE_ID =
@@ -56,7 +56,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
       description: 'Enforce sorted sets.',
       recommended: true,
     },
-    schema: jsonSchema,
+    schema: JSON_SCHEMA,
     type: 'suggestion',
     fixable: 'code',
   },

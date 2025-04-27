@@ -6,7 +6,7 @@ import {
   GROUP_ORDER_ERROR,
   ORDER_ERROR,
 } from '../utils/report-errors'
-import { sortUnionOrIntersectionTypes, jsonSchema } from './sort-union-types'
+import { sortUnionOrIntersectionTypes, JSON_SCHEMA } from './sort-union-types'
 import { createEslintRule } from '../utils/create-eslint-rule'
 
 type MESSAGE_ID =
@@ -45,7 +45,7 @@ export default createEslintRule<Options, MESSAGE_ID>({
       description: 'Enforce sorted intersection types.',
       recommended: true,
     },
-    schema: jsonSchema,
+    schema: JSON_SCHEMA,
     type: 'suggestion',
     fixable: 'code',
   },

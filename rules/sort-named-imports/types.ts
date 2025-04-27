@@ -58,11 +58,11 @@ type ValueModifier = 'value'
 
 type TypeModifier = 'type'
 
-export let allSelectors: Selector[] = ['import']
-export let allModifiers: Modifier[] = ['value', 'type']
+export const ALL_SELECTORS: Selector[] = ['import']
+export const ALL_MODIFIERS: Modifier[] = ['value', 'type']
 
 export let singleCustomGroupJsonSchema: Record<string, JSONSchema4> = {
-  modifiers: buildCustomGroupModifiersJsonSchema(allModifiers),
-  selector: buildCustomGroupSelectorJsonSchema(allSelectors),
+  modifiers: buildCustomGroupModifiersJsonSchema(ALL_MODIFIERS),
+  selector: buildCustomGroupSelectorJsonSchema(ALL_SELECTORS),
   elementNamePattern: regexJsonSchema,
 }

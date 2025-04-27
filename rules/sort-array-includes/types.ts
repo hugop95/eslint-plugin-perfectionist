@@ -44,9 +44,9 @@ type Group = 'unknown' | string
 
 type SpreadSelector = 'spread'
 
-export let allSelectors: Selector[] = ['literal', 'spread']
+export const ALL_SELECTORS: Selector[] = ['literal', 'spread']
 
 export let singleCustomGroupJsonSchema: Record<string, JSONSchema4> = {
-  selector: buildCustomGroupSelectorJsonSchema(allSelectors),
+  selector: buildCustomGroupSelectorJsonSchema(ALL_SELECTORS),
   elementNamePattern: regexJsonSchema,
 }
