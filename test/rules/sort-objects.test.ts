@@ -2330,7 +2330,26 @@ describe('sort-objects', () => {
           options,
         ],
         code: dedent`
-          const constant = {
+          const constant = <any>{
+            b,
+            a,
+            c,
+          }
+        `,
+      })
+
+      await valid({
+        options: [
+          {
+            useConfigurationIf: {
+              declarationMatchesPattern: '^constant$',
+            },
+            type: 'unsorted',
+          },
+          options,
+        ],
+        code: dedent`
+          const constant = <any>{
             b,
             a,
             c,
@@ -2351,6 +2370,27 @@ describe('sort-objects', () => {
         code: dedent`
           const notAConstant = {
             constant: {
+              b,
+              a,
+              c,
+            }
+          }
+        `,
+      })
+
+      await valid({
+        options: [
+          {
+            useConfigurationIf: {
+              declarationMatchesPattern: '^constant$',
+            },
+            type: 'unsorted',
+          },
+          options,
+        ],
+        code: dedent`
+          const notAConstant = {
+            constant: <any>{
               b,
               a,
               c,
