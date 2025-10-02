@@ -13,28 +13,19 @@ type NodeOfType<Type> = { type: Type } & TSESTree.Node
  *
  * @param options - Options for the search.
  * @param options.allowedTypes - Array of AST node types to match.
- * @param options.onlyFirstParent - If true, only checks immediate parent; if
- *   false, traverses all ancestors.
  * @param options.node - Starting node to search from.
  * @returns First matching parent node or null if none found.
  */
 export function getFirstNodeParentWithType<
   NodeType extends TSESTree.AST_NODE_TYPES,
 >({
-  onlyFirstParent,
   allowedTypes,
   node,
 }: {
   allowedTypes: NodeType[]
-  onlyFirstParent: boolean
   node: TSESTree.Node
 }): NodeOfType<NodeType> | null {
   let { parent } = node
-  if (onlyFirstParent) {
-    return parent && (allowedTypes as string[]).includes(parent.type)
-      ? (parent as NodeOfType<NodeType>)
-      : null
-  }
   while (parent) {
     if ((allowedTypes as string[]).includes(parent.type)) {
       return parent as NodeOfType<NodeType>

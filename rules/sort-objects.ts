@@ -119,7 +119,6 @@ export default createEslintRule<Options, MessageId>({
       }
 
       let objectParentForIgnorePattern = getObjectParent({
-        onlyFirstParent: false,
         node: nodeObject,
         sourceCode,
       })
@@ -482,7 +481,6 @@ function computeMatchedContextOptions({
   sourceCode: TSESLint.SourceCode
 }): Options[number] | undefined {
   let objectParent = getObjectParent({
-    onlyFirstParent: false,
     node: nodeObject,
     sourceCode,
   })
@@ -551,13 +549,11 @@ function computeMatchedContextOptions({
 }
 
 function getObjectParent({
-  onlyFirstParent,
   sourceCode,
   node,
 }: {
   node: TSESTree.ObjectExpression | TSESTree.ObjectPattern
   sourceCode: TSESLint.SourceCode
-  onlyFirstParent: boolean
 }):
   | {
       node: TSESTree.VariableDeclarator | TSESTree.Property
@@ -570,7 +566,7 @@ function getObjectParent({
       name: string | null
     }
   | null {
-  let variableParent = getVariableParent({ onlyFirstParent, node })
+  let variableParent = getVariableParent({ node })
   if (variableParent) {
     return {
       type: 'VariableDeclarator',
@@ -580,7 +576,6 @@ function getObjectParent({
   }
   let callParent = getFirstNodeParentWithType({
     allowedTypes: [TSESTree.AST_NODE_TYPES.CallExpression],
-    onlyFirstParent,
     node,
   })
   if (callParent) {
@@ -594,11 +589,9 @@ function getObjectParent({
 }
 
 function getVariableParent({
-  onlyFirstParent,
   node,
 }: {
   node: TSESTree.ObjectExpression | TSESTree.ObjectPattern
-  onlyFirstParent: boolean
 }): {
   node: TSESTree.VariableDeclarator | TSESTree.Property
   name: string | null
@@ -608,7 +601,6 @@ function getVariableParent({
       TSESTree.AST_NODE_TYPES.VariableDeclarator,
       TSESTree.AST_NODE_TYPES.Property,
     ],
-    onlyFirstParent,
     node,
   })
   if (!variableParent) {
