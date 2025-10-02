@@ -482,7 +482,7 @@ function computeMatchedContextOptions({
   sourceCode: TSESLint.SourceCode
 }): Options[number] | undefined {
   let objectParent = getObjectParent({
-    onlyFirstParent: true,
+    onlyFirstParent: false,
     node: nodeObject,
     sourceCode,
   })
