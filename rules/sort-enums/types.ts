@@ -19,21 +19,8 @@ import { buildRegexJsonSchema } from '../../utils/json-schemas/common-json-schem
  * code readability and maintainability.
  */
 export type Options = Partial<
-  {
-    /**
-     * Whether to sort enum members by their values instead of names. When
-     * "always", compares enum values; when "never", compares enum member
-     * names.
-     *
-     * @default ifNumericEnum
-     */
-    sortByValue: 'ifNumericEnum' | 'always' | 'never'
-  } & CommonGroupsOptions<
-    SingleCustomGroup,
-    Record<string, never>,
-    TypeOption
-  > &
-    CommonOptions<TypeOption> &
+  CommonGroupsOptions<SingleCustomGroup, Record<string, never>, TypeOption> &
+    CommonOptions<TypeOption, { sortByValue: SortByValue }> &
     CommonPartitionOptions
 >[]
 
@@ -50,6 +37,8 @@ interface SingleCustomGroup {
    */
   elementValuePattern?: RegexOption
 }
+
+type SortByValue = 'ifNumericEnum' | 'always' | 'never'
 
 /**
  * JSON schema definition for validating single custom group configurations.
