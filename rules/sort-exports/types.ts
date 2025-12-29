@@ -16,7 +16,14 @@ import {
  * From '...'`) to improve code organization and maintainability.
  */
 export type Options = Partial<
-  CommonGroupsOptions<SingleCustomGroup, Record<string, never>, TypeOption> &
+  {
+    /** Number of newlines required after the last sorted element. */
+    newlinesAfter: 'ignore' | number
+  } & CommonGroupsOptions<
+    SingleCustomGroup,
+    Record<string, never>,
+    TypeOption
+  > &
     CommonOptions<TypeOption> &
     CommonPartitionOptions
 >[]
