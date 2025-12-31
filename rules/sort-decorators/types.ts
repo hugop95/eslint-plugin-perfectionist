@@ -22,7 +22,9 @@ export type SortDecoratorsSortingNode = SortingNode<TSESTree.Decorator>
 
 export type AdditionalSortOptions = object
 
-/** Match options for a custom group. */
+/**
+ * Match options for a custom group.
+ */
 type CustomGroupMatchOptions = object
 
 export let allSelectors = [] as const
