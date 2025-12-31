@@ -2,7 +2,12 @@ import type { TSESTree } from '@typescript-eslint/types'
 
 import { AST_NODE_TYPES } from '@typescript-eslint/utils'
 
-import type { SortEnumsSortingNode, Options } from './sort-enums/types'
+import type {
+  SortEnumsSortingNode,
+  Selector,
+  Modifier,
+  Options,
+} from './sort-enums/types'
 
 import {
   DEPENDENCY_ORDER_ERROR,
@@ -39,7 +44,7 @@ import { createEslintRule } from '../utils/create-eslint-rule'
 import { reportAllErrors } from '../utils/report-all-errors'
 import { shouldPartition } from '../utils/should-partition'
 import { getEnumMembers } from '../utils/get-enum-members'
-import { computeGroup } from '../utils/compute-group'
+import { GroupMatcher } from '../utils/group-matcher'
 import { rangeToDiff } from '../utils/range-to-diff'
 import { getSettings } from '../utils/get-settings'
 import { isSortable } from '../utils/is-sortable'
@@ -98,6 +103,11 @@ export default createEslintRule<Options, MessageId>({
       validateNewlinesAndPartitionConfiguration(options)
 
       let { sourceCode, id } = context
+      let groupMatcher = new GroupMatcher({
+        allModifiers,
+        allSelectors,
+        options,
+      })
       let eslintDisabledLines = getEslintDisabledLines({
         ruleName: id,
         sourceCode,
@@ -112,17 +122,19 @@ export default createEslintRule<Options, MessageId>({
               member.id.value
             : sourceCode.getText(member.id)
 
-          let group = computeGroup({
+          let selectors: Selector[] = []
+          let modifiers: Modifier[] = []
+          let group = groupMatcher.computeGroup({
             customGroupMatcher: customGroup =>
               doesCustomGroupMatch({
                 elementValue: sourceCode.getText(member.initializer),
                 elementName: name,
-                selectors: [],
-                modifiers: [],
                 customGroup,
+                selectors,
+                modifiers,
               }),
-            predefinedGroups: [],
-            options,
+            selectors,
+            modifiers,
           })
 
           let lastSortingNode = accumulator.at(-1)?.at(-1)
