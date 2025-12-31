@@ -113,41 +113,41 @@ export default createEslintRule<Options, MessageId>({
         }
       },
       PropertyDefinition: propertyDefinition =>
-        options.sortOnProperties
-          ? sortDecorators({
-              decorators: getNodeDecorators(propertyDefinition),
-              groupMatcher,
-              context,
-              options,
-            })
-          : null,
+        options.sortOnProperties ?
+          sortDecorators({
+            decorators: getNodeDecorators(propertyDefinition),
+            groupMatcher,
+            context,
+            options,
+          })
+        : null,
       AccessorProperty: accessorDefinition =>
-        options.sortOnAccessors
-          ? sortDecorators({
-              decorators: getNodeDecorators(accessorDefinition),
-              groupMatcher,
-              options,
-              context,
-            })
-          : null,
+        options.sortOnAccessors ?
+          sortDecorators({
+            decorators: getNodeDecorators(accessorDefinition),
+            groupMatcher,
+            options,
+            context,
+          })
+        : null,
       MethodDefinition: methodDefinition =>
-        options.sortOnMethods
-          ? sortDecorators({
-              decorators: getNodeDecorators(methodDefinition),
-              groupMatcher,
-              options,
-              context,
-            })
-          : null,
+        options.sortOnMethods ?
+          sortDecorators({
+            decorators: getNodeDecorators(methodDefinition),
+            groupMatcher,
+            options,
+            context,
+          })
+        : null,
       ClassDeclaration: declaration =>
-        options.sortOnClasses
-          ? sortDecorators({
-              decorators: getNodeDecorators(declaration),
-              groupMatcher,
-              options,
-              context,
-            })
-          : null,
+        options.sortOnClasses ?
+          sortDecorators({
+            decorators: getNodeDecorators(declaration),
+            groupMatcher,
+            options,
+            context,
+          })
+        : null,
     }
   },
   meta: {
