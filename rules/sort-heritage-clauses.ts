@@ -24,6 +24,7 @@ import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-c
 import { validateGroupsConfiguration } from '../utils/validate-groups-configuration'
 import { buildCommonJsonSchemas } from '../utils/json-schemas/common-json-schemas'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
+import { allModifiers, allSelectors } from './sort-heritage-clauses/types'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
 import { doesCustomGroupMatch } from '../utils/does-custom-group-match'
 import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
@@ -99,8 +100,8 @@ export default createEslintRule<Options, MessageId>({
     let options = complete(context.options.at(0), settings, defaultOptions)
     validateCustomSortConfiguration(options)
     validateGroupsConfiguration({
-      modifiers: [],
-      selectors: [],
+      modifiers: allModifiers,
+      selectors: allSelectors,
       options,
     })
     validateNewlinesAndPartitionConfiguration(options)

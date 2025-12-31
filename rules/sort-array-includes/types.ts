@@ -64,6 +64,7 @@ type AdditionalSortOptions = object
  * and JSON schema generation.
  */
 export let allSelectors = ['literal', 'spread'] as const
+export let allModifiers = [] as const
 
 /**
  * Additional custom group match options JSON schema. Used by ESLint to validate
