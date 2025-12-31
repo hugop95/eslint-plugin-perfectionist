@@ -28,6 +28,7 @@ import { buildCommonJsonSchemas } from '../utils/json-schemas/common-json-schema
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
 import { doesCustomGroupMatch } from '../utils/does-custom-group-match'
+import { allModifiers, allSelectors } from './sort-decorators/types'
 import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { getNodeDecorators } from '../utils/get-node-decorators'
 import { getDecoratorName } from '../utils/get-decorator-name'
@@ -73,6 +74,61 @@ let defaultOptions: Required<Options[number]> = {
 }
 
 export default createEslintRule<Options, MessageId>({
+  create: context => {
+    let settings = getSettings(context.settings)
+
+    let options = complete(context.options.at(0), settings, defaultOptions)
+    validateCustomSortConfiguration(options)
+    validateGroupsConfiguration({
+      modifiers: allModifiers,
+      selectors: allSelectors,
+      options,
+    })
+    validateNewlinesAndPartitionConfiguration(options)
+
+    return {
+      Decorator: decorator => {
+        if (!options.sortOnParameters) {
+          return
+        }
+        if (
+          'decorators' in decorator.parent &&
+          decorator.parent.type === AST_NODE_TYPES.Identifier &&
+          decorator.parent.parent.type === AST_NODE_TYPES.FunctionExpression
+        ) {
+          let { decorators } = decorator.parent
+          if (decorator !== decorators[0]) {
+            return
+          }
+          sortDecorators(context, options, decorators)
+        }
+      },
+      PropertyDefinition: propertyDefinition =>
+        options.sortOnProperties ?
+          sortDecorators(
+            context,
+            options,
+            getNodeDecorators(propertyDefinition),
+          )
+        : null,
+      AccessorProperty: accessorDefinition =>
+        options.sortOnAccessors ?
+          sortDecorators(
+            context,
+            options,
+            getNodeDecorators(accessorDefinition),
+          )
+        : null,
+      MethodDefinition: methodDefinition =>
+        options.sortOnMethods ?
+          sortDecorators(context, options, getNodeDecorators(methodDefinition))
+        : null,
+      ClassDeclaration: declaration =>
+        options.sortOnClasses ?
+          sortDecorators(context, options, getNodeDecorators(declaration))
+        : null,
+    }
+  },
   meta: {
     schema: {
       items: {
@@ -126,65 +182,6 @@ export default createEslintRule<Options, MessageId>({
     },
     type: 'suggestion',
     fixable: 'code',
-  },
-  create: context => {
-    let settings = getSettings(context.settings)
-
-    let options = complete(context.options.at(0), settings, defaultOptions)
-    validateCustomSortConfiguration(options)
-    validateGroupsConfiguration({
-      modifiers: [],
-      selectors: [],
-      options,
-    })
-    validateNewlinesAndPartitionConfiguration(options)
-
-    return {
-      Decorator: decorator => {
-        if (!options.sortOnParameters) {
-          return
-        }
-        if (
-          'decorators' in decorator.parent &&
-          decorator.parent.type === AST_NODE_TYPES.Identifier &&
-          decorator.parent.parent.type === AST_NODE_TYPES.FunctionExpression
-        ) {
-          let { decorators } = decorator.parent
-          if (decorator !== decorators[0]) {
-            return
-          }
-          sortDecorators(context, options, decorators)
-        }
-      },
-      PropertyDefinition: propertyDefinition => {
-        if (options.sortOnProperties) {
-          sortDecorators(
-            context,
-            options,
-            getNodeDecorators(propertyDefinition),
-          )
-        }
-      },
-      AccessorProperty: accessorDefinition => {
-        if (options.sortOnAccessors) {
-          sortDecorators(
-            context,
-            options,
-            getNodeDecorators(accessorDefinition),
-          )
-        }
-      },
-      MethodDefinition: methodDefinition => {
-        if (options.sortOnMethods) {
-          sortDecorators(context, options, getNodeDecorators(methodDefinition))
-        }
-      },
-      ClassDeclaration: declaration => {
-        if (options.sortOnClasses) {
-          sortDecorators(context, options, getNodeDecorators(declaration))
-        }
-      },
-    }
   },
   defaultOptions: [defaultOptions],
   name: 'sort-decorators',
