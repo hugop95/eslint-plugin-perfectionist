@@ -42,7 +42,6 @@ import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-c
 import { computeParentNodesWithTypes } from '../utils/compute-parent-nodes-with-types'
 import { scopedRegexJsonSchema } from '../utils/json-schemas/scoped-regex-json-schema'
 import { validateGroupsConfiguration } from '../utils/validate-groups-configuration'
-import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
 import { isNodeFunctionType } from './sort-object-types/is-node-function-type'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { isMemberOptional } from './sort-object-types/is-member-optional'
@@ -55,16 +54,11 @@ import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { createEslintRule } from '../utils/create-eslint-rule'
 import { reportAllErrors } from '../utils/report-all-errors'
 import { shouldPartition } from '../utils/should-partition'
-import { computeGroup } from '../utils/compute-group'
+import { GroupMatcher } from '../utils/group-matcher'
 import { rangeToDiff } from '../utils/range-to-diff'
 import { getSettings } from '../utils/get-settings'
 import { isSortable } from '../utils/is-sortable'
 import { complete } from '../utils/complete'
-
-/**
- * Cache computed groups by modifiers and selectors for performance.
- */
-let cachedGroupsByModifiersAndSelectors = new Map<string, string[]>()
 
 const ORDER_ERROR_ID = 'unexpectedObjectTypesOrder'
 const GROUP_ORDER_ERROR_ID = 'unexpectedObjectTypesGroupOrder'
@@ -200,6 +194,11 @@ export function sortObjectTypeElements<MessageIds extends string>({
   })
   validateNewlinesAndPartitionConfiguration(options)
 
+  let groupMatcher = new GroupMatcher({
+    allModifiers,
+    allSelectors,
+    options,
+  })
   let eslintDisabledLines = getEslintDisabledLines({
     ruleName: id,
     sourceCode,
@@ -258,12 +257,7 @@ export function sortObjectTypeElements<MessageIds extends string>({
       value = sourceCode.getText(typeElement.typeAnnotation.typeAnnotation)
     }
 
-    let predefinedGroups = generatePredefinedGroups({
-      cache: cachedGroupsByModifiersAndSelectors,
-      selectors,
-      modifiers,
-    })
-    let group = computeGroup({
+    let group = groupMatcher.computeGroup({
       customGroupMatcher: customGroup =>
         doesCustomGroupMatch({
           elementValue: value,
@@ -272,8 +266,8 @@ export function sortObjectTypeElements<MessageIds extends string>({
           selectors,
           modifiers,
         }),
-      predefinedGroups,
-      options,
+      selectors,
+      modifiers,
     })
 
     let sortingNode: Omit<SortObjectTypesSortingNode, 'partitionId'> = {
