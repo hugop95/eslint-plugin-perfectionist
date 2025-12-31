@@ -27,6 +27,7 @@ import { defaultComparatorByOptionsComputer } from '../utils/compare/default-com
 import {
   additionalCustomGroupMatchOptionsJsonSchema,
   allSelectors,
+  allModifiers,
 } from './sort-array-includes/types'
 import { buildOptionsByGroupIndexComputer } from '../utils/build-options-by-group-index-computer'
 import { buildCommonGroupsJsonSchemas } from '../utils/json-schemas/common-groups-json-schemas'
@@ -181,7 +182,7 @@ export function sortArray<MessageIds extends string>({
   validateCustomSortConfiguration(options)
   validateGroupsConfiguration({
     selectors: allSelectors,
-    modifiers: [],
+    modifiers: allModifiers,
     options,
   })
   validateNewlinesAndPartitionConfiguration(options)
