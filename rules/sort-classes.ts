@@ -45,10 +45,8 @@ import { computePropertyDetails } from './sort-classes/node-info/compute-propert
 import { computeAccessorDetails } from './sort-classes/node-info/compute-accessor-details'
 import { computeMethodDetails } from './sort-classes/node-info/compute-method-details'
 import { validateGroupsConfiguration } from '../utils/validate-groups-configuration'
-import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
 import { sortNodesByDependencies } from '../utils/sort-nodes-by-dependencies'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
-import { isKnownClassElement } from './sort-classes/is-known-class-element'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
 import { doesCustomGroupMatch } from '../utils/does-custom-group-match'
 import { UnreachableCaseError } from '../utils/unreachable-case-error'
@@ -59,16 +57,11 @@ import { getDecoratorName } from '../utils/get-decorator-name'
 import { reportAllErrors } from '../utils/report-all-errors'
 import { shouldPartition } from '../utils/should-partition'
 import { getGroupIndex } from '../utils/get-group-index'
-import { computeGroup } from '../utils/compute-group'
+import { GroupMatcher } from '../utils/group-matcher'
 import { rangeToDiff } from '../utils/range-to-diff'
 import { getSettings } from '../utils/get-settings'
 import { isSortable } from '../utils/is-sortable'
 import { complete } from '../utils/complete'
-
-/**
- * Cache computed groups by modifiers and selectors for performance.
- */
-let cachedGroupsByModifiersAndSelectors = new Map<string, string[]>()
 
 const ORDER_ERROR_ID = 'unexpectedClassesOrder'
 const GROUP_ORDER_ERROR_ID = 'unexpectedClassesGroupOrder'
@@ -142,6 +135,11 @@ export default createEslintRule<Options, MessageId>({
       validateNewlinesAndPartitionConfiguration(options)
 
       let { sourceCode, id } = context
+      let groupMatcher = new GroupMatcher({
+        allModifiers,
+        allSelectors,
+        options,
+      })
       let eslintDisabledLines = getEslintDisabledLines({
         ruleName: id,
         sourceCode,
@@ -164,10 +162,6 @@ export default createEslintRule<Options, MessageId>({
           >[][],
           member,
         ) => {
-          if (!isKnownClassElement(member)) {
-            return accumulator
-          }
-
           let dependencies: string[] = []
 
           let isDecorated = false
@@ -277,12 +271,7 @@ export default createEslintRule<Options, MessageId>({
               throw new UnreachableCaseError(member)
           }
 
-          let predefinedGroups = generatePredefinedGroups({
-            cache: cachedGroupsByModifiersAndSelectors,
-            selectors,
-            modifiers,
-          })
-          let group = computeGroup({
+          let group = groupMatcher.computeGroup({
             customGroupMatcher: customGroup =>
               doesCustomGroupMatch({
                 elementValue: memberValue,
@@ -292,9 +281,10 @@ export default createEslintRule<Options, MessageId>({
                 modifiers,
                 selectors,
               }),
-            predefinedGroups,
-            options,
+            selectors,
+            modifiers,
           })
+
           let sortingNode: Omit<
             SortClassesSortingNode,
             'overloadSignatureImplementation' | 'partitionId'
