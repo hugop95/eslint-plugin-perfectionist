@@ -11,6 +11,26 @@ import {
 } from '../../utils/json-schemas/common-groups-json-schemas'
 import { buildRegexJsonSchema } from '../../utils/json-schemas/common-json-schemas'
 
+/**
+ * Additional configuration for a single custom group.
+ *
+ * Custom groups allow fine-grained control over how module members are grouped
+ * and sorted based on their types, modifiers, and patterns.
+ */
+export interface CustomGroupMatchOptions {
+  /**
+   * Regular expression pattern to match decorator names. Members with
+   * decorators matching this pattern will be included in this custom group.
+   */
+  decoratorNamePattern?: RegexOption
+
+  /** List of modifiers that members must have to be included in this group. */
+  modifiers?: Modifier[]
+
+  /** The type of module member this group applies to. */
+  selector?: Selector
+}
+
 export type SortModulesNode =
   | TSESTree.ExportDefaultDeclaration
   | TSESTree.ExportNamedDeclaration
@@ -47,43 +67,11 @@ export type SortModulesSortingNode = {
   dependencyDetection: DependencyDetection
 } & SortingNodeWithDependencies<SortModulesNode>
 
-/**
- * Union type of all available module member selectors. Used to categorize
- * different types of module-level declarations.
- */
-export type Selector = (typeof allSelectors)[number]
-
-/**
- * Union type of all available module member modifiers. Used to identify
- * specific characteristics of module declarations.
- */
-export type Modifier = (typeof allModifiers)[number]
-
 export type DependencyDetection = 'soft' | 'hard'
 
-/**
- * Additional configuration for a single custom group.
- *
- * Custom groups allow fine-grained control over how module members are grouped
- * and sorted based on their types, modifiers, and patterns.
- */
-interface CustomGroupMatchOptions {
-  /**
-   * Regular expression pattern to match decorator names. Members with
-   * decorators matching this pattern will be included in this custom group.
-   */
-  decoratorNamePattern?: RegexOption
-
-  /** List of modifiers that members must have to be included in this group. */
-  modifiers?: Modifier[]
-
-  /** The type of module member this group applies to. */
-  selector?: Selector
-}
+export type AdditionalSortOptions = object
 
 type CustomTypeOption = typeof USAGE_TYPE_OPTION | TypeOption
-
-type AdditionalSortOptions = object
 
 /**
  * Complete list of available module member selectors. Used for validation and
@@ -98,18 +86,20 @@ export let allSelectors = [
   'type',
   'class',
 ] as const
+export type Selector = (typeof allSelectors)[number]
 
 /**
  * Complete list of available module member modifiers. Used for validation and
  * JSON schema generation.
  */
 export let allModifiers = [
-  'async',
   'declare',
-  'decorated',
   'default',
+  'async',
+  'decorated',
   'export',
 ] as const
+export type Modifier = (typeof allModifiers)[number]
 
 /**
  * Ideally, we should generate as many schemas as there are selectors, and
