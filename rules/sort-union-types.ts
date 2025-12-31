@@ -4,7 +4,7 @@ import type { TSESTree } from '@typescript-eslint/types'
 
 import { AST_NODE_TYPES } from '@typescript-eslint/utils'
 
-import type { Selector, Options } from './sort-union-types/types'
+import type { Modifier, Selector, Options } from './sort-union-types/types'
 import type { SortingNode } from '../types/sorting-node'
 
 import {
@@ -17,19 +17,18 @@ import {
   GROUP_ORDER_ERROR,
   ORDER_ERROR,
 } from '../utils/report-errors'
-import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
-import { defaultComparatorByOptionsComputer } from '../utils/compare/default-comparator-by-options-computer'
 import {
   additionalCustomGroupMatchOptionsJsonSchema,
-  allSelectors,
   allModifiers,
+  allSelectors,
 } from './sort-union-types/types'
+import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
+import { defaultComparatorByOptionsComputer } from '../utils/compare/default-comparator-by-options-computer'
 import { buildOptionsByGroupIndexComputer } from '../utils/build-options-by-group-index-computer'
 import { buildCommonGroupsJsonSchemas } from '../utils/json-schemas/common-groups-json-schemas'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
 import { validateGroupsConfiguration } from '../utils/validate-groups-configuration'
 import { buildCommonJsonSchemas } from '../utils/json-schemas/common-json-schemas'
-import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
 import { doesCustomGroupMatch } from '../utils/does-custom-group-match'
@@ -38,15 +37,10 @@ import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { createEslintRule } from '../utils/create-eslint-rule'
 import { reportAllErrors } from '../utils/report-all-errors'
 import { shouldPartition } from '../utils/should-partition'
-import { computeGroup } from '../utils/compute-group'
+import { GroupMatcher } from '../utils/group-matcher'
 import { rangeToDiff } from '../utils/range-to-diff'
 import { getSettings } from '../utils/get-settings'
 import { complete } from '../utils/complete'
-
-/**
- * Cache computed groups by modifiers and selectors for performance.
- */
-let cachedGroupsByModifiersAndSelectors = new Map<string, string[]>()
 
 const ORDER_ERROR_ID = 'unexpectedUnionTypesOrder'
 const GROUP_ORDER_ERROR_ID = 'unexpectedUnionTypesGroupOrder'
@@ -157,6 +151,11 @@ export function sortUnionOrIntersectionTypes<MessageIds extends string>({
   validateNewlinesAndPartitionConfiguration(options)
 
   let { sourceCode, id } = context
+  let groupMatcher = new GroupMatcher({
+    allModifiers,
+    allSelectors,
+    options,
+  })
   let eslintDisabledLines = getEslintDisabledLines({
     ruleName: id,
     sourceCode,
@@ -230,21 +229,17 @@ export function sortUnionOrIntersectionTypes<MessageIds extends string>({
         type,
       })
 
-      let predefinedGroups = generatePredefinedGroups({
-        cache: cachedGroupsByModifiersAndSelectors,
-        modifiers: [],
-        selectors,
-      })
-      let group = computeGroup({
+      let modifiers: Modifier[] = []
+      let group = groupMatcher.computeGroup({
         customGroupMatcher: customGroup =>
           doesCustomGroupMatch({
             elementName: name,
-            modifiers: [],
             customGroup,
+            modifiers,
             selectors,
           }),
-        predefinedGroups,
-        options,
+        selectors,
+        modifiers,
       })
 
       let lastGroup = accumulator.at(-1)
