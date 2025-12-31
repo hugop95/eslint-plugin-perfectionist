@@ -5,6 +5,8 @@ import { AST_NODE_TYPES } from '@typescript-eslint/utils'
 
 import type {
   SortImportAttributesSortingNode,
+  Selector,
+  Modifier,
   Options,
 } from './sort-import-attributes/types'
 
@@ -33,7 +35,7 @@ import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { createEslintRule } from '../utils/create-eslint-rule'
 import { reportAllErrors } from '../utils/report-all-errors'
 import { shouldPartition } from '../utils/should-partition'
-import { computeGroup } from '../utils/compute-group'
+import { GroupMatcher } from '../utils/group-matcher'
 import { rangeToDiff } from '../utils/range-to-diff'
 import { getSettings } from '../utils/get-settings'
 import { isSortable } from '../utils/is-sortable'
@@ -85,6 +87,11 @@ export default createEslintRule<Options, MessageId>({
       })
       validateNewlinesAndPartitionConfiguration(options)
 
+      let groupMatcher = new GroupMatcher({
+        allModifiers,
+        allSelectors,
+        options,
+      })
       let eslintDisabledLines = getEslintDisabledLines({
         ruleName: id,
         sourceCode,
@@ -96,16 +103,18 @@ export default createEslintRule<Options, MessageId>({
       for (let attribute of attributes) {
         let name = getAttributeName(attribute, sourceCode)
 
-        let group = computeGroup({
+        let selectors: Selector[] = []
+        let modifiers: Modifier[] = []
+        let group = groupMatcher.computeGroup({
           customGroupMatcher: customGroup =>
             doesCustomGroupMatch({
               elementName: name,
-              selectors: [],
-              modifiers: [],
               customGroup,
+              selectors,
+              modifiers,
             }),
-          predefinedGroups: [],
-          options,
+          modifiers,
+          selectors,
         })
 
         let sortingNode: Omit<SortImportAttributesSortingNode, 'partitionId'> =
