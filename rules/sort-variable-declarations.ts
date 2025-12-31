@@ -28,7 +28,6 @@ import { buildCommonGroupsJsonSchemas } from '../utils/json-schemas/common-group
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
 import { validateGroupsConfiguration } from '../utils/validate-groups-configuration'
 import { buildCommonJsonSchemas } from '../utils/json-schemas/common-json-schemas'
-import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
 import { sortNodesByDependencies } from '../utils/sort-nodes-by-dependencies'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { doesCustomGroupMatch } from '../utils/does-custom-group-match'
@@ -37,14 +36,11 @@ import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { createEslintRule } from '../utils/create-eslint-rule'
 import { reportAllErrors } from '../utils/report-all-errors'
 import { shouldPartition } from '../utils/should-partition'
-import { computeGroup } from '../utils/compute-group'
+import { GroupMatcher } from '../utils/group-matcher'
 import { rangeToDiff } from '../utils/range-to-diff'
 import { getSettings } from '../utils/get-settings'
 import { isSortable } from '../utils/is-sortable'
 import { complete } from '../utils/complete'
-
-/** Cache computed groups by modifiers and selectors for performance. */
-let cachedGroupsByModifiersAndSelectors = new Map<string, string[]>()
 
 const ORDER_ERROR_ID = 'unexpectedVariableDeclarationsOrder'
 const GROUP_ORDER_ERROR_ID = 'unexpectedVariableDeclarationsGroupOrder'
@@ -96,6 +92,11 @@ export default createEslintRule<Options, MessageId>({
       })
 
       let { sourceCode, id } = context
+      let groupMatcher = new GroupMatcher({
+        allModifiers,
+        allSelectors,
+        options,
+      })
       let eslintDisabledLines = getEslintDisabledLines({
         ruleName: id,
         sourceCode,
@@ -116,33 +117,28 @@ export default createEslintRule<Options, MessageId>({
             ;({ name } = declaration.id)
           }
 
-          let selector: Selector
+          let selectors: Selector[] = []
 
           let dependencies: string[] = extractDependencies(declaration.id)
           if (declaration.init) {
             dependencies.push(...extractDependencies(declaration.init))
-            selector = 'initialized'
+            selectors.push('initialized')
           } else {
-            selector = 'uninitialized'
+            selectors.push('uninitialized')
           }
-          let predefinedGroups = generatePredefinedGroups({
-            cache: cachedGroupsByModifiersAndSelectors,
-            selectors: [selector],
-            modifiers: [],
-          })
 
           let lastSortingNode = accumulator.at(-1)?.at(-1)
           let sortingNode: Omit<SortingNodeWithDependencies, 'partitionId'> = {
-            group: computeGroup({
+            group: groupMatcher.computeGroup({
               customGroupMatcher: customGroup =>
                 doesCustomGroupMatch({
-                  selectors: [selector],
                   elementName: name,
                   modifiers: [],
                   customGroup,
+                  selectors,
                 }),
-              predefinedGroups,
-              options,
+              modifiers: [],
+              selectors,
             }),
             isEslintDisabled: isNodeEslintDisabled(
               declaration,
