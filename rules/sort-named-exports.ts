@@ -29,7 +29,6 @@ import { buildCommonGroupsJsonSchemas } from '../utils/json-schemas/common-group
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
 import { validateGroupsConfiguration } from '../utils/validate-groups-configuration'
 import { buildCommonJsonSchemas } from '../utils/json-schemas/common-json-schemas'
-import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { computeNodeName } from './sort-named-exports/compute-node-name'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
@@ -39,7 +38,7 @@ import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { createEslintRule } from '../utils/create-eslint-rule'
 import { reportAllErrors } from '../utils/report-all-errors'
 import { shouldPartition } from '../utils/should-partition'
-import { computeGroup } from '../utils/compute-group'
+import { GroupMatcher } from '../utils/group-matcher'
 import { rangeToDiff } from '../utils/range-to-diff'
 import { getSettings } from '../utils/get-settings'
 import { isSortable } from '../utils/is-sortable'
@@ -55,11 +54,6 @@ type MessageId =
   | typeof EXTRA_SPACING_ERROR_ID
   | typeof GROUP_ORDER_ERROR_ID
   | typeof ORDER_ERROR_ID
-
-/**
- * Cache computed groups by modifiers and selectors for performance.
- */
-let cachedGroupsByModifiersAndSelectors = new Map<string, string[]>()
 
 let defaultOptions: Required<Options[number]> = {
   fallbackSort: { type: 'unsorted' },
@@ -96,6 +90,11 @@ export default createEslintRule<Options, MessageId>({
       validateNewlinesAndPartitionConfiguration(options)
 
       let { sourceCode, id } = context
+      let groupMatcher = new GroupMatcher({
+        allModifiers,
+        allSelectors,
+        options,
+      })
       let eslintDisabledLines = getEslintDisabledLines({
         ruleName: id,
         sourceCode,
@@ -107,24 +106,19 @@ export default createEslintRule<Options, MessageId>({
       for (let specifier of node.specifiers) {
         let name: string = computeNodeName(specifier, options.ignoreAlias)
 
-        let selector: Selector = 'export'
+        let selectors: Selector[] = ['export']
         let modifiers: Modifier[] = [computeExportKindModifier(specifier)]
 
-        let predefinedGroups = generatePredefinedGroups({
-          cache: cachedGroupsByModifiersAndSelectors,
-          selectors: [selector],
-          modifiers,
-        })
-        let group = computeGroup({
+        let group = groupMatcher.computeGroup({
           customGroupMatcher: customGroup =>
             doesCustomGroupMatch({
-              selectors: [selector],
               elementName: name,
               customGroup,
+              selectors,
               modifiers,
             }),
-          predefinedGroups,
-          options,
+          selectors,
+          modifiers,
         })
 
         let sortingNode: Omit<SortNamedExportsSortingNode, 'partitionId'> = {
