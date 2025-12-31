@@ -49,7 +49,6 @@ import { computeMatchedContextOptions } from './sort-objects/compute-matched-con
 import { comparatorByOptionsComputer } from './sort-objects/comparator-by-options-computer'
 import { scopedRegexJsonSchema } from '../utils/json-schemas/scoped-regex-json-schema'
 import { validateGroupsConfiguration } from '../utils/validate-groups-configuration'
-import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
 import { sortNodesByDependencies } from '../utils/sort-nodes-by-dependencies'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { computeDependencies } from './sort-objects/compute-dependencies'
@@ -62,16 +61,11 @@ import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { createEslintRule } from '../utils/create-eslint-rule'
 import { reportAllErrors } from '../utils/report-all-errors'
 import { shouldPartition } from '../utils/should-partition'
-import { computeGroup } from '../utils/compute-group'
+import { GroupMatcher } from '../utils/group-matcher'
 import { rangeToDiff } from '../utils/range-to-diff'
 import { getSettings } from '../utils/get-settings'
 import { isSortable } from '../utils/is-sortable'
 import { complete } from '../utils/complete'
-
-/**
- * Cache computed groups by modifiers and selectors for performance.
- */
-let cachedGroupsByModifiersAndSelectors = new Map<string, string[]>()
 
 let defaultOptions: Required<Options[number]> = {
   useExperimentalDependencyDetection: true,
@@ -132,6 +126,11 @@ export default createEslintRule<Options, MessageId>({
       })
       let optionsByGroupIndexComputer =
         buildOptionsByGroupIndexComputer(options)
+      let groupMatcher = new GroupMatcher({
+        allModifiers,
+        allSelectors,
+        options,
+      })
 
       let sortingNodeGroups: SortObjectsSortingNode[][] = [[]]
       for (let property of nodeObject.properties) {
@@ -180,12 +179,7 @@ export default createEslintRule<Options, MessageId>({
           property,
         })
 
-        let predefinedGroups = generatePredefinedGroups({
-          cache: cachedGroupsByModifiersAndSelectors,
-          selectors,
-          modifiers,
-        })
-        let group = computeGroup({
+        let group = groupMatcher.computeGroup({
           customGroupMatcher: customGroup =>
             doesCustomGroupMatch({
               elementValue: value,
@@ -194,8 +188,8 @@ export default createEslintRule<Options, MessageId>({
               selectors,
               modifiers,
             }),
-          predefinedGroups,
-          options,
+          selectors,
+          modifiers,
         })
 
         let sortingNode: Omit<SortObjectsSortingNode, 'partitionId'> = {
