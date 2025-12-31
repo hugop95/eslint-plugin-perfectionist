@@ -23,6 +23,7 @@ import { computeDependenciesOutsideFunctionsBySortingNode } from '../utils/compu
 import {
   additionalCustomGroupMatchOptionsJsonSchema,
   allSelectors,
+  allModifiers,
 } from './sort-variable-declarations/types'
 import { populateSortingNodeGroupsWithDependencies } from '../utils/populate-sorting-node-groups-with-dependencies'
 import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
@@ -99,7 +100,7 @@ export default createEslintRule<Options, MessageId>({
       validateNewlinesAndPartitionConfiguration(options)
       validateGroupsConfiguration({
         selectors: allSelectors,
-        modifiers: [],
+        modifiers: allModifiers,
         options,
       })
 
