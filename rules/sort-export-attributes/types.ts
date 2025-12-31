@@ -15,3 +15,6 @@ export type SortExportAttributesSortingNode =
 type CustomGroupMatchOptions = object
 
 type AdditionalSortOptions = object
+
+export let allSelectors = [] as const
+export let allModifiers = [] as const

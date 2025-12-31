@@ -28,6 +28,7 @@ import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
 import { doesCustomGroupMatch } from '../utils/does-custom-group-match'
 import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
+import { allSelectors, allModifiers} from './sort-enums/types'
 import { createEslintRule } from '../utils/create-eslint-rule'
 import { reportAllErrors } from '../utils/report-all-errors'
 import { shouldPartition } from '../utils/should-partition'
@@ -83,8 +84,8 @@ export default createEslintRule<Options, MessageId>({
       let options = complete(context.options.at(0), settings, defaultOptions)
       validateCustomSortConfiguration(options)
       validateGroupsConfiguration({
-        selectors: [],
-        modifiers: [],
+        selectors: allSelectors,
+        modifiers: allModifiers,
         options,
       })
       validateNewlinesAndPartitionConfiguration(options)

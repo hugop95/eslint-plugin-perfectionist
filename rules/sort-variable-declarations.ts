@@ -19,6 +19,7 @@ import {
 import {
   additionalCustomGroupMatchOptionsJsonSchema,
   allSelectors,
+  allModifiers,
 } from './sort-variable-declarations/types'
 import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
 import { defaultComparatorByOptionsComputer } from '../utils/compare/default-comparator-by-options-computer'
@@ -90,7 +91,7 @@ export default createEslintRule<Options, MessageId>({
       validateNewlinesAndPartitionConfiguration(options)
       validateGroupsConfiguration({
         selectors: allSelectors,
-        modifiers: [],
+        modifiers: allModifiers,
         options,
       })
 
