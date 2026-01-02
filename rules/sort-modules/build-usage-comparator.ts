@@ -3,9 +3,15 @@ import type { TSESTree } from '@typescript-eslint/types'
 import type { Comparator } from '../../utils/compare/default-comparator-by-options-computer'
 import type { SortModulesSortingNode, SortModulesOptions } from './types'
 
+import { isNodeDependentOnOtherNode } from '../../utils/is-node-dependent-on-other-node'
 import { sortNodesByDependencies } from '../../utils/sort-nodes-by-dependencies'
 import { computeOrderedValue } from '../../utils/compare/compute-ordered-value'
 import { computeDependencies } from './compute-dependencies'
+
+type SortingNodeWithDependencies = Pick<
+  SortModulesSortingNode,
+  'dependencyNames' | 'dependencies' | 'node'
+>
 
 /**
  * Builds a comparator function for sorting module nodes based on their usage.
@@ -26,28 +32,66 @@ export function buildUsageComparator({
   sortingNodes: SortModulesSortingNode[]
   ignoreEslintDisabledNodes: boolean
 }): Comparator<SortModulesSortingNode> {
-  let orderByNode = buildOrderByNodeMap({
-    ignoreEslintDisabledNodes,
-    sortingNodes,
-  })
+  let { updatedSortingNodeByNode, orderByUnsortedNode, orderBySortedNode } =
+    buildOrderByNodeMaps({
+      ignoreEslintDisabledNodes,
+      sortingNodes,
+    })
   return (a, b) => {
     let nodeA = a.node
     let nodeB = b.node
 
-    let orderA = orderByNode.get(nodeA)!
-    let orderB = orderByNode.get(nodeB)!
+    let sortedOrderA = orderBySortedNode.get(nodeA)!
+    let unsortedOrderA = orderByUnsortedNode.get(nodeA)!
+    let sortedOrderB = orderBySortedNode.get(nodeB)!
+    let unsortedOrderB = orderByUnsortedNode.get(nodeB)!
 
-    return computeOrderedValue(orderA - orderB, options.order)
+    let sortedOrderedValue = computeOrderedValue(
+      sortedOrderA - sortedOrderB,
+      options.order,
+    )
+    let unsortedOrderedValue = computeOrderedValue(
+      unsortedOrderA - unsortedOrderB,
+      options.order,
+    )
+
+    if (sortedOrderedValue !== unsortedOrderedValue) {
+      return sortedOrderedValue
+    }
+
+    let aWithUpdatedDependencies = updatedSortingNodeByNode.get(nodeA)!
+    let bWithUpdatedDependencies = updatedSortingNodeByNode.get(nodeB)!
+    if (
+      isNodeDependentOnOtherNode(
+        aWithUpdatedDependencies,
+        bWithUpdatedDependencies,
+      ) ||
+      isNodeDependentOnOtherNode(
+        bWithUpdatedDependencies,
+        aWithUpdatedDependencies,
+      )
+    ) {
+      return sortedOrderedValue
+    }
+
+    return 0
   }
 }
 
-function buildOrderByNodeMap({
+function buildOrderByNodeMaps({
   ignoreEslintDisabledNodes,
   sortingNodes,
 }: {
   sortingNodes: SortModulesSortingNode[]
   ignoreEslintDisabledNodes: boolean
-}): Map<TSESTree.ProgramStatement, number> {
+}): {
+  updatedSortingNodeByNode: Map<
+    TSESTree.ProgramStatement,
+    SortingNodeWithDependencies
+  >
+  orderByUnsortedNode: Map<TSESTree.ProgramStatement, number>
+  orderBySortedNode: Map<TSESTree.ProgramStatement, number>
+} {
   let sortingNodesWithUpdatedDependencies = sortingNodes.map(
     ({ isEslintDisabled, dependencyNames, node }) => ({
       dependencies: computeDependencies(node, { type: 'soft' }),
@@ -61,10 +105,37 @@ function buildOrderByNodeMap({
     { ignoreEslintDisabledNodes },
   )
 
-  let orderByNodeMap = new Map<TSESTree.ProgramStatement, number>()
-  for (let [i, { node }] of sortedSortingNodes.entries()) {
-    orderByNodeMap.set(node, i)
+  return {
+    updatedSortingNodeByNode: buildUpdatedSortingNodeByNodeMap(
+      sortingNodesWithUpdatedDependencies,
+    ),
+    orderBySortedNode: buildOrderByNodeMap(sortedSortingNodes),
+    orderByUnsortedNode: buildOrderByNodeMap(sortingNodes),
   }
+}
 
-  return orderByNodeMap
+function buildUpdatedSortingNodeByNodeMap(
+  sortModulesSortingNodes: Pick<
+    SortModulesSortingNode,
+    'dependencyNames' | 'dependencies' | 'node'
+  >[],
+): Map<TSESTree.ProgramStatement, SortingNodeWithDependencies> {
+  let returnValue = new Map<
+    TSESTree.ProgramStatement,
+    SortingNodeWithDependencies
+  >()
+  for (let sortingNode of sortModulesSortingNodes) {
+    returnValue.set(sortingNode.node, sortingNode)
+  }
+  return returnValue
+}
+
+function buildOrderByNodeMap(
+  sortModulesSortingNodes: SortingNodeWithDependencies[],
+): Map<TSESTree.ProgramStatement, number> {
+  let returnValue = new Map<TSESTree.ProgramStatement, number>()
+  for (let [i, { node }] of sortModulesSortingNodes.entries()) {
+    returnValue.set(node, i)
+  }
+  return returnValue
 }
