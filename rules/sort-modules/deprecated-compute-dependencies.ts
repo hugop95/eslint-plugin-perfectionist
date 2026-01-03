@@ -26,7 +26,7 @@ type DependencyDetection = HardDependencyDetection | SoftDependencyDetection
  *   dependencies also consider type references.
  * @returns The names of the dependencies.
  */
-export function computeDependencies(
+export function deprecatedComputeDependencies(
   node: SortModulesNode,
   dependencyDetection: DependencyDetection,
 ): string[] {

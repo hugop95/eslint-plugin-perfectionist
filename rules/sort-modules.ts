@@ -32,6 +32,7 @@ import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-new
 import { buildDefaultOptionsByGroupIndexComputer } from '../utils/build-default-options-by-group-index-computer'
 import { buildComparatorByOptionsComputer } from './sort-modules/build-comparator-by-options-computer'
 import { buildCommonGroupsJsonSchemas } from '../utils/json-schemas/common-groups-json-schemas'
+import { deprecatedComputeDependencies } from './sort-modules/deprecated-compute-dependencies'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
 import { isPropertyOrAccessorNode } from './sort-modules/is-property-or-accessor-node'
 import { validateGroupsConfiguration } from '../utils/validate-groups-configuration'
@@ -40,7 +41,6 @@ import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
 import { sortNodesByDependencies } from '../utils/sort-nodes-by-dependencies'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { isArrowFunctionNode } from './sort-modules/is-arrow-function-node'
-import { computeDependencies } from './sort-modules/compute-dependencies'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
 import { doesCustomGroupMatch } from '../utils/does-custom-group-match'
 import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
@@ -410,7 +410,7 @@ function extractDependencies(
           !isArrowFunctionNode(classElement)),
     )
 
-  return computeDependencies(expression, {
+  return deprecatedComputeDependencies(expression, {
     searchStaticMethodsAndFunctionProperties,
     type: 'hard',
   })
