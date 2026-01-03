@@ -1,7 +1,9 @@
 import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema'
+import type { TSESTree } from '@typescript-eslint/types'
 
 import { AST_NODE_TYPES } from '@typescript-eslint/utils'
 
+import type { SortingNodeWithDependencies } from '../../utils/sort-nodes-by-dependencies'
 import type { RegexOption, TypeOption } from '../../types/common-options'
 import type { ScopedRegexOption } from '../../types/scoped-regex-option'
 import type { AllCommonOptions } from '../../types/all-common-options'
@@ -90,6 +92,13 @@ export type Options = Partial<
     CustomGroupMatchOptions
   >
 >[]
+
+export type SortObjectsNode =
+  | TSESTree.PropertyNonComputedName
+  | TSESTree.PropertyComputedName
+
+export type SortObjectsSortingNode =
+  SortingNodeWithDependencies<SortObjectsNode>
 
 type AdditionalSortOptions = object
 
