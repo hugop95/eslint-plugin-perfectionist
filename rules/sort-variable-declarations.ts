@@ -173,6 +173,22 @@ export default createEslintRule<Options, MessageId>({
         [[]],
       )
 
+      let sortingNodes = formattedMembers.flat()
+
+      reportAllErrors<MessageId>({
+        availableMessageIds: {
+          missedSpacingBetweenMembers: MISSED_SPACING_ERROR_ID,
+          unexpectedDependencyOrder: DEPENDENCY_ORDER_ERROR_ID,
+          extraSpacingBetweenMembers: EXTRA_SPACING_ERROR_ID,
+          unexpectedGroupOrder: GROUP_ORDER_ERROR_ID,
+          unexpectedOrder: ORDER_ERROR_ID,
+        },
+        sortNodesExcludingEslintDisabled,
+        nodes: sortingNodes,
+        options,
+        context,
+      })
+
       function sortNodesExcludingEslintDisabled(
         ignoreEslintDisabledNodes: boolean,
       ): SortingNodeWithDependencies[] {
@@ -191,22 +207,6 @@ export default createEslintRule<Options, MessageId>({
           ignoreEslintDisabledNodes,
         })
       }
-
-      let nodes = formattedMembers.flat()
-
-      reportAllErrors<MessageId>({
-        availableMessageIds: {
-          missedSpacingBetweenMembers: MISSED_SPACING_ERROR_ID,
-          unexpectedDependencyOrder: DEPENDENCY_ORDER_ERROR_ID,
-          extraSpacingBetweenMembers: EXTRA_SPACING_ERROR_ID,
-          unexpectedGroupOrder: GROUP_ORDER_ERROR_ID,
-          unexpectedOrder: ORDER_ERROR_ID,
-        },
-        sortNodesExcludingEslintDisabled,
-        options,
-        context,
-        nodes,
-      })
     },
   }),
   meta: {
