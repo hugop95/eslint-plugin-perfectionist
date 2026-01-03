@@ -5,6 +5,7 @@ import { AST_NODE_TYPES } from '@typescript-eslint/utils'
 
 import type {
   SortModulesSortingNode,
+  DependencyDetection,
   SortModulesOptions,
   SortModulesNode,
   Modifier,
@@ -32,15 +33,15 @@ import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-new
 import { buildDefaultOptionsByGroupIndexComputer } from '../utils/build-default-options-by-group-index-computer'
 import { buildComparatorByOptionsComputer } from './sort-modules/build-comparator-by-options-computer'
 import { buildCommonGroupsJsonSchemas } from '../utils/json-schemas/common-groups-json-schemas'
-import { deprecatedComputeDependencies } from './sort-modules/deprecated-compute-dependencies'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
-import { isPropertyOrAccessorNode } from './sort-modules/is-property-or-accessor-node'
+import { computeSortingNodeDependencies } from '../utils/compute-sorting-node-dependencies'
+import { computeDependenciesByNode } from './sort-modules/compute-dependencies-by-node'
 import { validateGroupsConfiguration } from '../utils/validate-groups-configuration'
 import { buildCommonJsonSchemas } from '../utils/json-schemas/common-json-schemas'
 import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
 import { sortNodesByDependencies } from '../utils/sort-nodes-by-dependencies'
+import { buildSortingNodeByNode } from '../utils/build-sorting-node-by-node'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
-import { isArrowFunctionNode } from './sort-modules/is-arrow-function-node'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
 import { doesCustomGroupMatch } from '../utils/does-custom-group-match'
 import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
@@ -182,7 +183,10 @@ function analyzeModule({
   let optionsByGroupIndexComputer =
     buildDefaultOptionsByGroupIndexComputer(options)
 
-  let formattedNodes: SortModulesSortingNode[][] = [[]]
+  let sortingNodeGroupsWithoutDependencies: Omit<
+    SortModulesSortingNode,
+    'dependencies'
+  >[][] = [[]]
   for (let node of module.body) {
     switch (node.type) {
       case AST_NODE_TYPES.ExportDefaultDeclaration:
@@ -194,7 +198,7 @@ function analyzeModule({
         break
       case AST_NODE_TYPES.VariableDeclaration:
       case AST_NODE_TYPES.ExpressionStatement:
-        formattedNodes.push([])
+        sortingNodeGroupsWithoutDependencies.push([])
         continue
       case AST_NODE_TYPES.TSDeclareFunction:
       case AST_NODE_TYPES.TSEnumDeclaration:
@@ -207,9 +211,9 @@ function analyzeModule({
     let selector: undefined | Selector
     let name: undefined | string
     let modifiers: Modifier[] = []
-    let dependencies: string[] = []
     let decorators: string[] = []
     let addSafetySemicolonWhenInline: boolean = false
+    let dependencyDetection: DependencyDetection = 'soft'
 
     function parseNode(
       nodeToParse:
@@ -252,7 +256,7 @@ function analyzeModule({
           name = nodeToParse.id?.name
           break
         case AST_NODE_TYPES.TSModuleDeclaration:
-          formattedNodes.push([])
+          sortingNodeGroupsWithoutDependencies.push([])
           if (nodeToParse.body) {
             analyzeModule({
               module: nodeToParse.body,
@@ -264,14 +268,15 @@ function analyzeModule({
           }
           break
         case AST_NODE_TYPES.VariableDeclaration:
-          formattedNodes.push([])
+          sortingNodeGroupsWithoutDependencies.push([])
           break
         case AST_NODE_TYPES.TSEnumDeclaration:
+          dependencyDetection = 'hard'
           selector = 'enum'
           ;({ name } = nodeToParse.id)
-          dependencies = [...dependencies, ...extractDependencies(nodeToParse)]
           break
         case AST_NODE_TYPES.ClassDeclaration:
+          dependencyDetection = 'hard'
           selector = 'class'
           name = nodeToParse.id?.name
           // eslint-disable-next-line no-case-declarations -- Easier to handle
@@ -285,7 +290,6 @@ function analyzeModule({
               decorator,
             }),
           )
-          dependencies = [...dependencies, ...extractDependencies(nodeToParse)]
           break
         default:
       }
@@ -324,18 +328,21 @@ function analyzeModule({
       options,
     })
 
-    let sortingNode: Omit<SortModulesSortingNode, 'partitionId'> = {
+    let sortingNode: Omit<
+      SortModulesSortingNode,
+      'dependencies' | 'partitionId'
+    > = {
       isEslintDisabled: isNodeEslintDisabled(node, eslintDisabledLines),
       size: rangeToDiff(node, sourceCode),
       addSafetySemicolonWhenInline,
       dependencyNames: [name],
-      dependencies,
+      dependencyDetection,
       group,
       name,
       node,
     }
 
-    let lastSortingNode = formattedNodes.at(-1)?.at(-1)
+    let lastSortingNode = sortingNodeGroupsWithoutDependencies.at(-1)?.at(-1)
     if (
       shouldPartition({
         lastSortingNode,
@@ -344,16 +351,38 @@ function analyzeModule({
         options,
       })
     ) {
-      formattedNodes.push([])
+      sortingNodeGroupsWithoutDependencies.push([])
     }
 
-    formattedNodes.at(-1)?.push({
+    sortingNodeGroupsWithoutDependencies.at(-1)?.push({
       ...sortingNode,
-      partitionId: formattedNodes.length,
+      partitionId: sortingNodeGroupsWithoutDependencies.length,
     })
   }
 
-  let sortingNodes = formattedNodes.flat()
+  let sortingNodesWithoutDependencies =
+    sortingNodeGroupsWithoutDependencies.flat()
+  let dependenciesByNode = computeDependenciesByNode({
+    sortingNodes: sortingNodesWithoutDependencies,
+    dependencyDetection: 'hard',
+    sourceCode,
+  })
+  let sortingNodeByNode = buildSortingNodeByNode(
+    sortingNodesWithoutDependencies,
+  )
+
+  let sortingNodeGroups: SortModulesSortingNode[][] =
+    sortingNodeGroupsWithoutDependencies.map(sortingNodes =>
+      sortingNodes.map(sortingNode => ({
+        ...sortingNode,
+        dependencies: computeSortingNodeDependencies({
+          node: sortingNode.node,
+          dependenciesByNode,
+          sortingNodeByNode,
+        }),
+      })),
+    )
+  let sortingNodes = sortingNodeGroups.flat()
 
   reportAllErrors<MessageId>({
     availableMessageIds: {
@@ -372,18 +401,19 @@ function analyzeModule({
   function sortNodesExcludingEslintDisabled(
     ignoreEslintDisabledNodes: boolean,
   ): SortModulesSortingNode[] {
-    let nodesSortedByGroups = formattedNodes.flatMap(nodes =>
+    let nodesSortedByGroups = sortingNodeGroups.flatMap(sortingNodeGroup =>
       sortNodesByGroups({
         comparatorByOptionsComputer: buildComparatorByOptionsComputer({
+          sortingNodes: sortingNodeGroup,
           ignoreEslintDisabledNodes,
-          sortingNodes: nodes,
+          sourceCode,
         }),
         isNodeIgnored: sortingNode =>
           getGroupIndex(options.groups, sortingNode) === options.groups.length,
         optionsByGroupIndexComputer,
         ignoreEslintDisabledNodes,
+        nodes: sortingNodeGroup,
         groups: options.groups,
-        nodes,
       }),
     )
 
@@ -391,27 +421,4 @@ function analyzeModule({
       ignoreEslintDisabledNodes,
     })
   }
-}
-
-function extractDependencies(
-  expression: TSESTree.TSEnumDeclaration | TSESTree.ClassDeclaration,
-): string[] {
-  /**
-   * Search static methods only if there is a static block or a static property
-   * that is not an arrow function.
-   */
-  let searchStaticMethodsAndFunctionProperties =
-    expression.type === AST_NODE_TYPES.ClassDeclaration &&
-    expression.body.body.some(
-      classElement =>
-        classElement.type === AST_NODE_TYPES.StaticBlock ||
-        (classElement.static &&
-          isPropertyOrAccessorNode(classElement) &&
-          !isArrowFunctionNode(classElement)),
-    )
-
-  return deprecatedComputeDependencies(expression, {
-    searchStaticMethodsAndFunctionProperties,
-    type: 'hard',
-  })
 }
