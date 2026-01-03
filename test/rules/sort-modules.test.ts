@@ -265,7 +265,7 @@ describe('sort-modules', () => {
       await valid({
         code: dedent`
           interface B {}
-          let a;
+          export let a;
           interface A {}
         `,
         options: [options],
@@ -3220,7 +3220,7 @@ describe('sort-modules', () => {
       await valid({
         code: dedent`
           interface B {}
-          let a;
+          export let a;
           interface A {}
         `,
         options: [options],
@@ -5638,7 +5638,7 @@ describe('sort-modules', () => {
       await valid({
         code: dedent`
           interface B {}
-          let a;
+          export let a;
           interface A {}
         `,
         options: [options],
