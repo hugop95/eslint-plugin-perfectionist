@@ -1,10 +1,12 @@
-import type { TSESTree } from '@typescript-eslint/types'
-
 import type {
   ComparatorByOptionsComputer,
   Comparator,
 } from '../../utils/compare/default-comparator-by-options-computer'
-import type { SortModulesSortingNode, SortModulesOptions } from './types'
+import type {
+  SortModulesSortingNode,
+  SortModulesOptions,
+  SortModulesNode,
+} from './types'
 
 import { defaultComparatorByOptionsComputer } from '../../utils/compare/default-comparator-by-options-computer'
 import { sortNodesByDependencies } from '../../utils/sort-nodes-by-dependencies'
@@ -66,7 +68,7 @@ function buildUsageComparator({
     return computeOrderedValue(orderA - orderB, options.order)
   }
 
-  function buildOrderByNodeMap(): Map<TSESTree.ProgramStatement, number> {
+  function buildOrderByNodeMap(): Map<SortModulesNode, number> {
     let sortingNodesWithUpdatedDependencies = sortingNodes.map(
       ({ isEslintDisabled, dependencyNames, node }) => ({
         dependencies: computeDependencies(node, { type: 'soft' }),
@@ -80,7 +82,7 @@ function buildUsageComparator({
       { ignoreEslintDisabledNodes },
     )
 
-    let orderByNodeMap = new Map<TSESTree.ProgramStatement, number>()
+    let orderByNodeMap = new Map<SortModulesNode, number>()
     for (let [i, { node }] of sortedSortingNodes.entries()) {
       orderByNodeMap.set(node, i)
     }

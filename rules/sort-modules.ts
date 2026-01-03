@@ -1,11 +1,12 @@
-import type { TSESLint } from '@typescript-eslint/utils'
 import type { TSESTree } from '@typescript-eslint/types'
+import type { TSESLint } from '@typescript-eslint/utils'
 
 import { AST_NODE_TYPES } from '@typescript-eslint/utils'
 
 import type {
   SortModulesSortingNode,
   SortModulesOptions,
+  SortModulesNode,
   Modifier,
   Selector,
 } from './sort-modules/types'
@@ -187,6 +188,26 @@ function analyzeModule({
 
   let formattedNodes: SortModulesSortingNode[][] = [[]]
   for (let node of module.body) {
+    switch (node.type) {
+      case AST_NODE_TYPES.ExportDefaultDeclaration:
+      case AST_NODE_TYPES.ExportNamedDeclaration:
+      case AST_NODE_TYPES.TSInterfaceDeclaration:
+      case AST_NODE_TYPES.TSTypeAliasDeclaration:
+      case AST_NODE_TYPES.FunctionDeclaration:
+      case AST_NODE_TYPES.TSModuleDeclaration:
+        break
+      case AST_NODE_TYPES.VariableDeclaration:
+      case AST_NODE_TYPES.ExpressionStatement:
+        formattedNodes.push([])
+        continue
+      case AST_NODE_TYPES.TSDeclareFunction:
+      case AST_NODE_TYPES.TSEnumDeclaration:
+      case AST_NODE_TYPES.ClassDeclaration:
+        break
+      default:
+        continue
+    }
+
     let selector: undefined | Selector
     let name: undefined | string
     let modifiers: Modifier[] = []
@@ -198,7 +219,7 @@ function analyzeModule({
       nodeToParse:
         | TSESTree.DefaultExportDeclarations
         | TSESTree.NamedExportDeclarations
-        | TSESTree.ProgramStatement,
+        | SortModulesNode,
     ): void {
       if ('declare' in nodeToParse && nodeToParse.declare) {
         modifiers.push('declare')
@@ -247,7 +268,6 @@ function analyzeModule({
           }
           break
         case AST_NODE_TYPES.VariableDeclaration:
-        case AST_NODE_TYPES.ExpressionStatement:
           formattedNodes.push([])
           break
         case AST_NODE_TYPES.TSEnumDeclaration:

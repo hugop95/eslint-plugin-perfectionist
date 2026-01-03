@@ -1,5 +1,7 @@
 import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema'
+import type { TSESTree } from '@typescript-eslint/types'
 
+import type { SortingNodeWithDependencies } from '../../utils/sort-nodes-by-dependencies'
 import type { CommonPartitionOptions } from '../../types/common-partition-options'
 import type { CommonGroupsOptions } from '../../types/common-groups-options'
 import type { CommonOptions, TypeOption } from '../../types/common-options'
@@ -17,6 +19,12 @@ export type Options = Partial<
     CommonOptions<TypeOption> &
     CommonPartitionOptions
 >[]
+
+export type SortVariableDeclarationsSortingNode =
+  SortingNodeWithDependencies<SortVariableDeclarationsNode>
+
+export type SortVariableDeclarationsNode =
+  TSESTree.VariableDeclaration['declarations'][number]
 
 /**
  * Union type of all available selectors for variable declarations.

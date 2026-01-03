@@ -1,4 +1,5 @@
 import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema'
+import type { TSESTree } from '@typescript-eslint/types'
 
 import { AST_NODE_TYPES } from '@typescript-eslint/utils'
 
@@ -7,6 +8,7 @@ import type {
   RegexOption,
   TypeOption,
 } from '../../types/common-options'
+import type { SortingNodeWithDependencies } from '../../utils/sort-nodes-by-dependencies'
 import type { CommonPartitionOptions } from '../../types/common-partition-options'
 import type { CommonGroupsOptions } from '../../types/common-groups-options'
 import type { ScopedRegexOption } from '../../types/scoped-regex-option'
@@ -97,6 +99,13 @@ export type Options = Partial<
     CommonOptions<TypeOption> &
     CommonPartitionOptions
 >[]
+
+export type SortObjectsNode =
+  | TSESTree.PropertyNonComputedName
+  | TSESTree.PropertyComputedName
+
+export type SortObjectsSortingNode =
+  SortingNodeWithDependencies<SortObjectsNode>
 
 export let objectParentTypes = [
   AST_NODE_TYPES.VariableDeclarator,
