@@ -1,3 +1,5 @@
+import type { TSESLint } from '@typescript-eslint/utils'
+
 import type {
   SortModulesSortingNode,
   SortModulesOptions,
@@ -5,12 +7,13 @@ import type {
 } from './types'
 import type { Comparator } from '../../utils/compare/default-comparator-by-options-computer'
 
+import { computeSortingNodeGroupsWithDependencies } from '../../utils/compute-sorting-node-groups-with-dependencies'
+import { computeDependenciesBySortingNode } from './compute-dependencies-by-sorting-node'
 import { isNodeDependentOnOtherNode } from '../../utils/is-node-dependent-on-other-node'
 import { sortNodesByDependencies } from '../../utils/sort-nodes-by-dependencies'
 import { computeOrderedValue } from '../../utils/compare/compute-ordered-value'
-import { computeDependencies } from './compute-dependencies'
 
-type SortingNodeWithDependencies = Pick<
+type PartialSortModulesSortingNode = Pick<
   SortModulesSortingNode,
   'dependencyNames' | 'dependencies' | 'node'
 >
@@ -28,17 +31,21 @@ type SortingNodeWithDependencies = Pick<
 export function buildUsageComparator({
   ignoreEslintDisabledNodes,
   sortingNodes,
+  sourceCode,
   options,
 }: {
   options: Required<SortModulesOptions[number]>
   sortingNodes: SortModulesSortingNode[]
   ignoreEslintDisabledNodes: boolean
+  sourceCode: TSESLint.SourceCode
 }): Comparator<SortModulesSortingNode> {
   let { updatedSortingNodeByNode, orderByUnsortedNode, orderBySortedNode } =
     buildOrderByNodeMaps({
       ignoreEslintDisabledNodes,
       sortingNodes,
+      sourceCode,
     })
+
   return (a, b) => {
     let nodeA = a.node
     let nodeB = b.node
@@ -83,29 +90,34 @@ export function buildUsageComparator({
 function buildOrderByNodeMaps({
   ignoreEslintDisabledNodes,
   sortingNodes,
+  sourceCode,
 }: {
   sortingNodes: SortModulesSortingNode[]
   ignoreEslintDisabledNodes: boolean
+  sourceCode: TSESLint.SourceCode
 }): {
-  updatedSortingNodeByNode: Map<SortModulesNode, SortingNodeWithDependencies>
+  updatedSortingNodeByNode: Map<SortModulesNode, PartialSortModulesSortingNode>
   orderByUnsortedNode: Map<SortModulesNode, number>
   orderBySortedNode: Map<SortModulesNode, number>
 } {
-  let sortingNodesWithUpdatedDependencies = sortingNodes.map(
-    ({ isEslintDisabled, dependencyNames, node }) => ({
-      dependencies: computeDependencies(node, { type: 'soft' }),
-      isEslintDisabled,
-      dependencyNames,
-      node,
-    }),
-  )
+  let dependenciesBySortingNode = computeDependenciesBySortingNode({
+    dependencyDetection: 'soft',
+    sortingNodes,
+    sourceCode,
+  })
+  let sortingNodesWithUpdatedDependencies =
+    computeSortingNodeGroupsWithDependencies({
+      sortingNodeGroupsWithoutDependencies: [sortingNodes],
+      dependenciesBySortingNode,
+    })[0]!
+
   let sortedSortingNodes = sortNodesByDependencies(
     sortingNodesWithUpdatedDependencies,
     { ignoreEslintDisabledNodes },
   )
 
   return {
-    updatedSortingNodeByNode: buildUpdatedSortingNodeByNodeMap(
+    updatedSortingNodeByNode: buildSortingNodeByNodeMap(
       sortingNodesWithUpdatedDependencies,
     ),
     orderBySortedNode: buildOrderByNodeMap(sortedSortingNodes),
@@ -113,13 +125,10 @@ function buildOrderByNodeMaps({
   }
 }
 
-function buildUpdatedSortingNodeByNodeMap(
-  sortingNodes: Pick<
-    SortModulesSortingNode,
-    'dependencyNames' | 'dependencies' | 'node'
-  >[],
-): Map<SortModulesNode, SortingNodeWithDependencies> {
-  let returnValue = new Map<SortModulesNode, SortingNodeWithDependencies>()
+function buildSortingNodeByNodeMap(
+  sortingNodes: PartialSortModulesSortingNode[],
+): Map<SortModulesNode, PartialSortModulesSortingNode> {
+  let returnValue = new Map<SortModulesNode, PartialSortModulesSortingNode>()
   for (let sortingNode of sortingNodes) {
     returnValue.set(sortingNode.node, sortingNode)
   }
@@ -127,7 +136,7 @@ function buildUpdatedSortingNodeByNodeMap(
 }
 
 function buildOrderByNodeMap(
-  sortingNodes: SortingNodeWithDependencies[],
+  sortingNodes: PartialSortModulesSortingNode[],
 ): Map<SortModulesNode, number> {
   let returnValue = new Map<SortModulesNode, number>()
   for (let [i, { node }] of sortingNodes.entries()) {

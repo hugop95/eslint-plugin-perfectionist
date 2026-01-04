@@ -26,8 +26,10 @@ import {
   partitionByNewLineJsonSchema,
 } from '../utils/json-schemas/common-partition-json-schemas'
 import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
+import { computeSortingNodeGroupsWithDependencies } from '../utils/compute-sorting-node-groups-with-dependencies'
 import { buildDefaultOptionsByGroupIndexComputer } from '../utils/build-default-options-by-group-index-computer'
 import { buildComparatorByOptionsComputer } from './sort-modules/build-comparator-by-options-computer'
+import { computeDependenciesBySortingNode } from './sort-modules/compute-dependencies-by-sorting-node'
 import { buildCommonGroupsJsonSchemas } from '../utils/json-schemas/common-groups-json-schemas'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
 import { validateGroupsConfiguration } from '../utils/validate-groups-configuration'
@@ -176,7 +178,10 @@ function analyzeModule({
   let optionsByGroupIndexComputer =
     buildDefaultOptionsByGroupIndexComputer(options)
 
-  let formattedNodes: SortModulesSortingNode[][] = [[]]
+  let sortingNodeGroupsWithoutDependencies: Omit<
+    SortModulesSortingNode,
+    'dependencies'
+  >[][] = [[]]
   for (let node of module.body) {
     switch (node.type) {
       case AST_NODE_TYPES.ExportDefaultDeclaration:
@@ -188,7 +193,7 @@ function analyzeModule({
         break
       case AST_NODE_TYPES.VariableDeclaration:
       case AST_NODE_TYPES.ExpressionStatement:
-        formattedNodes.push([])
+        sortingNodeGroupsWithoutDependencies.push([])
         continue
       case AST_NODE_TYPES.TSDeclareFunction:
       case AST_NODE_TYPES.TSEnumDeclaration:
@@ -202,7 +207,7 @@ function analyzeModule({
 
     if (!details.nodeDetails) {
       if (details.shouldPartitionAfterNode) {
-        formattedNodes.push([])
+        sortingNodeGroupsWithoutDependencies.push([])
       }
       if (details.moduleBlock) {
         analyzeModule({
@@ -218,7 +223,7 @@ function analyzeModule({
 
     let {
       addSafetySemicolonWhenInline,
-      dependencies,
+      dependencyDetection,
       decorators,
       modifiers,
       selector,
@@ -243,18 +248,21 @@ function analyzeModule({
       options,
     })
 
-    let sortingNode: Omit<SortModulesSortingNode, 'partitionId'> = {
+    let sortingNode: Omit<
+      SortModulesSortingNode,
+      'dependencies' | 'partitionId'
+    > = {
       isEslintDisabled: isNodeEslintDisabled(node, eslintDisabledLines),
       size: rangeToDiff(node, sourceCode),
       addSafetySemicolonWhenInline,
       dependencyNames: [name],
-      dependencies,
+      dependencyDetection,
       group,
       name,
       node,
     }
 
-    let lastSortingNode = formattedNodes.at(-1)?.at(-1)
+    let lastSortingNode = sortingNodeGroupsWithoutDependencies.at(-1)?.at(-1)
     if (
       shouldPartition({
         lastSortingNode,
@@ -263,16 +271,26 @@ function analyzeModule({
         options,
       })
     ) {
-      formattedNodes.push([])
+      sortingNodeGroupsWithoutDependencies.push([])
     }
 
-    formattedNodes.at(-1)?.push({
+    sortingNodeGroupsWithoutDependencies.at(-1)?.push({
       ...sortingNode,
-      partitionId: formattedNodes.length,
+      partitionId: sortingNodeGroupsWithoutDependencies.length,
     })
   }
 
-  let sortingNodes = formattedNodes.flat()
+  let dependenciesBySortingNode = computeDependenciesBySortingNode({
+    sortingNodes: sortingNodeGroupsWithoutDependencies.flat(),
+    dependencyDetection: 'hard',
+    sourceCode,
+  })
+  let sortingNodeGroups: SortModulesSortingNode[][] =
+    computeSortingNodeGroupsWithDependencies({
+      sortingNodeGroupsWithoutDependencies,
+      dependenciesBySortingNode,
+    })
+  let sortingNodes = sortingNodeGroups.flat()
 
   reportAllErrors<MessageId>({
     availableMessageIds: {
@@ -291,18 +309,19 @@ function analyzeModule({
   function sortNodesExcludingEslintDisabled(
     ignoreEslintDisabledNodes: boolean,
   ): SortModulesSortingNode[] {
-    let nodesSortedByGroups = formattedNodes.flatMap(nodes =>
+    let nodesSortedByGroups = sortingNodeGroups.flatMap(sortingNodeGroup =>
       sortNodesByGroups({
         comparatorByOptionsComputer: buildComparatorByOptionsComputer({
+          sortingNodes: sortingNodeGroup,
           ignoreEslintDisabledNodes,
-          sortingNodes: nodes,
+          sourceCode,
         }),
         isNodeIgnored: sortingNode =>
           getGroupIndex(options.groups, sortingNode) === options.groups.length,
         optionsByGroupIndexComputer,
         ignoreEslintDisabledNodes,
+        nodes: sortingNodeGroup,
         groups: options.groups,
-        nodes,
       }),
     )
 
