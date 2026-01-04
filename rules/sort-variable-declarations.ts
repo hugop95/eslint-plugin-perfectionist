@@ -1,5 +1,3 @@
-import { AST_NODE_TYPES } from '@typescript-eslint/utils'
-
 import type {
   SortVariableDeclarationsSortingNode,
   Selector,
@@ -30,6 +28,7 @@ import { buildCommonGroupsJsonSchemas } from '../utils/json-schemas/common-group
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
 import { validateGroupsConfiguration } from '../utils/validate-groups-configuration'
 import { buildCommonJsonSchemas } from '../utils/json-schemas/common-json-schemas'
+import { computeNodeName } from './sort-variable-declarations/compute-node-name'
 import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
 import { sortNodesByDependencies } from '../utils/sort-nodes-by-dependencies'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
@@ -112,16 +111,10 @@ export default createEslintRule<Options, MessageId>({
             >[][],
             declaration,
           ) => {
-            let name
-
-            if (
-              declaration.id.type === AST_NODE_TYPES.ArrayPattern ||
-              declaration.id.type === AST_NODE_TYPES.ObjectPattern
-            ) {
-              name = sourceCode.text.slice(...declaration.id.range)
-            } else {
-              ;({ name } = declaration.id)
-            }
+            let name = computeNodeName({
+              node: declaration,
+              sourceCode,
+            })
 
             let selector: Selector = declaration.init
               ? 'initialized'
