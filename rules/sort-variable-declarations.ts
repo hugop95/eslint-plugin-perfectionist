@@ -1,5 +1,3 @@
-import type { TSESTree } from '@typescript-eslint/types'
-
 import { AST_NODE_TYPES } from '@typescript-eslint/utils'
 
 import type {
@@ -19,11 +17,13 @@ import {
   partitionByCommentJsonSchema,
   partitionByNewLineJsonSchema,
 } from '../utils/json-schemas/common-partition-json-schemas'
+import { computeDependenciesOutsideFunctionsBySortingNode } from '../utils/compute-dependencies-outside-functions-by-sorting-node'
 import {
   additionalCustomGroupMatchOptionsJsonSchema,
   allSelectors,
 } from './sort-variable-declarations/types'
 import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
+import { computeSortingNodeGroupsWithDependencies } from '../utils/compute-sorting-node-groups-with-dependencies'
 import { buildDefaultOptionsByGroupIndexComputer } from '../utils/build-default-options-by-group-index-computer'
 import { defaultComparatorByOptionsComputer } from '../utils/compare/default-comparator-by-options-computer'
 import { buildCommonGroupsJsonSchemas } from '../utils/json-schemas/common-groups-json-schemas'
@@ -81,8 +81,8 @@ let defaultOptions: Required<Options[number]> = {
 
 export default createEslintRule<Options, MessageId>({
   create: context => ({
-    VariableDeclaration: node => {
-      if (!isSortable(node.declarations)) {
+    VariableDeclaration: variableDeclaration => {
+      if (!isSortable(variableDeclaration.declarations)) {
         return
       }
 
@@ -103,83 +103,94 @@ export default createEslintRule<Options, MessageId>({
         sourceCode,
       })
 
-      let formattedMembers = node.declarations.reduce(
-        (accumulator: SortVariableDeclarationsSortingNode[][], declaration) => {
-          let name
+      let sortingNodeGroupsWithoutDependencies =
+        variableDeclaration.declarations.reduce(
+          (
+            accumulator: Omit<
+              SortVariableDeclarationsSortingNode,
+              'dependencies'
+            >[][],
+            declaration,
+          ) => {
+            let name
 
-          if (
-            declaration.id.type === AST_NODE_TYPES.ArrayPattern ||
-            declaration.id.type === AST_NODE_TYPES.ObjectPattern
-          ) {
-            name = sourceCode.text.slice(...declaration.id.range)
-          } else {
-            ;({ name } = declaration.id)
-          }
+            if (
+              declaration.id.type === AST_NODE_TYPES.ArrayPattern ||
+              declaration.id.type === AST_NODE_TYPES.ObjectPattern
+            ) {
+              name = sourceCode.text.slice(...declaration.id.range)
+            } else {
+              ;({ name } = declaration.id)
+            }
 
-          let selector: Selector
+            let selector: Selector = declaration.init
+              ? 'initialized'
+              : 'uninitialized'
 
-          let dependencies: string[] = extractDependencies(declaration.id)
-          if (declaration.init) {
-            dependencies.push(...extractDependencies(declaration.init))
-            selector = 'initialized'
-          } else {
-            selector = 'uninitialized'
-          }
-          let predefinedGroups = generatePredefinedGroups({
-            cache: cachedGroupsByModifiersAndSelectors,
-            selectors: [selector],
-            modifiers: [],
-          })
-
-          let lastSortingNode = accumulator.at(-1)?.at(-1)
-          let sortingNode: Omit<
-            SortVariableDeclarationsSortingNode,
-            'partitionId'
-          > = {
-            group: computeGroup({
-              customGroupMatcher: customGroup =>
-                doesCustomGroupMatch({
-                  selectors: [selector],
-                  elementName: name,
-                  modifiers: [],
-                  customGroup,
-                }),
-              predefinedGroups,
-              options,
-            }),
-            isEslintDisabled: isNodeEslintDisabled(
-              declaration,
-              eslintDisabledLines,
-            ),
-            size: rangeToDiff(declaration, sourceCode),
-            dependencyNames: [name],
-            node: declaration,
-            dependencies,
-            name,
-          }
-
-          if (
-            shouldPartition({
-              lastSortingNode,
-              sortingNode,
-              sourceCode,
-              options,
+            let predefinedGroups = generatePredefinedGroups({
+              cache: cachedGroupsByModifiersAndSelectors,
+              selectors: [selector],
+              modifiers: [],
             })
-          ) {
-            accumulator.push([])
-          }
 
-          accumulator.at(-1)?.push({
-            ...sortingNode,
-            partitionId: accumulator.length,
-          })
+            let lastSortingNode = accumulator.at(-1)?.at(-1)
+            let sortingNode: Omit<
+              SortVariableDeclarationsSortingNode,
+              'dependencies' | 'partitionId'
+            > = {
+              group: computeGroup({
+                customGroupMatcher: customGroup =>
+                  doesCustomGroupMatch({
+                    selectors: [selector],
+                    elementName: name,
+                    modifiers: [],
+                    customGroup,
+                  }),
+                predefinedGroups,
+                options,
+              }),
+              isEslintDisabled: isNodeEslintDisabled(
+                declaration,
+                eslintDisabledLines,
+              ),
+              size: rangeToDiff(declaration, sourceCode),
+              dependencyNames: [name],
+              node: declaration,
+              name,
+            }
 
-          return accumulator
-        },
-        [[]],
-      )
+            if (
+              shouldPartition({
+                lastSortingNode,
+                sortingNode,
+                sourceCode,
+                options,
+              })
+            ) {
+              accumulator.push([])
+            }
 
-      let sortingNodes = formattedMembers.flat()
+            accumulator.at(-1)?.push({
+              ...sortingNode,
+              partitionId: accumulator.length,
+            })
+
+            return accumulator
+          },
+          [[]],
+        )
+
+      let dependenciesBySortingNode =
+        computeDependenciesOutsideFunctionsBySortingNode({
+          sortingNodes: sortingNodeGroupsWithoutDependencies.flat(),
+          sourceCode,
+        })
+      let sortingNodeGroups: SortVariableDeclarationsSortingNode[][] =
+        computeSortingNodeGroupsWithDependencies({
+          sortingNodeGroupsWithoutDependencies,
+          dependenciesBySortingNode,
+        })
+      let sortingNodes = sortingNodeGroups.flat()
 
       reportAllErrors<MessageId>({
         availableMessageIds: {
@@ -198,14 +209,14 @@ export default createEslintRule<Options, MessageId>({
       function sortNodesExcludingEslintDisabled(
         ignoreEslintDisabledNodes: boolean,
       ): SortVariableDeclarationsSortingNode[] {
-        let nodesSortedByGroups = formattedMembers.flatMap(nodes =>
+        let nodesSortedByGroups = sortingNodeGroups.flatMap(sortingNodeGroup =>
           sortNodesByGroups({
             optionsByGroupIndexComputer:
               buildDefaultOptionsByGroupIndexComputer(options),
             comparatorByOptionsComputer: defaultComparatorByOptionsComputer,
             ignoreEslintDisabledNodes,
+            nodes: sortingNodeGroup,
             groups: options.groups,
-            nodes,
           }),
         )
 
@@ -249,90 +260,3 @@ export default createEslintRule<Options, MessageId>({
   name: 'sort-variable-declarations',
   defaultOptions: [defaultOptions],
 })
-
-function extractDependencies(init: TSESTree.Expression): string[] {
-  let dependencies: string[] = []
-
-  function checkNode(nodeValue: TSESTree.Node): void {
-    /** No need to check the body of functions and arrow functions. */
-    if (
-      nodeValue.type === AST_NODE_TYPES.ArrowFunctionExpression ||
-      nodeValue.type === AST_NODE_TYPES.FunctionExpression
-    ) {
-      return
-    }
-
-    if (nodeValue.type === AST_NODE_TYPES.Identifier) {
-      dependencies.push(nodeValue.name)
-    }
-
-    if (nodeValue.type === AST_NODE_TYPES.Property) {
-      checkNode(nodeValue.key)
-      checkNode(nodeValue.value)
-    }
-
-    if (nodeValue.type === AST_NODE_TYPES.ConditionalExpression) {
-      checkNode(nodeValue.test)
-      checkNode(nodeValue.consequent)
-      checkNode(nodeValue.alternate)
-    }
-
-    if (
-      'expression' in nodeValue &&
-      typeof nodeValue.expression !== 'boolean'
-    ) {
-      checkNode(nodeValue.expression)
-    }
-
-    if ('object' in nodeValue) {
-      checkNode(nodeValue.object)
-    }
-
-    if ('callee' in nodeValue) {
-      checkNode(nodeValue.callee)
-    }
-
-    if ('left' in nodeValue) {
-      checkNode(nodeValue.left)
-    }
-
-    if ('right' in nodeValue) {
-      checkNode(nodeValue.right)
-    }
-
-    if ('elements' in nodeValue) {
-      let elements = nodeValue.elements.filter(
-        currentNode => currentNode !== null,
-      )
-
-      for (let element of elements) {
-        checkNode(element)
-      }
-    }
-
-    if ('argument' in nodeValue && nodeValue.argument) {
-      checkNode(nodeValue.argument)
-    }
-
-    if ('arguments' in nodeValue) {
-      for (let argument of nodeValue.arguments) {
-        checkNode(argument)
-      }
-    }
-
-    if ('properties' in nodeValue) {
-      for (let property of nodeValue.properties) {
-        checkNode(property)
-      }
-    }
-
-    if ('expressions' in nodeValue) {
-      for (let nodeExpression of nodeValue.expressions) {
-        checkNode(nodeExpression)
-      }
-    }
-  }
-
-  checkNode(init)
-  return dependencies
-}
