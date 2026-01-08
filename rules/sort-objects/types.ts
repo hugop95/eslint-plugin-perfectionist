@@ -91,7 +91,9 @@ export type Options = Partial<
   >
 >[]
 
-type AdditionalSortOptions = object
+interface AdditionalSortOptions {
+  sortBy: SortByOption
+}
 
 export let objectParentTypes = [
   AST_NODE_TYPES.VariableDeclarator,
@@ -151,6 +153,17 @@ export let allSelectors = ['member', 'method', 'property'] as const
  * Used for validation and configuration in the ESLint rule.
  */
 export let allModifiers = ['multiline'] as const
+
+const SORT_BY_OPTION = ['name', 'value'] as const
+type SortByOption = (typeof SORT_BY_OPTION)[number]
+
+/** Additional sort options JSON schema, Used by ESLint to validate rule options. */
+export let additionalSortOptionsJsonSchema: Record<string, JSONSchema4> = {
+  sortBy: {
+    enum: [...SORT_BY_OPTION],
+    type: 'string',
+  },
+}
 
 /**
  * Additional custom group match options JSON schema. Used by ESLint to validate
