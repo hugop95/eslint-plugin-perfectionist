@@ -40,10 +40,10 @@ import {
 import { computePropertyOrVariableDeclaratorName } from './sort-objects/compute-property-or-variable-declarator-name'
 import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
 import { buildDefaultOptionsByGroupIndexComputer } from '../utils/build-default-options-by-group-index-computer'
-import { defaultComparatorByOptionsComputer } from '../utils/compare/default-comparator-by-options-computer'
 import { buildCommonGroupsJsonSchemas } from '../utils/json-schemas/common-groups-json-schemas'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
 import { computeMatchedContextOptions } from './sort-objects/compute-matched-context-options'
+import { comparatorByOptionsComputer } from './sort-objects/comparator-by-options-computer'
 import { scopedRegexJsonSchema } from '../utils/json-schemas/scoped-regex-json-schema'
 import { validateGroupsConfiguration } from '../utils/validate-groups-configuration'
 import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
@@ -341,7 +341,7 @@ export default createEslintRule<Options, MessageId>({
           sortNodesByGroups({
             optionsByGroupIndexComputer:
               buildDefaultOptionsByGroupIndexComputer(options),
-            comparatorByOptionsComputer: defaultComparatorByOptionsComputer,
+            comparatorByOptionsComputer,
             ignoreEslintDisabledNodes,
             groups: options.groups,
             nodes,

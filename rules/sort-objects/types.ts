@@ -93,8 +93,13 @@ export type Options = Partial<
   >
 >[]
 
-export type SortObjectSortingNode =
-  SortingNodeWithDependencies<TSESTree.Property>
+export type SortObjectSortingNode = {
+  /**
+   * The string representation of the member's type annotation. Used when
+   * sorting by value instead of name.
+   */
+  value: string
+} & SortingNodeWithDependencies<TSESTree.Property>
 
 interface AdditionalSortOptions {
   sortBy: SortByOption
