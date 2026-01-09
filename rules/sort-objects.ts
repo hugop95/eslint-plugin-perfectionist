@@ -22,6 +22,11 @@ import {
   allSelectors,
 } from './sort-objects/types'
 import {
+  useExperimentalDependencyDetectionJsonSchema,
+  buildUseConfigurationIfJsonSchema,
+  buildCommonJsonSchemas,
+} from '../utils/json-schemas/common-json-schemas'
+import {
   DEPENDENCY_ORDER_ERROR,
   MISSED_SPACING_ERROR,
   EXTRA_SPACING_ERROR,
@@ -32,12 +37,10 @@ import {
   partitionByCommentJsonSchema,
   partitionByNewLineJsonSchema,
 } from '../utils/json-schemas/common-partition-json-schemas'
-import {
-  buildUseConfigurationIfJsonSchema,
-  buildCommonJsonSchemas,
-} from '../utils/json-schemas/common-json-schemas'
+import { computeDependenciesOutsideFunctionsBySortingNode } from '../utils/compute-dependencies-outside-functions-by-sorting-node'
 import { computePropertyOrVariableDeclaratorName } from './sort-objects/compute-property-or-variable-declarator-name'
 import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
+import { computeSortingNodeGroupsWithDependencies } from '../utils/compute-sorting-node-groups-with-dependencies'
 import { buildDefaultOptionsByGroupIndexComputer } from '../utils/build-default-options-by-group-index-computer'
 import { defaultComparatorByOptionsComputer } from '../utils/compare/default-comparator-by-options-computer'
 import { buildCommonGroupsJsonSchemas } from '../utils/json-schemas/common-groups-json-schemas'
@@ -68,6 +71,7 @@ import { complete } from '../utils/complete'
 let cachedGroupsByModifiersAndSelectors = new Map<string, string[]>()
 
 let defaultOptions: Required<Options[number]> = {
+  useExperimentalDependencyDetection: true,
   fallbackSort: { type: 'unsorted' },
   newlinesInside: 'newlinesBetween',
   partitionByNewLine: false,
@@ -192,11 +196,13 @@ export default createEslintRule<Options, MessageId>({
             })
 
             let sortingNode: Omit<SortObjectsSortingNode, 'partitionId'> = {
+              dependencies: options.useExperimentalDependencyDetection
+                ? []
+                : computeDependencies(property),
               isEslintDisabled: isNodeEslintDisabled(
                 property,
                 eslintDisabledLines,
               ),
-              dependencies: computeDependencies(property),
               size: rangeToDiff(property, sourceCode),
               dependencyNames,
               node: property,
@@ -228,6 +234,19 @@ export default createEslintRule<Options, MessageId>({
 
       let sortingNodeGroups = formatProperties(nodeObject.properties)
       let sortingNodes = sortingNodeGroups.flat()
+
+      if (options.useExperimentalDependencyDetection) {
+        let dependenciesBySortingNode =
+          computeDependenciesOutsideFunctionsBySortingNode({
+            sortingNodes,
+            sourceCode,
+          })
+        sortingNodeGroups = computeSortingNodeGroupsWithDependencies({
+          sortingNodeGroupsWithoutDependencies: sortingNodeGroups,
+          dependenciesBySortingNode,
+        })
+        sortingNodes = sortingNodeGroups.flat()
+      }
 
       reportAllErrors<MessageId>({
         availableMessageIds: {
@@ -299,6 +318,8 @@ export default createEslintRule<Options, MessageId>({
             description: 'Controls whether to sort styled components.',
             type: 'boolean',
           },
+          useExperimentalDependencyDetection:
+            useExperimentalDependencyDetectionJsonSchema,
           partitionByComment: partitionByCommentJsonSchema,
           partitionByNewLine: partitionByNewLineJsonSchema,
         },
