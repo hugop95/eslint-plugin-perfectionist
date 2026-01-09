@@ -5,8 +5,8 @@ import { AST_NODE_TYPES } from '@typescript-eslint/utils'
 
 import type {
   SortImportsSortingNode,
-  Selector,
   Modifier,
+  Selector,
   Options,
 } from './sort-imports/types'
 
@@ -26,17 +26,20 @@ import {
   ORDER_ERROR,
 } from '../utils/report-errors'
 import {
+  useExperimentalDependencyDetectionJsonSchema,
+  buildCommonJsonSchemas,
+  buildRegexJsonSchema,
+} from '../utils/json-schemas/common-json-schemas'
+import {
   partitionByCommentJsonSchema,
   partitionByNewLineJsonSchema,
 } from '../utils/json-schemas/common-partition-json-schemas'
 import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
+import { computeSortingNodeGroupsWithDependencies } from '../utils/compute-sorting-node-groups-with-dependencies'
 import { buildDefaultOptionsByGroupIndexComputer } from '../utils/build-default-options-by-group-index-computer'
 import { isNonExternalReferenceTsImportEquals } from './sort-imports/is-non-external-reference-ts-import-equals'
-import {
-  buildCommonJsonSchemas,
-  buildRegexJsonSchema,
-} from '../utils/json-schemas/common-json-schemas'
 import { validateSideEffectsConfiguration } from './sort-imports/validate-side-effects-configuration'
+import { computeDependenciesBySortingNode } from '../utils/compute-dependencies-by-sorting-node'
 import { buildCommonGroupsJsonSchemas } from '../utils/json-schemas/common-groups-json-schemas'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
 import { comparatorByOptionsComputer } from './sort-imports/comparator-by-options-computer'
@@ -96,6 +99,7 @@ let defaultOptions: Required<Options[number]> = {
     'ts-equals-import',
     'unknown',
   ],
+  useExperimentalDependencyDetection: true,
   internalPattern: ['^~/.+', '^@/.+'],
   fallbackSort: { type: 'unsorted' },
   partitionByComment: false,
@@ -253,11 +257,13 @@ export default createEslintRule<Options, MessageId>({
           isSideEffect &&
           !shouldRegroupSideEffectNodes &&
           (!isStyleSideEffect || !shouldRegroupSideEffectStyleNodes),
+        dependencies: options.useExperimentalDependencyDetection
+          ? []
+          : computeDependencies(node),
         isEslintDisabled: isNodeEslintDisabled(node, eslintDisabledLines),
         dependencyNames: computeDependencyNames({ sourceCode, node }),
         specifierName: computeSpecifierName({ sourceCode, node }),
         isTypeImport: modifiers.includes('type'),
-        dependencies: computeDependencies(node),
         addSafetySemicolonWhenInline: true,
         group,
         size,
@@ -334,6 +340,8 @@ export default createEslintRule<Options, MessageId>({
             enum: ['node', 'bun'],
             type: 'string',
           },
+          useExperimentalDependencyDetection:
+            useExperimentalDependencyDetectionJsonSchema,
           partitionByComment: partitionByCommentJsonSchema,
           partitionByNewLine: partitionByNewLineJsonSchema,
           internalPattern: buildRegexJsonSchema(),
@@ -409,8 +417,21 @@ function sortImportNodes({
     })
   }
 
-  for (let sortingNodeGroups of contentSeparatedSortingNodeGroups) {
-    let nodes = sortingNodeGroups.flat()
+  for (let contentSeparatedSortingNodeGroup of contentSeparatedSortingNodeGroups) {
+    let sortingNodeGroups = [...contentSeparatedSortingNodeGroup]
+    let sortingNodes = sortingNodeGroups.flat()
+
+    if (options.useExperimentalDependencyDetection) {
+      let dependenciesBySortingNode = computeDependenciesBySortingNode({
+        sortingNodes,
+        sourceCode,
+      })
+      sortingNodeGroups = computeSortingNodeGroupsWithDependencies({
+        sortingNodeGroupsWithoutDependencies: sortingNodeGroups,
+        dependenciesBySortingNode,
+      })
+      sortingNodes = sortingNodeGroups.flat()
+    }
 
     reportAllErrors<MessageId>({
       availableMessageIds: {
@@ -423,9 +444,9 @@ function sortImportNodes({
       },
       sortNodesExcludingEslintDisabled:
         createSortNodesExcludingEslintDisabled(sortingNodeGroups),
+      nodes: sortingNodes,
       options,
       context,
-      nodes,
     })
   }
 
