@@ -35,11 +35,11 @@ import { validateGroupsConfiguration } from '../utils/validate-groups-configurat
 import { additionalCustomGroupMatchOptionsJsonSchema } from './sort-enums/types'
 import { sortNodesByDependencies } from '../utils/sort-nodes-by-dependencies'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
+import { allSortedSelectors, allSortedModifiers } from './sort-enums/types'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
 import { doesCustomGroupMatch } from '../utils/does-custom-group-match'
 import { computeDependencies } from './sort-enums/compute-dependencies'
 import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
-import { allSelectors, allModifiers } from './sort-enums/types'
 import { createEslintRule } from '../utils/create-eslint-rule'
 import { reportAllErrors } from '../utils/report-all-errors'
 import { shouldPartition } from '../utils/should-partition'
@@ -96,16 +96,16 @@ export default createEslintRule<Options, MessageId>({
       let options = complete(context.options.at(0), settings, defaultOptions)
       validateCustomSortConfiguration(options)
       validateGroupsConfiguration({
-        selectors: allSelectors,
-        modifiers: allModifiers,
+        selectors: allSortedSelectors,
+        modifiers: allSortedModifiers,
         options,
       })
       validateNewlinesAndPartitionConfiguration(options)
 
       let { sourceCode, id } = context
       let groupMatcher = new GroupMatcher({
-        allModifiers,
-        allSelectors,
+        allSortedModifiers,
+        allSortedSelectors,
         options,
       })
       let eslintDisabledLines = getEslintDisabledLines({
