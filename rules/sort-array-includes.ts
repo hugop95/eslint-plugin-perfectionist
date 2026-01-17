@@ -13,6 +13,11 @@ import {
   partitionByNewLineJsonSchema,
 } from '../utils/json-schemas/common-partition-json-schemas'
 import {
+  additionalCustomGroupMatchOptionsJsonSchema,
+  allSelectors,
+  allModifiers,
+} from './sort-array-includes/types'
+import {
   MISSED_SPACING_ERROR,
   EXTRA_SPACING_ERROR,
   GROUP_ORDER_ERROR,
@@ -24,18 +29,12 @@ import {
 } from '../utils/json-schemas/common-json-schemas'
 import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
 import { defaultComparatorByOptionsComputer } from '../utils/compare/default-comparator-by-options-computer'
-import {
-  additionalCustomGroupMatchOptionsJsonSchema,
-  allSelectors,
-  allModifiers,
-} from './sort-array-includes/types'
 import { buildOptionsByGroupIndexComputer } from '../utils/build-options-by-group-index-computer'
 import { buildCommonGroupsJsonSchemas } from '../utils/json-schemas/common-groups-json-schemas'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
 import { filterOptionsByAllNamesMatch } from '../utils/filter-options-by-all-names-match'
 import { validateGroupsConfiguration } from '../utils/validate-groups-configuration'
 import { computeArrayElements } from './sort-array-includes/compute-array-elements'
-import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
 import { doesCustomGroupMatch } from '../utils/does-custom-group-match'
@@ -43,16 +42,11 @@ import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
 import { createEslintRule } from '../utils/create-eslint-rule'
 import { reportAllErrors } from '../utils/report-all-errors'
 import { shouldPartition } from '../utils/should-partition'
-import { computeGroup } from '../utils/compute-group'
+import { GroupMatcher } from '../utils/group-matcher'
 import { rangeToDiff } from '../utils/range-to-diff'
 import { getSettings } from '../utils/get-settings'
 import { isSortable } from '../utils/is-sortable'
 import { complete } from '../utils/complete'
-
-/**
- * Cache computed groups by modifiers and selectors for performance.
- */
-let cachedGroupsByModifiersAndSelectors = new Map<string, string[]>()
 
 const ORDER_ERROR_ID = 'unexpectedArrayIncludesOrder'
 const GROUP_ORDER_ERROR_ID = 'unexpectedArrayIncludesGroupOrder'
@@ -182,6 +176,11 @@ export function sortArray<MessageIds extends string>({
   })
   validateNewlinesAndPartitionConfiguration(options)
 
+  let groupMatcher = new GroupMatcher({
+    allModifiers,
+    allSelectors,
+    options,
+  })
   let eslintDisabledLines = getEslintDisabledLines({
     ruleName: id,
     sourceCode,
@@ -197,28 +196,19 @@ export function sortArray<MessageIds extends string>({
         return accumulator
       }
 
-      if (element.type === AST_NODE_TYPES.SpreadElement) {
-        accumulator.push([])
-        return accumulator
-      }
-
       let name = getNodeName({ sourceCode, element })
-      let selector: Selector = 'literal'
-      let predefinedGroups = generatePredefinedGroups({
-        cache: cachedGroupsByModifiersAndSelectors,
-        selectors: [selector],
-        modifiers: [],
-      })
-      let group = computeGroup({
+      let selectors: Selector[] =
+        element.type === AST_NODE_TYPES.SpreadElement ? ['spread'] : ['literal']
+      let group = groupMatcher.computeGroup({
         customGroupMatcher: customGroup =>
           doesCustomGroupMatch({
-            selectors: [selector],
             elementName: name,
             modifiers: [],
             customGroup,
+            selectors,
           }),
-        predefinedGroups,
-        options,
+        modifiers: [],
+        selectors,
       })
 
       let sortingNode: Omit<SortArrayIncludesSortingNode, 'partitionId'> = {
