@@ -20,7 +20,7 @@ export type Options = Partial<
  *
  * Distinguishes between variables with and without initial values.
  */
-export type Selector = (typeof allSelectors)[number]
+export type Selector = (typeof allSortedSelectors)[number]
 
 /** Match options for a custom group. */
 interface CustomGroupMatchOptions {
@@ -33,13 +33,9 @@ interface CustomGroupMatchOptions {
 
 type AdditionalSortOptions = object
 
-/**
- * Array of all available selectors for variable declarations.
- *
- * Used for validation and configuration in the ESLint rule.
- */
-export let allSelectors = ['initialized', 'uninitialized'] as const
-export let allModifiers = [] as const
+/** Array of all available selectors sorted by importance. */
+export let allSortedSelectors = ['initialized', 'uninitialized'] as const
+export let allSortedModifiers = [] as const
 
 /**
  * Additional custom group match options JSON schema. Used by ESLint to validate
@@ -49,5 +45,5 @@ export let additionalCustomGroupMatchOptionsJsonSchema: Record<
   string,
   JSONSchema4
 > = {
-  selector: buildCustomGroupSelectorJsonSchema(allSelectors),
+  selector: buildCustomGroupSelectorJsonSchema(allSortedSelectors),
 }

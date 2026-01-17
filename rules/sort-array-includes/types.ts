@@ -36,7 +36,7 @@ export type Options = Partial<
  * Represents the type of array element selector. Used to distinguish between
  * literal values and spread elements in arrays.
  */
-export type Selector = (typeof allSelectors)[number]
+export type Selector = (typeof allSortedSelectors)[number]
 
 /**
  * Additional configuration for a single custom group.
@@ -59,12 +59,9 @@ interface CustomGroupMatchOptions {
 
 type AdditionalSortOptions = object
 
-/**
- * Complete list of available selectors for array elements. Used for validation
- * and JSON schema generation.
- */
-export let allSelectors = ['literal', 'spread'] as const
-export let allModifiers = [] as const
+/** Array of all available selectors sorted by importance. */
+export let allSortedSelectors = ['literal', 'spread'] as const
+export let allSortedModifiers = [] as const
 
 /**
  * Additional custom group match options JSON schema. Used by ESLint to validate
@@ -74,5 +71,5 @@ export let additionalCustomGroupMatchOptionsJsonSchema: Record<
   string,
   JSONSchema4
 > = {
-  selector: buildCustomGroupSelectorJsonSchema(allSelectors),
+  selector: buildCustomGroupSelectorJsonSchema(allSortedSelectors),
 }

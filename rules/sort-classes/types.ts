@@ -45,13 +45,13 @@ export interface SortClassesSortingNode extends SortingNodeWithDependencies<TSES
  * Union type of all available class member selectors. Used to identify and
  * categorize different types of class members.
  */
-export type Selector = (typeof allSelectors)[number]
+export type Selector = (typeof allSortedSelectors)[number]
 
 /**
  * Union type of all available class member modifiers. Includes access
  * modifiers, async, static, abstract, and other TypeScript modifiers.
  */
-export type Modifier = (typeof allModifiers)[number]
+export type Modifier = (typeof allSortedModifiers)[number]
 
 /**
  * Defines a custom group configuration for class members.
@@ -79,11 +79,8 @@ interface CustomGroupMatchOptions {
 
 type AdditionalSortOptions = object
 
-/**
- * Complete list of available class member selectors. Used for validation and
- * JSON schema generation.
- */
-export let allSelectors = [
+/** Array of all available selectors sorted by importance. */
+export let allSortedSelectors = [
   'function-property',
   'accessor-property',
   'property',
@@ -94,12 +91,8 @@ export let allSelectors = [
   'index-signature',
   'static-block',
 ] as const
-
-/**
- * Complete list of available class member modifiers. Used for validation and
- * JSON schema generation.
- */
-export let allModifiers = [
+/** Array of all available modifiers sorted by importance. */
+export let allSortedModifiers = [
   'static',
   'declare',
   'abstract',
@@ -124,8 +117,8 @@ export let additionalCustomGroupMatchOptionsJsonSchema: Record<
   string,
   JSONSchema4
 > = {
-  modifiers: buildCustomGroupModifiersJsonSchema(allModifiers),
-  selector: buildCustomGroupSelectorJsonSchema(allSelectors),
+  modifiers: buildCustomGroupModifiersJsonSchema(allSortedModifiers),
+  selector: buildCustomGroupSelectorJsonSchema(allSortedSelectors),
   decoratorNamePattern: buildRegexJsonSchema(),
   elementValuePattern: buildRegexJsonSchema(),
 }

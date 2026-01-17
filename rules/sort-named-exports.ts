@@ -8,6 +8,11 @@ import type {
 } from './sort-named-exports/types'
 
 import {
+  additionalCustomGroupMatchOptionsJsonSchema,
+  allSortedModifiers,
+  allSortedSelectors,
+} from './sort-named-exports/types'
+import {
   partitionByCommentJsonSchema,
   partitionByNewLineJsonSchema,
 } from '../utils/json-schemas/common-partition-json-schemas'
@@ -17,11 +22,6 @@ import {
   GROUP_ORDER_ERROR,
   ORDER_ERROR,
 } from '../utils/report-errors'
-import {
-  additionalCustomGroupMatchOptionsJsonSchema,
-  allModifiers,
-  allSelectors,
-} from './sort-named-exports/types'
 import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
 import { defaultComparatorByOptionsComputer } from '../utils/compare/default-comparator-by-options-computer'
 import { buildOptionsByGroupIndexComputer } from '../utils/build-options-by-group-index-computer'
@@ -83,16 +83,16 @@ export default createEslintRule<Options, MessageId>({
       let options = complete(context.options.at(0), settings, defaultOptions)
       validateCustomSortConfiguration(options)
       validateGroupsConfiguration({
-        modifiers: allModifiers,
-        selectors: allSelectors,
+        modifiers: allSortedModifiers,
+        selectors: allSortedSelectors,
         options,
       })
       validateNewlinesAndPartitionConfiguration(options)
 
       let { sourceCode, id } = context
       let groupMatcher = new GroupMatcher({
-        allModifiers,
-        allSelectors,
+        allSortedModifiers,
+        allSortedSelectors,
         options,
       })
       let eslintDisabledLines = getEslintDisabledLines({

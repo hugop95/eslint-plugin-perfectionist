@@ -22,13 +22,13 @@ export type Options = Partial<
  * Union type of available export modifiers. Distinguishes between value exports
  * and type-only exports.
  */
-export type Modifier = (typeof allModifiers)[number]
+export type Modifier = (typeof allSortedModifiers)[number]
 
 /**
  * Type of selector for export statements. Currently represents re-export
  * statements.
  */
-export type Selector = (typeof allSelectors)[number]
+export type Selector = (typeof allSortedSelectors)[number]
 
 /**
  * Additional configuration for a single custom group.
@@ -58,17 +58,10 @@ interface CustomGroupMatchOptions {
 
 type AdditionalSortOptions = object
 
-/**
- * Complete list of available export selectors. Used for validation and JSON
- * schema generation.
- */
-export let allSelectors = ['export'] as const
-
-/**
- * Complete list of available export modifiers. Used for validation and JSON
- * schema generation.
- */
-export let allModifiers = [
+/** Array of all available selectors sorted by importance. */
+export let allSortedSelectors = ['export'] as const
+/** Array of all available modifiers sorted by importance. */
+export let allSortedModifiers = [
   'value',
   'type',
   'named',
@@ -85,6 +78,6 @@ export let additionalCustomGroupMatchOptionsJsonSchema: Record<
   string,
   JSONSchema4
 > = {
-  modifiers: buildCustomGroupModifiersJsonSchema(allModifiers),
-  selector: buildCustomGroupSelectorJsonSchema(allSelectors),
+  modifiers: buildCustomGroupModifiersJsonSchema(allSortedModifiers),
+  selector: buildCustomGroupSelectorJsonSchema(allSortedSelectors),
 }
