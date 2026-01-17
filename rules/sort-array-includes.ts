@@ -9,14 +9,14 @@ import type { Selector, Options } from './sort-array-includes/types'
 import type { SortingNode } from '../types/sorting-node'
 
 import {
+  additionalCustomGroupMatchOptionsJsonSchema,
+  allSortedSelectors,
+  allSortedModifiers,
+} from './sort-array-includes/types'
+import {
   partitionByCommentJsonSchema,
   partitionByNewLineJsonSchema,
 } from '../utils/json-schemas/common-partition-json-schemas'
-import {
-  additionalCustomGroupMatchOptionsJsonSchema,
-  allSelectors,
-  allModifiers,
-} from './sort-array-includes/types'
 import {
   MISSED_SPACING_ERROR,
   EXTRA_SPACING_ERROR,
@@ -170,15 +170,15 @@ export function sortArray<MessageIds extends string>({
   let options = complete(matchedContextOptions[0], settings, defaultOptions)
   validateCustomSortConfiguration(options)
   validateGroupsConfiguration({
-    selectors: allSelectors,
-    modifiers: allModifiers,
+    selectors: allSortedSelectors,
+    modifiers: allSortedModifiers,
     options,
   })
   validateNewlinesAndPartitionConfiguration(options)
 
   let groupMatcher = new GroupMatcher({
-    allModifiers,
-    allSelectors,
+    allSortedModifiers,
+    allSortedSelectors,
     options,
   })
   let eslintDisabledLines = getEslintDisabledLines({

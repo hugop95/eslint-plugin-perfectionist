@@ -25,9 +25,12 @@ import { defaultComparatorByOptionsComputer } from '../utils/compare/default-com
 import { buildOptionsByGroupIndexComputer } from '../utils/build-options-by-group-index-computer'
 import { buildCommonGroupsJsonSchemas } from '../utils/json-schemas/common-groups-json-schemas'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
+import {
+  allSortedSelectors,
+  allSortedModifiers,
+} from './sort-export-attributes/types'
 import { validateGroupsConfiguration } from '../utils/validate-groups-configuration'
 import { buildCommonJsonSchemas } from '../utils/json-schemas/common-json-schemas'
-import { allSelectors, allModifiers } from './sort-export-attributes/types'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
 import { doesCustomGroupMatch } from '../utils/does-custom-group-match'
@@ -81,15 +84,15 @@ export default createEslintRule<Options, MessageId>({
       let options = complete(context.options.at(0), settings, defaultOptions)
       validateCustomSortConfiguration(options)
       validateGroupsConfiguration({
-        selectors: allSelectors,
-        modifiers: allModifiers,
+        selectors: allSortedSelectors,
+        modifiers: allSortedModifiers,
         options,
       })
       validateNewlinesAndPartitionConfiguration(options)
 
       let groupMatcher = new GroupMatcher({
-        allModifiers,
-        allSelectors,
+        allSortedModifiers,
+        allSortedSelectors,
         options,
       })
       let eslintDisabledLines = getEslintDisabledLines({

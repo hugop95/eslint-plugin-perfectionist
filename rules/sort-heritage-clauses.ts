@@ -21,10 +21,13 @@ import { defaultComparatorByOptionsComputer } from '../utils/compare/default-com
 import { buildOptionsByGroupIndexComputer } from '../utils/build-options-by-group-index-computer'
 import { buildCommonGroupsJsonSchemas } from '../utils/json-schemas/common-groups-json-schemas'
 import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
+import {
+  allSortedModifiers,
+  allSortedSelectors,
+} from './sort-heritage-clauses/types'
 import { validateGroupsConfiguration } from '../utils/validate-groups-configuration'
 import { buildCommonJsonSchemas } from '../utils/json-schemas/common-json-schemas'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
-import { allModifiers, allSelectors } from './sort-heritage-clauses/types'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
 import { doesCustomGroupMatch } from '../utils/does-custom-group-match'
 import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
@@ -100,8 +103,8 @@ export default createEslintRule<Options, MessageId>({
     let options = complete(context.options.at(0), settings, defaultOptions)
     validateCustomSortConfiguration(options)
     validateGroupsConfiguration({
-      modifiers: allModifiers,
-      selectors: allSelectors,
+      modifiers: allSortedModifiers,
+      selectors: allSortedSelectors,
       options,
     })
     validateNewlinesAndPartitionConfiguration(options)
@@ -140,8 +143,8 @@ function sortHeritageClauses(
   }
   let { sourceCode, id } = context
   let groupMatcher = new GroupMatcher({
-    allModifiers,
-    allSelectors,
+    allSortedModifiers,
+    allSortedSelectors,
     options,
   })
   let eslintDisabledLines = getEslintDisabledLines({

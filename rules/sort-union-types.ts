@@ -12,16 +12,16 @@ import {
   partitionByNewLineJsonSchema,
 } from '../utils/json-schemas/common-partition-json-schemas'
 import {
+  additionalCustomGroupMatchOptionsJsonSchema,
+  allSortedModifiers,
+  allSortedSelectors,
+} from './sort-union-types/types'
+import {
   MISSED_SPACING_ERROR,
   EXTRA_SPACING_ERROR,
   GROUP_ORDER_ERROR,
   ORDER_ERROR,
 } from '../utils/report-errors'
-import {
-  additionalCustomGroupMatchOptionsJsonSchema,
-  allModifiers,
-  allSelectors,
-} from './sort-union-types/types'
 import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
 import { defaultComparatorByOptionsComputer } from '../utils/compare/default-comparator-by-options-computer'
 import { buildOptionsByGroupIndexComputer } from '../utils/build-options-by-group-index-computer'
@@ -144,16 +144,16 @@ export function sortUnionOrIntersectionTypes<MessageIds extends string>({
   let options = complete(context.options.at(0), settings, defaultOptions)
   validateCustomSortConfiguration(options)
   validateGroupsConfiguration({
-    selectors: allSelectors,
-    modifiers: allModifiers,
+    selectors: allSortedSelectors,
+    modifiers: allSortedModifiers,
     options,
   })
   validateNewlinesAndPartitionConfiguration(options)
 
   let { sourceCode, id } = context
   let groupMatcher = new GroupMatcher({
-    allModifiers,
-    allSelectors,
+    allSortedModifiers,
+    allSortedSelectors,
     options,
   })
   let eslintDisabledLines = getEslintDisabledLines({

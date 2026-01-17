@@ -18,9 +18,9 @@ import {
   MISSED_SPACING_ERROR_ID,
   EXTRA_SPACING_ERROR_ID,
   GROUP_ORDER_ERROR_ID,
+  allSortedModifiers,
+  allSortedSelectors,
   ORDER_ERROR_ID,
-  allModifiers,
-  allSelectors,
 } from './sort-objects/types'
 import {
   useExperimentalDependencyDetectionJsonSchema,
@@ -110,8 +110,8 @@ export default createEslintRule<Options, MessageId>({
       let options = complete(matchedContextOptions, settings, defaultOptions)
       validateCustomSortConfiguration(options)
       validateGroupsConfiguration({
-        selectors: allSelectors,
-        modifiers: allModifiers,
+        selectors: allSortedSelectors,
+        modifiers: allSortedModifiers,
         options,
       })
       validateNewlinesAndPartitionConfiguration(options)
@@ -127,8 +127,8 @@ export default createEslintRule<Options, MessageId>({
       let optionsByGroupIndexComputer =
         buildOptionsByGroupIndexComputer(options)
       let groupMatcher = new GroupMatcher({
-        allModifiers,
-        allSelectors,
+        allSortedModifiers,
+        allSortedSelectors,
         options,
       })
 

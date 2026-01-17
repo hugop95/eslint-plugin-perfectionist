@@ -34,8 +34,8 @@ type CustomGroupMatchOptions = object
 
 type AdditionalSortOptions = object
 
-export let allSelectors = [] as const
-export type Selector = (typeof allSelectors)[number]
+export let allSortedSelectors = [] as const
+export type Selector = (typeof allSortedSelectors)[number]
 
-export let allModifiers = [] as const
-export type Modifier = (typeof allModifiers)[number]
+export let allSortedModifiers = [] as const
+export type Modifier = (typeof allSortedModifiers)[number]

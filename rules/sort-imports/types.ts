@@ -107,13 +107,13 @@ export type CustomTypeOption = 'type-import-first' | TypeOption
  * Union type of all available import selectors. Used to categorize different
  * types of import statements.
  */
-export type Selector = (typeof allSelectors)[number]
+export type Selector = (typeof allSortedSelectors)[number]
 
 /**
  * Union type of all available import modifiers. Used to identify specific
  * characteristics of import statements.
  */
-export type Modifier = (typeof allModifiers)[number]
+export type Modifier = (typeof allSortedModifiers)[number]
 
 /**
  * Additional configuration for a single custom group.
@@ -144,10 +144,9 @@ interface AdditionalSortOptions {
 }
 
 /**
- * Complete list of available active import selectors. Used for validation and
- * JSON schema generation.
+ * Array of all available selectors sorted by importance.
  */
-export let allSelectors = [
+export let allSortedSelectors = [
   'type',
   'side-effect-style',
   'side-effect',
@@ -162,12 +161,10 @@ export let allSelectors = [
   'external',
   'import',
 ] as const
-
 /**
- * Complete list of available import modifiers. Used for validation and JSON
- * schema generation.
+ * Array of all available modifiers sorted by importance.
  */
-export let allModifiers = [
+export let allSortedModifiers = [
   'side-effect',
   'type',
   'value',
@@ -188,8 +185,8 @@ export let additionalCustomGroupMatchOptionsJsonSchema: Record<
   string,
   JSONSchema4
 > = {
-  modifiers: buildCustomGroupModifiersJsonSchema(allModifiers),
-  selector: buildCustomGroupSelectorJsonSchema(allSelectors),
+  modifiers: buildCustomGroupModifiersJsonSchema(allSortedModifiers),
+  selector: buildCustomGroupSelectorJsonSchema(allSortedSelectors),
 }
 
 const SORT_BY_OPTION = ['specifier', 'path'] as const

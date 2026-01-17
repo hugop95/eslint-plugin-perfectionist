@@ -12,16 +12,16 @@ import {
   buildRegexJsonSchema,
 } from '../utils/json-schemas/common-json-schemas'
 import {
+  additionalCustomGroupMatchOptionsJsonSchema,
+  allSortedModifiers,
+  allSortedSelectors,
+} from './sort-jsx-props/types'
+import {
   MISSED_SPACING_ERROR,
   EXTRA_SPACING_ERROR,
   GROUP_ORDER_ERROR,
   ORDER_ERROR,
 } from '../utils/report-errors'
-import {
-  additionalCustomGroupMatchOptionsJsonSchema,
-  allModifiers,
-  allSelectors,
-} from './sort-jsx-props/types'
 import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
 import { defaultComparatorByOptionsComputer } from '../utils/compare/default-comparator-by-options-computer'
 import { partitionByNewLineJsonSchema } from '../utils/json-schemas/common-partition-json-schemas'
@@ -90,15 +90,15 @@ export default createEslintRule<Options, MessageId>({
       let options = complete(matchedContextOptions, settings, defaultOptions)
       validateCustomSortConfiguration(options)
       validateGroupsConfiguration({
-        selectors: allSelectors,
-        modifiers: allModifiers,
+        selectors: allSortedSelectors,
+        modifiers: allSortedModifiers,
         options,
       })
       validateNewlinesAndPartitionConfiguration(options)
 
       let groupMatcher = new GroupMatcher({
-        allModifiers,
-        allSelectors,
+        allSortedModifiers,
+        allSortedSelectors,
         options,
       })
       let eslintDisabledLines = getEslintDisabledLines({

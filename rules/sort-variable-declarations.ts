@@ -12,6 +12,11 @@ import {
   ORDER_ERROR,
 } from '../utils/report-errors'
 import {
+  additionalCustomGroupMatchOptionsJsonSchema,
+  allSortedSelectors,
+  allSortedModifiers,
+} from './sort-variable-declarations/types'
+import {
   partitionByCommentJsonSchema,
   partitionByNewLineJsonSchema,
 } from '../utils/json-schemas/common-partition-json-schemas'
@@ -88,15 +93,15 @@ export default createEslintRule<Options, MessageId>({
       validateCustomSortConfiguration(options)
       validateNewlinesAndPartitionConfiguration(options)
       validateGroupsConfiguration({
-        selectors: allSelectors,
-        modifiers: allModifiers,
+        selectors: allSortedSelectors,
+        modifiers: allSortedModifiers,
         options,
       })
 
       let { sourceCode, id } = context
       let groupMatcher = new GroupMatcher({
-        allModifiers,
-        allSelectors,
+        allSortedModifiers,
+        allSortedSelectors,
         options,
       })
       let eslintDisabledLines = getEslintDisabledLines({

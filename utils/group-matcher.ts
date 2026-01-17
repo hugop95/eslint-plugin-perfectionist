@@ -23,8 +23,8 @@ class GroupName<Selector extends string, Modifier extends string> {
     selector,
     name,
   }: {
-    allSelectors: readonly Selector[]
-    allModifiers: readonly Modifier[]
+    allSortedSelectors: readonly Selector[]
+    allSortedModifiers: readonly Modifier[]
     modifiers: Modifier[]
     selector: Selector
     name: string
@@ -35,16 +35,16 @@ class GroupName<Selector extends string, Modifier extends string> {
   }
 
   public static parse<Selector extends string, Modifier extends string>({
-    allSelectors,
-    allModifiers,
+    allSortedSelectors,
+    allSortedModifiers,
     name,
   }: {
-    allSelectors: readonly Selector[]
-    allModifiers: readonly Modifier[]
+    allSortedSelectors: readonly Selector[]
+    allSortedModifiers: readonly Modifier[]
     name: string
   }): GroupName<Selector, Modifier> | null {
     let possibleSelectors = computePossibleElements()
-    let selector = allSelectors.find(currentSelector =>
+    let selector = allSortedSelectors.find(currentSelector =>
       possibleSelectors.has(currentSelector),
     )
     if (!selector) {
@@ -52,13 +52,13 @@ class GroupName<Selector extends string, Modifier extends string> {
     }
 
     let rest = name.slice(0, -selector.length)
-    let modifiers = allModifiers.filter(modifier =>
+    let modifiers = allSortedModifiers.filter(modifier =>
       new RegExp(`(?:^|-)${modifier}-`).test(rest),
     )
 
     return new GroupName({
-      allSelectors,
-      allModifiers,
+      allSortedSelectors,
+      allSortedModifiers,
       modifiers,
       selector,
       name,
@@ -133,19 +133,21 @@ export class GroupMatcher<
   private readonly _modifiersByIndex: Map<Modifier, number>
 
   public constructor({
-    allSelectors,
-    allModifiers,
+    allSortedSelectors,
+    allSortedModifiers,
     options,
   }: {
     options: Pick<
       CommonGroupsOptions<string, AdditionalSortOptions, unknown>,
       'customGroups' | 'groups'
     >
-    allSelectors: readonly Selector[]
-    allModifiers: readonly Modifier[]
+    allSortedSelectors: readonly Selector[]
+    allSortedModifiers: readonly Modifier[]
   }) {
-    this._selectorsByIndex = GroupMatcher._buildElementByIndexMap(allSelectors)
-    this._modifiersByIndex = GroupMatcher._buildElementByIndexMap(allModifiers)
+    this._selectorsByIndex =
+      GroupMatcher._buildElementByIndexMap(allSortedSelectors)
+    this._modifiersByIndex =
+      GroupMatcher._buildElementByIndexMap(allSortedModifiers)
 
     let groupsList = computeGroupsNames(options.groups)
     let groupsSet = new Set(groupsList)
@@ -160,8 +162,8 @@ export class GroupMatcher<
       .filter(name => !customGroupNameSet.has(name))
       .map(name =>
         GroupName.parse({
-          allModifiers,
-          allSelectors,
+          allSortedModifiers,
+          allSortedSelectors,
           name,
         }),
       )

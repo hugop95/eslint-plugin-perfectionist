@@ -12,6 +12,12 @@ import type {
 } from './sort-modules/types'
 
 import {
+  additionalCustomGroupMatchOptionsJsonSchema,
+  allSortedModifiers,
+  allSortedSelectors,
+  USAGE_TYPE_OPTION,
+} from './sort-modules/types'
+import {
   DEPENDENCY_ORDER_ERROR,
   MISSED_SPACING_ERROR,
   EXTRA_SPACING_ERROR,
@@ -20,12 +26,6 @@ import {
 } from '../utils/report-errors'
 import { buildOverloadSignatureNewlinesBetweenValueGetter } from '../utils/overload-signature/build-overload-signature-newlines-between-value-getter'
 import { populateSortingNodeGroupsWithOverloadSignature } from '../utils/overload-signature/populate-sorting-node-groups-with-overload-signature'
-import {
-  additionalCustomGroupMatchOptionsJsonSchema,
-  USAGE_TYPE_OPTION,
-  allModifiers,
-  allSelectors,
-} from './sort-modules/types'
 import {
   partitionByCommentJsonSchema,
   partitionByNewLineJsonSchema,
@@ -143,16 +143,16 @@ export default createEslintRule<Options, MessageId>({
     let options = complete(context.options.at(0), settings, defaultOptions)
     validateCustomSortConfiguration(options)
     validateGroupsConfiguration({
-      modifiers: allModifiers,
-      selectors: allSelectors,
+      modifiers: allSortedModifiers,
+      selectors: allSortedSelectors,
       options,
     })
     validateNewlinesAndPartitionConfiguration(options)
 
     let { sourceCode, id } = context
     let groupMatcher = new GroupMatcher({
-      allModifiers,
-      allSelectors,
+      allSortedModifiers,
+      allSortedSelectors,
       options,
     })
     let eslintDisabledLines = getEslintDisabledLines({

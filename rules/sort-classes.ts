@@ -28,8 +28,8 @@ import {
 } from '../utils/json-schemas/common-partition-json-schemas'
 import {
   additionalCustomGroupMatchOptionsJsonSchema,
-  allModifiers,
-  allSelectors,
+  allSortedModifiers,
+  allSortedSelectors,
 } from './sort-classes/types'
 import { populateSortingNodeGroupsWithDependencies } from '../utils/populate-sorting-node-groups-with-dependencies'
 import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
@@ -128,16 +128,16 @@ export default createEslintRule<Options, MessageId>({
       let options = complete(context.options.at(0), settings, defaultOptions)
       validateCustomSortConfiguration(options)
       validateGroupsConfiguration({
-        modifiers: allModifiers,
-        selectors: allSelectors,
+        modifiers: allSortedModifiers,
+        selectors: allSortedSelectors,
         options,
       })
       validateNewlinesAndPartitionConfiguration(options)
 
       let { sourceCode, id } = context
       let groupMatcher = new GroupMatcher({
-        allModifiers,
-        allSelectors,
+        allSortedModifiers,
+        allSortedSelectors,
         options,
       })
       let eslintDisabledLines = getEslintDisabledLines({

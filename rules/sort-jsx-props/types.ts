@@ -48,13 +48,13 @@ export type Options = Partial<
  * Union type of all available JSX prop modifiers. Used to identify specific
  * characteristics of JSX props.
  */
-export type Modifier = (typeof allModifiers)[number]
+export type Modifier = (typeof allSortedModifiers)[number]
 
 /**
  * Union type of all available JSX prop selectors. Used to categorize different
  * types of JSX props.
  */
-export type Selector = (typeof allSelectors)[number]
+export type Selector = (typeof allSortedSelectors)[number]
 
 /**
  * Additional configuration for a single custom group.
@@ -92,16 +92,13 @@ interface CustomGroupMatchOptions {
 type AdditionalSortOptions = object
 
 /**
- * Complete list of available JSX prop selectors. Used for validation and JSON
- * schema generation.
+ * Array of all available selectors sorted by importance.
  */
-export let allSelectors = ['prop'] as const
-
+export let allSortedSelectors = ['prop'] as const
 /**
- * Complete list of available JSX prop modifiers. Used for validation and JSON
- * schema generation.
+ * Array of all available modifiers sorted by importance.
  */
-export let allModifiers = ['shorthand', 'multiline'] as const
+export let allSortedModifiers = ['shorthand', 'multiline'] as const
 
 /**
  * Additional custom group match options JSON schema. Used by ESLint to validate
@@ -111,7 +108,7 @@ export let additionalCustomGroupMatchOptionsJsonSchema: Record<
   string,
   JSONSchema4
 > = {
-  modifiers: buildCustomGroupModifiersJsonSchema(allModifiers),
-  selector: buildCustomGroupSelectorJsonSchema(allSelectors),
+  modifiers: buildCustomGroupModifiersJsonSchema(allSortedModifiers),
+  selector: buildCustomGroupSelectorJsonSchema(allSortedSelectors),
   elementValuePattern: buildRegexJsonSchema(),
 }

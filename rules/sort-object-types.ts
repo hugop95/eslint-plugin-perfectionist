@@ -16,8 +16,8 @@ import {
   additionalCustomGroupMatchOptionsJsonSchema,
   additionalSortOptionsJsonSchema,
   objectTypeParentTypes,
-  allModifiers,
-  allSelectors,
+  allSortedModifiers,
+  allSortedSelectors,
 } from './sort-object-types/types'
 import {
   partitionByCommentJsonSchema,
@@ -188,15 +188,15 @@ export function sortObjectTypeElements<MessageIds extends string>({
   let options = complete(matchedContextOptions, settings, defaultOptions)
   validateCustomSortConfiguration(options)
   validateGroupsConfiguration({
-    selectors: allSelectors,
-    modifiers: allModifiers,
+    selectors: allSortedSelectors,
+    modifiers: allSortedModifiers,
     options,
   })
   validateNewlinesAndPartitionConfiguration(options)
 
   let groupMatcher = new GroupMatcher({
-    allModifiers,
-    allSelectors,
+    allSortedModifiers,
+    allSortedSelectors,
     options,
   })
   let eslintDisabledLines = getEslintDisabledLines({

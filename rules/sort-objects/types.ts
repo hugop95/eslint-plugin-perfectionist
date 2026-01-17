@@ -118,15 +118,13 @@ export let objectParentTypes = [
   AST_NODE_TYPES.Property,
 ] as const
 export type ObjectParentType = (typeof objectParentTypes)[number]
-export type ObjectParent = NodeOfType<ObjectParentType>
-
 /**
  * Union type of all available modifiers for object members.
  *
  * Modifiers provide additional context about member characteristics, such as
  * whether they are optional, required, or span multiple lines.
  */
-export type Modifier = (typeof allModifiers)[number]
+export type Modifier = (typeof allSortedModifiers)[number]
 
 /**
  * Union type of all available selectors for object members.
@@ -134,7 +132,9 @@ export type Modifier = (typeof allModifiers)[number]
  * Selectors identify the type of object member for grouping and sorting
  * purposes.
  */
-export type Selector = (typeof allSelectors)[number]
+export type Selector = (typeof allSortedSelectors)[number]
+
+export type ObjectParent = NodeOfType<ObjectParentType>
 
 /**
  * Match options for a custom group.
@@ -160,18 +160,13 @@ interface CustomGroupMatchOptions {
 }
 
 /**
- * Array of all available selectors for object members.
- *
- * Used for validation and configuration in the ESLint rule.
+ * Array of all available selectors sorted by importance.
  */
-export let allSelectors = ['method', 'property', 'member'] as const
-
+export let allSortedSelectors = ['method', 'property', 'member'] as const
 /**
- * Array of all available modifiers for object members.
- *
- * Used for validation and configuration in the ESLint rule.
+ * Array of all available modifiers sorted by importance.
  */
-export let allModifiers = ['multiline'] as const
+export let allSortedModifiers = ['multiline'] as const
 
 const SORT_BY_OPTION = ['name', 'value'] as const
 type SortByOption = (typeof SORT_BY_OPTION)[number]
@@ -194,7 +189,7 @@ export let additionalCustomGroupMatchOptionsJsonSchema: Record<
   string,
   JSONSchema4
 > = {
-  modifiers: buildCustomGroupModifiersJsonSchema(allModifiers),
-  selector: buildCustomGroupSelectorJsonSchema(allSelectors),
+  modifiers: buildCustomGroupModifiersJsonSchema(allSortedModifiers),
+  selector: buildCustomGroupSelectorJsonSchema(allSortedSelectors),
   elementValuePattern: buildRegexJsonSchema(),
 }

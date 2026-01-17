@@ -82,10 +82,9 @@ export type AdditionalSortOptions = object
 type CustomTypeOption = typeof USAGE_TYPE_OPTION | TypeOption
 
 /**
- * Complete list of available module member selectors. Used for validation and
- * JSON schema generation.
+ * Array of all available selectors sorted by importance.
  */
-export let allSelectors = [
+export let allSortedSelectors = [
   'enum',
   'function',
   'interface',
@@ -94,20 +93,19 @@ export let allSelectors = [
   'type',
   'class',
 ] as const
-export type Selector = (typeof allSelectors)[number]
+export type Selector = (typeof allSortedSelectors)[number]
 
 /**
- * Complete list of available module member modifiers. Used for validation and
- * JSON schema generation.
+ * Array of all available modifiers sorted by importance.
  */
-export let allModifiers = [
+export let allSortedModifiers = [
   'declare',
   'default',
   'async',
   'decorated',
   'export',
 ] as const
-export type Modifier = (typeof allModifiers)[number]
+export type Modifier = (typeof allSortedModifiers)[number]
 
 /**
  * Ideally, we should generate as many schemas as there are selectors, and
@@ -117,8 +115,8 @@ export let additionalCustomGroupMatchOptionsJsonSchema: Record<
   string,
   JSONSchema4
 > = {
-  modifiers: buildCustomGroupModifiersJsonSchema(allModifiers),
-  selector: buildCustomGroupSelectorJsonSchema(allSelectors),
+  modifiers: buildCustomGroupModifiersJsonSchema(allSortedModifiers),
+  selector: buildCustomGroupSelectorJsonSchema(allSortedSelectors),
   decoratorNamePattern: buildRegexJsonSchema(),
 }
 
