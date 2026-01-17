@@ -14,8 +14,8 @@ import {
   additionalCustomGroupMatchOptionsJsonSchema,
   additionalSortOptionsJsonSchema,
   TYPE_IMPORT_FIRST_TYPE_OPTION,
-  allModifiers,
-  allSelectors,
+  allSortedModifiers,
+  allSortedSelectors,
 } from './sort-imports/types'
 import {
   MISSED_COMMENT_ABOVE_ERROR,
@@ -126,8 +126,8 @@ export default createEslintRule<Options, MessageId>({
     )
 
     validateGroupsConfiguration({
-      selectors: allSelectors,
-      modifiers: allModifiers,
+      selectors: allSortedSelectors,
+      modifiers: allSortedModifiers,
       options,
     })
     validateCustomSortConfiguration(options)
@@ -147,8 +147,8 @@ export default createEslintRule<Options, MessageId>({
 
     let { sourceCode, filename, id } = context
     let groupMatcher = new GroupMatcher({
-      allSelectors,
-      allModifiers,
+      allSortedSelectors,
+      allSortedModifiers,
       options,
     })
     let eslintDisabledLines = getEslintDisabledLines({

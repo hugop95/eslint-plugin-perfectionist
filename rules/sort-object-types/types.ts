@@ -94,7 +94,7 @@ export type ObjectTypeParent = NodeOfType<ObjectTypeParentType>
  * Selectors identify the type of object member for grouping and sorting
  * purposes.
  */
-export type Selector = (typeof allSelectors)[number]
+export type Selector = (typeof allSortedSelectors)[number]
 
 /**
  * Union type of all available modifiers for object type members.
@@ -102,7 +102,7 @@ export type Selector = (typeof allSelectors)[number]
  * Modifiers provide additional context about member characteristics, such as
  * whether they are optional, required, or span multiple lines.
  */
-export type Modifier = (typeof allModifiers)[number]
+export type Modifier = (typeof allSortedModifiers)[number]
 
 /**
  * Match options for a custom group.
@@ -128,23 +128,18 @@ interface CustomGroupMatchOptions {
 }
 
 /**
- * Array of all available selectors for object type members.
- *
- * Used for validation and configuration in the ESLint rule.
+ * Array of all available selectors sorted by importance.
  */
-export let allSelectors = [
+export let allSortedSelectors = [
   'index-signature',
   'method',
   'property',
   'member',
 ] as const
-
 /**
- * Array of all available modifiers for object type members.
- *
- * Used for validation and configuration in the ESLint rule.
+ * Array of all available modifiers sorted by importance.
  */
-export let allModifiers = ['multiline', 'optional', 'required'] as const
+export let allSortedModifiers = ['multiline', 'optional', 'required'] as const
 
 const SORT_BY_OPTION = ['name', 'value'] as const
 type SortByOption = (typeof SORT_BY_OPTION)[number]
@@ -167,7 +162,7 @@ export let additionalCustomGroupMatchOptionsJsonSchema: Record<
   string,
   JSONSchema4
 > = {
-  modifiers: buildCustomGroupModifiersJsonSchema(allModifiers),
-  selector: buildCustomGroupSelectorJsonSchema(allSelectors),
+  modifiers: buildCustomGroupModifiersJsonSchema(allSortedModifiers),
+  selector: buildCustomGroupSelectorJsonSchema(allSortedSelectors),
   elementValuePattern: buildRegexJsonSchema(),
 }

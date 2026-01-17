@@ -27,10 +27,10 @@ import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-c
 import { filterOptionsByAllNamesMatch } from '../utils/filter-options-by-all-names-match'
 import { validateGroupsConfiguration } from '../utils/validate-groups-configuration'
 import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
+import { allSortedModifiers, allSortedSelectors } from './sort-maps/types'
 import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
 import { doesCustomGroupMatch } from '../utils/does-custom-group-match'
 import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
-import { allModifiers, allSelectors } from './sort-maps/types'
 import { createEslintRule } from '../utils/create-eslint-rule'
 import { reportAllErrors } from '../utils/report-all-errors'
 import { shouldPartition } from '../utils/should-partition'
@@ -100,14 +100,14 @@ export default createEslintRule<Options, MessageId>({
       let options = complete(matchedContextOptions[0], settings, defaultOptions)
       validateCustomSortConfiguration(options)
       validateGroupsConfiguration({
-        selectors: allSelectors,
-        modifiers: allModifiers,
+        selectors: allSortedSelectors,
+        modifiers: allSortedModifiers,
         options,
       })
 
       let groupMatcher = new GroupMatcher({
-        allModifiers,
-        allSelectors,
+        allSortedModifiers,
+        allSortedSelectors,
         options,
       })
       let eslintDisabledLines = getEslintDisabledLines({
