@@ -41,14 +41,14 @@ export type SortNamedImportsSortingNode = SortingNode<TSESTree.ImportClause>
  *
  * Modifiers distinguish between type imports and value imports.
  */
-export type Modifier = (typeof allModifiers)[number]
+export type Modifier = (typeof allSortedModifiers)[number]
 
 /**
  * Union type of all available selectors for named imports.
  *
  * Currently only includes the 'import' selector.
  */
-export type Selector = (typeof allSelectors)[number]
+export type Selector = (typeof allSortedSelectors)[number]
 
 /**
  * Match options for a custom group.
@@ -70,18 +70,13 @@ interface CustomGroupMatchOptions {
 type AdditionalSortOptions = object
 
 /**
- * Array of all available selectors for named imports.
- *
- * Used for validation and configuration in the ESLint rule.
+ * Array of all available selectors sorted by importance.
  */
-export let allSelectors = ['import'] as const
-
+export let allSortedSelectors = ['import'] as const
 /**
- * Array of all available modifiers for named imports.
- *
- * Used for validation and configuration in the ESLint rule.
+ * Array of all available modifiers sorted by importance.
  */
-export let allModifiers = ['value', 'type'] as const
+export let allSortedModifiers = ['value', 'type'] as const
 
 /**
  * Additional custom group match options JSON schema. Used by ESLint to validate
@@ -91,6 +86,6 @@ export let additionalCustomGroupMatchOptionsJsonSchema: Record<
   string,
   JSONSchema4
 > = {
-  modifiers: buildCustomGroupModifiersJsonSchema(allModifiers),
-  selector: buildCustomGroupSelectorJsonSchema(allSelectors),
+  modifiers: buildCustomGroupModifiersJsonSchema(allSortedModifiers),
+  selector: buildCustomGroupSelectorJsonSchema(allSortedSelectors),
 }
