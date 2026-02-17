@@ -140,9 +140,6 @@ interface ReportAllErrorsParameters<
    *   return computedNewlinesBetween
    * }
    * ```
-   *
-   * @param params - Context for determining newlines.
-   * @returns Number of required newlines or 'ignore'.
    */
   newlinesBetweenValueGetter?: NewlinesBetweenValueGetter<T>
 

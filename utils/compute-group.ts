@@ -19,10 +19,8 @@ interface ComputeGroupParameters<CustomGroupMatchOptions> {
     'customGroups' | 'groups'
   >
   /**
-   * Function to test if an element matches a custom group.
-   *
-   * @param customGroup - Custom group configuration to test against.
-   * @returns True if the element matches the custom group.
+   * Function to test if an element matches a custom group. Takes a custom group
+   * configuration and returns true if the element matches.
    */
   customGroupMatcher: CustomGroupMatcher<CustomGroupMatchOptions>
 
