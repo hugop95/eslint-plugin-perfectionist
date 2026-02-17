@@ -95,7 +95,7 @@
     "cross-env": "^10.1.0",
     "cspell": "^9.6.4",
     "dedent": "^1.7.1",
-    "eslint": "^9.39.2",
+    "eslint": "^10.0.0",
     "eslint-plugin-eslint-plugin": "^7.3.1",
     "eslint-vitest-rule-tester": "^3.1.0",
     "hast-util-to-text": "^4.0.2",
@@ -131,7 +131,7 @@
     "vitest": "^4.0.18"
   },
   "peerDependencies": {
-    "eslint": ">=8.45.0"
+    "eslint": "^8.45.0 || ^9.0.0 || ^10.0.0"
   },
   "engines": {
     "node": "^20.0.0 || >=22.0.0"
