@@ -1,5 +1,27 @@
 # Changelog
 
+## v5.6.0
+
+[compare changes](https://github.com/azat-io/eslint-plugin-perfectionist/compare/v5.5.0...v5.6.0)
+
+### 🚀 Features
+
+- Support eslint v10
+  ([5b0d27cd](https://github.com/azat-io/eslint-plugin-perfectionist/commit/5b0d27cd))
+
+### 🐞 Bug Fixes
+
+- **sort-classes:** Avoid crashes on unknown class elements
+  ([912f8a8b](https://github.com/azat-io/eslint-plugin-perfectionist/commit/912f8a8b))
+- **sort-objects:** Find declaration comments before exported variables
+  ([9f90465e](https://github.com/azat-io/eslint-plugin-perfectionist/commit/9f90465e))
+- Normalize parenthesized union and intersection member names
+  ([d82f1e9f](https://github.com/azat-io/eslint-plugin-perfectionist/commit/d82f1e9f))
+
+### ❤️ Contributors
+
+- Azat S. ([@azat-io](https://github.com/azat-io))
+
 ## v5.5.0
 
 [compare changes](https://github.com/azat-io/eslint-plugin-perfectionist/compare/v5.4.0...v5.5.0)
