@@ -27,6 +27,7 @@ let Tag = tag
 <style>
   .button {
     display: inline-flex;
+    flex-wrap: nowrap;
     align-items: center;
     justify-content: center;
     inline-size: 180px;
@@ -38,7 +39,10 @@ let Tag = tag
     outline: none;
     border: none;
     border-radius: var(--border-radius);
-    transition: all 200ms ease-in-out;
+
+    @media (prefers-reduced-motion: no-preference) {
+      transition: all 200ms ease-in-out;
+    }
 
     @media (width >= 480px) {
       inline-size: 200px;

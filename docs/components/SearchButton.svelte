@@ -18,6 +18,7 @@
 <style>
   .button {
     display: flex;
+    flex-wrap: nowrap;
     gap: var(--space-s);
     align-items: center;
     padding: var(--space-2xs) var(--space-m);
@@ -27,16 +28,24 @@
     background-color: var(--color-background-secondary);
     border: 1px solid var(--color-border-primary);
     border-radius: var(--border-radius);
-    transition: background-color 200ms;
 
-    &:hover {
-      background-color: var(--color-background-secondary-hover);
+    @media (prefers-reduced-motion: no-preference) {
+      transition: background-color 200ms;
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        background-color: var(--color-background-secondary-hover);
+      }
     }
 
     &:focus-visible {
       background: var(--color-overlay-brand);
       box-shadow: 0 0 0 3px var(--color-border-brand);
-      transition: box-shadow 200ms;
+
+      @media (prefers-reduced-motion: no-preference) {
+        transition: box-shadow 200ms;
+      }
     }
   }
 

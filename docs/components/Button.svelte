@@ -17,6 +17,7 @@
 <style>
   .button {
     display: inline-flex;
+    flex-wrap: nowrap;
     align-items: center;
     justify-content: center;
     inline-size: 200px;
@@ -28,7 +29,10 @@
     outline: none;
     border: none;
     border-radius: var(--border-radius);
-    transition: all 200ms ease-in-out;
+
+    @media (prefers-reduced-motion: no-preference) {
+      transition: all 200ms ease-in-out;
+    }
 
     &:focus-visible {
       text-decoration: none;

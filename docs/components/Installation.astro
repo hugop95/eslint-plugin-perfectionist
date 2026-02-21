@@ -73,13 +73,14 @@ import Title from './Title.astro'
 
     @container (inline-size >= 960px) {
       display: grid;
-      grid-template-columns: 3fr 2fr;
+      grid-template-columns: [main] 3fr [aside] 2fr;
       --gap: var(--space-xl);
     }
   }
 
   .title {
     display: flex;
+    flex-wrap: nowrap;
     gap: var(--space-s);
     align-items: center;
   }

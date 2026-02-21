@@ -116,7 +116,7 @@ let { border = false } = Astro.props
     inset-block-start: 0;
     z-index: 2;
     display: grid;
-    grid-template-columns: auto auto 1fr;
+    grid-template-columns: [menu] auto [search] auto [nav] 1fr;
     gap: var(--space-m);
     align-items: center;
     justify-content: space-between;
@@ -129,7 +129,9 @@ let { border = false } = Astro.props
   }
 
   .scroll {
-    transition: border-block-end-color 300ms;
+    @media (prefers-reduced-motion: no-preference) {
+      transition: border-block-end-color 300ms;
+    }
   }
 
   .border,
@@ -139,11 +141,13 @@ let { border = false } = Astro.props
 
   .home {
     display: flex;
+    flex-wrap: nowrap;
     align-items: center;
   }
 
   .menu-button {
     display: flex;
+    flex-wrap: nowrap;
     padding: var(--space-2xs) var(--space-s);
     margin-inline-start: calc(0px - var(--space-xs));
     color: inherit;
@@ -151,7 +155,10 @@ let { border = false } = Astro.props
     background: transparent;
     border: 0;
     border-radius: var(--border-radius);
-    transition: background 300ms;
+
+    @media (prefers-reduced-motion: no-preference) {
+      transition: background 300ms;
+    }
 
     @media (width >= 800px) {
       display: none;
@@ -166,7 +173,10 @@ let { border = false } = Astro.props
     &:focus-visible {
       background: var(--color-overlay-brand);
       box-shadow: 0 0 0 3px var(--color-border-brand);
-      transition: box-shadow 200ms;
+
+      @media (prefers-reduced-motion: no-preference) {
+        transition: box-shadow 200ms;
+      }
     }
   }
 
@@ -177,6 +187,7 @@ let { border = false } = Astro.props
 
   .home-link {
     display: flex;
+    flex-wrap: nowrap;
     gap: 8px;
     align-items: center;
     padding: var(--space-2xs) var(--space-2xs);

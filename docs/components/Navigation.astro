@@ -135,22 +135,25 @@ import IconSun from '../icons/sun.svg'
 <style>
   .navigation {
     display: flex;
+    flex-wrap: nowrap;
     align-items: start;
     justify-content: end;
   }
 
   .list {
     display: flex;
+    flex-wrap: nowrap;
     gap: var(--space-2xs);
     align-items: center;
     padding-inline-start: 0;
     margin-block: 0;
     font: var(--font-s);
-    list-style-type: none;
+    list-style-type: '';
   }
 
   .link {
     display: flex;
+    flex-wrap: nowrap;
     padding: var(--space-2xs) var(--space-s);
     color: var(--color-content-primary);
     text-decoration: none;
@@ -158,7 +161,10 @@ import IconSun from '../icons/sun.svg'
     background: transparent;
     border: 0;
     border-radius: var(--border-radius);
-    transition: background 300ms;
+
+    @media (prefers-reduced-motion: no-preference) {
+      transition: background 300ms;
+    }
 
     @media (hover: hover) {
       &:hover {
@@ -169,13 +175,17 @@ import IconSun from '../icons/sun.svg'
     &:focus-visible {
       background: var(--color-overlay-brand);
       box-shadow: 0 0 0 3px var(--color-border-brand);
-      transition: box-shadow 200ms;
+
+      @media (prefers-reduced-motion: no-preference) {
+        transition: box-shadow 200ms;
+      }
     }
   }
 
   .icon {
     display: flex;
     flex-shrink: 0;
+    flex-wrap: nowrap;
     inline-size: var(--size-icon-m);
     block-size: var(--size-icon-m);
   }

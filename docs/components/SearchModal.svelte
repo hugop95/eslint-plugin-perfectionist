@@ -468,8 +468,11 @@
     border: 1px solid var(--color-border-primary);
     border-radius: var(--border-radius);
     opacity: 0%;
-    animation: scale-up 300ms cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
     will-change: opacity, transform;
+
+    @media (prefers-reduced-motion: no-preference) {
+      animation: scale-up 300ms cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+    }
 
     &::backdrop {
       background: var(--color-overlay-primary);
@@ -479,7 +482,7 @@
 
   .modal-inner {
     display: flex;
-    flex-direction: column;
+    flex-flow: column nowrap;
     gap: var(--space-m);
     block-size: 100%;
     padding: var(--space-l);
@@ -501,14 +504,17 @@
     &:focus-visible {
       outline: none;
       box-shadow: 0 0 0 3px var(--color-overlay-brand);
-      transition: box-shadow 200ms;
+
+      @media (prefers-reduced-motion: no-preference) {
+        transition: box-shadow 200ms;
+      }
     }
   }
 
   .results {
     display: flex;
     flex: 1;
-    flex-direction: column;
+    flex-flow: column nowrap;
     gap: var(--space-m);
     min-block-size: 0;
     overflow-block: auto;
@@ -532,11 +538,11 @@
 
   .list {
     display: flex;
-    flex-direction: column;
+    flex-flow: column nowrap;
     gap: var(--space-xs);
     padding: 0;
     margin: 0;
-    list-style: none;
+    list-style: '';
   }
 
   .list-item {
@@ -545,7 +551,7 @@
 
   .list-link {
     display: flex;
-    flex-direction: column;
+    flex-flow: column nowrap;
     gap: var(--space-2xs);
     padding: var(--space-xs);
     color: inherit;
@@ -553,11 +559,21 @@
     background: var(--color-background-secondary);
     border: 1px solid transparent;
     border-radius: var(--border-radius);
-    transition:
-      border-color 150ms ease,
-      background-color 150ms ease;
 
-    &:hover,
+    @media (prefers-reduced-motion: no-preference) {
+      transition:
+        border-color 150ms ease,
+        background-color 150ms ease;
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        outline: none;
+        background: var(--color-background-tertiary);
+        border-color: var(--color-border-brand);
+      }
+    }
+
     &:focus-visible,
     &.link-active {
       outline: none;
@@ -582,6 +598,7 @@
 
     & :global(.chevron) {
       display: flex;
+      flex-wrap: nowrap;
       inline-size: var(--size-icon-s);
       block-size: var(--size-icon-s);
     }

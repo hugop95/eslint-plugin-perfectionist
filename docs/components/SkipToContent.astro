@@ -87,6 +87,7 @@ import IconArrowTurnRightDown from '../icons/arrow-turn-right-down.svg'
     inset-inline-start: var(--space-m);
     z-index: 1;
     display: flex;
+    flex-wrap: nowrap;
     gap: var(--space-xs);
     align-items: center;
     padding: var(--space-2xs) var(--space-xs);
@@ -105,11 +106,15 @@ import IconArrowTurnRightDown from '../icons/arrow-turn-right-down.svg'
         var(--color-background-primary),
         var(--color-background-primary)
       );
+    background-repeat: no-repeat;
     border-radius: var(--border-radius);
     opacity: 100%;
-    transition: box-shadow 200ms;
 
-    &:focus {
+    @media (prefers-reduced-motion: no-preference) {
+      transition: box-shadow 200ms;
+    }
+
+    &:focus-visible {
       opacity: 100%;
 
       & + :global(#logo) {
@@ -117,7 +122,7 @@ import IconArrowTurnRightDown from '../icons/arrow-turn-right-down.svg'
       }
     }
 
-    &:not(:focus) {
+    &:not(:focus-visible) {
       inline-size: 0;
       block-size: 0;
       padding: 0;
@@ -129,6 +134,7 @@ import IconArrowTurnRightDown from '../icons/arrow-turn-right-down.svg'
   .icon {
     display: flex;
     flex-shrink: 0;
+    flex-wrap: nowrap;
     inline-size: var(--size-icon-s);
     block-size: var(--size-icon-s);
   }

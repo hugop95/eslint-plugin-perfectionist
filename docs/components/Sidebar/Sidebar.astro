@@ -198,6 +198,7 @@ let { isMobileOnly = false } = Astro.props
 
   .menu-open {
     display: flex;
+    flex-wrap: nowrap;
   }
 
   body:has(.menu-open) {
@@ -215,6 +216,7 @@ let { isMobileOnly = false } = Astro.props
 
   .menu-button {
     display: inline-flex;
+    flex-wrap: nowrap;
     inline-size: fit-content;
     padding: var(--space-2xs) var(--space-s);
     margin-inline-start: calc(0px - var(--space-xs));
@@ -223,7 +225,10 @@ let { isMobileOnly = false } = Astro.props
     background: transparent;
     border: 0;
     border-radius: var(--border-radius);
-    transition: background 300ms;
+
+    @media (prefers-reduced-motion: no-preference) {
+      transition: background 300ms;
+    }
 
     @media (hover: hover) {
       &:hover {
@@ -234,7 +239,10 @@ let { isMobileOnly = false } = Astro.props
     &:focus-visible {
       background: var(--color-overlay-brand);
       box-shadow: 0 0 0 3px var(--color-border-brand);
-      transition: box-shadow 200ms;
+
+      @media (prefers-reduced-motion: no-preference) {
+        transition: box-shadow 200ms;
+      }
     }
   }
 

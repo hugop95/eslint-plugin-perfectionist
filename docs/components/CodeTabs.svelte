@@ -125,6 +125,7 @@
 <style>
   .tabs {
     display: inline-flex;
+    flex-wrap: nowrap;
     padding-inline-start: 0;
     margin-block: 0 -1px;
     border-block-end: none;
@@ -140,10 +141,15 @@
     border: none;
     border-block-start: 1px solid var(--color-border-primary);
     border-block-end: 1px solid var(--color-border-primary);
-    transition: all 300ms;
 
-    &:hover {
-      background: var(--color-background-secondary-hover);
+    @media (prefers-reduced-motion: no-preference) {
+      transition: all 300ms;
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        background: var(--color-background-secondary-hover);
+      }
     }
 
     &:focus-visible {
@@ -166,7 +172,10 @@
   .active-tab {
     color: var(--color-content-primary);
     border-block-end-color: var(--color-content-primary);
-    transition: border-color 600ms;
+
+    @media (prefers-reduced-motion: no-preference) {
+      transition: border-color 600ms;
+    }
   }
 
   .code-wrapper {
@@ -186,6 +195,7 @@
       inset-block-start: var(--space-xs);
       inset-inline-end: var(--space-m);
       display: flex;
+      flex-wrap: nowrap;
       align-items: center;
       justify-content: center;
       inline-size: 42px;
@@ -197,7 +207,10 @@
       border: none;
       border-radius: var(--border-radius);
       opacity: 0%;
-      transition: all 300ms;
+
+      @media (prefers-reduced-motion: no-preference) {
+        transition: all 300ms;
+      }
 
       @media (hover: hover) {
         &:hover {

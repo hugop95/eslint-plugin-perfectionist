@@ -77,12 +77,14 @@ a {
   text-underline-offset: 0.25em;
   outline: none;
   border-radius: var(--border-radius);
-  transition: box-shadow 200ms;
+
+  @media (prefers-reduced-motion: no-preference) {
+    transition: box-shadow 200ms;
+  }
 
   @media (hover: hover) {
     &:hover {
       color: var(--color-content-brand-hover);
-      transition: all 200ms;
     }
   }
 
@@ -122,8 +124,7 @@ pre {
   position: relative;
   padding: var(--space-m);
   margin-block: 0;
-  /* stylelint-disable-next-line plugin/use-logical-properties-and-values */
-  overflow-y: scroll;
+  overflow-block: scroll;
   outline: none;
   scrollbar-width: none;
   border-radius: var(--border-radius);
@@ -131,7 +132,10 @@ pre {
   &:focus-visible {
     z-index: 1;
     box-shadow: 0 0 0 3px var(--color-border-brand);
-    transition: box-shadow 200ms;
+
+    @media (prefers-reduced-motion: no-preference) {
+      transition: box-shadow 200ms;
+    }
   }
 
   &::-webkit-scrollbar {
@@ -143,9 +147,11 @@ h2,
 h3 {
   position: relative;
 
-  @media (width >= 768px) {
-    &:hover .heading-anchor {
-      opacity: 100%;
+  @media (hover: hover) {
+    @media (width >= 768px) {
+      &:hover .heading-anchor {
+        opacity: 100%;
+      }
     }
   }
 }
@@ -205,7 +211,10 @@ kbd {
   text-decoration: none;
   opacity: 0%;
   transform: translateY(-50%);
-  transition: opacity 250ms ease-in-out 100ms;
+
+  @media (prefers-reduced-motion: no-preference) {
+    transition: opacity 250ms ease-in-out 100ms;
+  }
 
   &:focus-visible {
     border-radius: 8px;
@@ -214,6 +223,7 @@ kbd {
 
   @media (width >= 768px) {
     display: flex;
+    flex-wrap: nowrap;
   }
 }
 

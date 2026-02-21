@@ -70,22 +70,22 @@ let {
 <style>
   .app {
     display: grid;
-    grid-template-rows: min-content 1fr min-content;
+    grid-template-rows: [header] min-content [content] 1fr [footer] min-content;
     min-block-size: 100dvb;
   }
 
   .wrapper {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: [content] 1fr;
     background: var(--color-background-secondary);
 
     @media (width >= 800px) {
-      grid-template-columns: 320px 1fr;
+      grid-template-columns: [sidebar] 320px [content] 1fr;
       container-type: inline-size;
     }
 
     @media (width >= 1300px) {
-      grid-template-columns: 320px 1fr 320px;
+      grid-template-columns: [sidebar] 320px [content] 1fr [toc] 320px;
     }
   }
 

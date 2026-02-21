@@ -42,6 +42,7 @@ let { heading } = Astro.props
 <style>
   .link {
     display: flex;
+    flex-wrap: nowrap;
     padding: calc(var(--space-2xs) / 1.5) var(--space-xs);
     color: var(--color-content-primary);
     text-decoration: none;
@@ -66,6 +67,6 @@ let { heading } = Astro.props
   .subheadings-list {
     padding-inline-start: var(--space-m);
     margin-block: 0;
-    list-style-type: none;
+    list-style-type: '';
   }
 </style>

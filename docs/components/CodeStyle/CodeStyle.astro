@@ -50,7 +50,7 @@ import Title from '../Title.astro'
 
   .container {
     display: grid;
-    grid-template-columns: var(--columns);
+    grid-template-columns: [content] var(--columns);
     gap: var(--gap);
     --columns: 1fr;
     --gap: calc(var(--space-xl) * 2);
@@ -66,6 +66,7 @@ import Title from '../Title.astro'
 
     @container (inline-size >= 680px) {
       display: flex;
+      flex-wrap: nowrap;
       justify-content: start;
       inline-size: 100%;
     }
