@@ -1,12 +1,9 @@
 import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema'
-import type { RuleContext } from '@typescript-eslint/utils/ts-eslint'
 import type { TSESTree } from '@typescript-eslint/types'
-import type { TSESLint } from '@typescript-eslint/utils'
 
 import { AST_NODE_TYPES } from '@typescript-eslint/utils'
 
-import type { Selector, Options } from './sort-array-includes/types'
-import type { SortingNode } from '../types/sorting-node'
+import type { Options } from './sort-array-includes/types'
 
 import {
   partitionByCommentJsonSchema,
@@ -22,31 +19,10 @@ import {
   buildUseConfigurationIfJsonSchema,
   buildCommonJsonSchemas,
 } from '../utils/json-schemas/common-json-schemas'
-import { validateNewlinesAndPartitionConfiguration } from '../utils/validate-newlines-and-partition-configuration'
-import { defaultComparatorByOptionsComputer } from '../utils/compare/default-comparator-by-options-computer'
-import {
-  additionalCustomGroupMatchOptionsJsonSchema,
-  allSelectors,
-} from './sort-array-includes/types'
-import { buildOptionsByGroupIndexComputer } from '../utils/build-options-by-group-index-computer'
 import { buildCommonGroupsJsonSchemas } from '../utils/json-schemas/common-groups-json-schemas'
-import { validateCustomSortConfiguration } from '../utils/validate-custom-sort-configuration'
-import { filterOptionsByAllNamesMatch } from '../utils/filter-options-by-all-names-match'
-import { validateGroupsConfiguration } from '../utils/validate-groups-configuration'
-import { computeArrayElements } from './sort-array-includes/compute-array-elements'
-import { generatePredefinedGroups } from '../utils/generate-predefined-groups'
-import { getEslintDisabledLines } from '../utils/get-eslint-disabled-lines'
-import { isNodeEslintDisabled } from '../utils/is-node-eslint-disabled'
-import { doesCustomGroupMatch } from '../utils/does-custom-group-match'
-import { sortNodesByGroups } from '../utils/sort-nodes-by-groups'
+import { additionalCustomGroupMatchOptionsJsonSchema } from './sort-array-includes/types'
 import { createEslintRule } from '../utils/create-eslint-rule'
-import { reportAllErrors } from '../utils/report-all-errors'
-import { shouldPartition } from '../utils/should-partition'
-import { computeGroup } from '../utils/compute-group'
-import { rangeToDiff } from '../utils/range-to-diff'
-import { getSettings } from '../utils/get-settings'
-import { isSortable } from '../utils/is-sortable'
-import { complete } from '../utils/complete'
+import { sortArray } from './sort-array-includes/sort-array'
 
 /**
  * Cache computed groups by modifiers and selectors for performance.
@@ -63,10 +39,6 @@ type MessageId =
   | typeof EXTRA_SPACING_ERROR_ID
   | typeof GROUP_ORDER_ERROR_ID
   | typeof ORDER_ERROR_ID
-
-type SortArrayIncludesSortingNode = SortingNode<
-  TSESTree.SpreadElement | TSESTree.Expression
->
 
 export let defaultOptions: Required<Options[number]> = {
   fallbackSort: { type: 'unsorted' },
@@ -107,8 +79,8 @@ export let jsonSchema: JSONSchema4 = {
 export default createEslintRule<Options, MessageId>({
   create: context => ({
     MemberExpression: node => {
-      let arrayElements = computeArrayIncludesElements(node)
-      if (!arrayElements) {
+      let arrayExpression = computeArrayIncludesElements(node)
+      if (!arrayExpression) {
         return
       }
 
@@ -119,7 +91,8 @@ export default createEslintRule<Options, MessageId>({
           unexpectedGroupOrder: GROUP_ORDER_ERROR_ID,
           unexpectedOrder: ORDER_ERROR_ID,
         },
-        elements: arrayElements,
+        cachedGroupsByModifiersAndSelectors,
+        expression: arrayExpression,
         context,
       })
     },
@@ -144,139 +117,9 @@ export default createEslintRule<Options, MessageId>({
   name: 'sort-array-includes',
 })
 
-export function sortArray<MessageIds extends string>({
-  availableMessageIds,
-  elements,
-  context,
-}: {
-  availableMessageIds: {
-    missedSpacingBetweenMembers: MessageIds
-    extraSpacingBetweenMembers: MessageIds
-    unexpectedGroupOrder: MessageIds
-    unexpectedOrder: MessageIds
-  }
-  elements: (TSESTree.SpreadElement | TSESTree.Expression | null)[]
-  context: Readonly<RuleContext<MessageIds, Options>>
-}): void {
-  if (!isSortable(elements)) {
-    return
-  }
-
-  let { sourceCode, id } = context
-  let settings = getSettings(context.settings)
-
-  let matchedContextOptions = filterOptionsByAllNamesMatch({
-    nodeNames: elements
-      .filter(element => element !== null)
-      .map(element => getNodeName({ sourceCode, element })),
-    contextOptions: context.options,
-  })
-
-  let options = complete(matchedContextOptions[0], settings, defaultOptions)
-  validateCustomSortConfiguration(options)
-  validateGroupsConfiguration({
-    selectors: allSelectors,
-    modifiers: [],
-    options,
-  })
-  validateNewlinesAndPartitionConfiguration(options)
-
-  let eslintDisabledLines = getEslintDisabledLines({
-    ruleName: id,
-    sourceCode,
-  })
-  let optionsByGroupIndexComputer = buildOptionsByGroupIndexComputer(options)
-
-  let formattedMembers: SortArrayIncludesSortingNode[][] = elements.reduce(
-    (
-      accumulator: SortArrayIncludesSortingNode[][],
-      element: TSESTree.SpreadElement | TSESTree.Expression | null,
-    ) => {
-      if (element === null) {
-        return accumulator
-      }
-
-      if (element.type === AST_NODE_TYPES.SpreadElement) {
-        accumulator.push([])
-        return accumulator
-      }
-
-      let name = getNodeName({ sourceCode, element })
-      let selector: Selector = 'literal'
-      let predefinedGroups = generatePredefinedGroups({
-        cache: cachedGroupsByModifiersAndSelectors,
-        selectors: [selector],
-        modifiers: [],
-      })
-      let group = computeGroup({
-        customGroupMatcher: customGroup =>
-          doesCustomGroupMatch({
-            selectors: [selector],
-            elementName: name,
-            modifiers: [],
-            customGroup,
-          }),
-        predefinedGroups,
-        options,
-      })
-
-      let sortingNode: Omit<SortArrayIncludesSortingNode, 'partitionId'> = {
-        isEslintDisabled: isNodeEslintDisabled(element, eslintDisabledLines),
-        size: rangeToDiff(element, sourceCode),
-        node: element,
-        group,
-        name,
-      }
-
-      let lastSortingNode = accumulator.at(-1)?.at(-1)
-      if (
-        shouldPartition({
-          lastSortingNode,
-          sortingNode,
-          sourceCode,
-          options,
-        })
-      ) {
-        accumulator.push([])
-      }
-
-      accumulator.at(-1)!.push({
-        ...sortingNode,
-        partitionId: accumulator.length,
-      })
-
-      return accumulator
-    },
-    [[]],
-  )
-
-  function sortNodesExcludingEslintDisabled(
-    ignoreEslintDisabledNodes: boolean,
-  ): SortArrayIncludesSortingNode[] {
-    return formattedMembers.flatMap(nodes =>
-      sortNodesByGroups({
-        comparatorByOptionsComputer: defaultComparatorByOptionsComputer,
-        optionsByGroupIndexComputer,
-        ignoreEslintDisabledNodes,
-        groups: options.groups,
-        nodes,
-      }),
-    )
-  }
-
-  let nodes = formattedMembers.flat()
-  reportAllErrors<MessageIds>({
-    sortNodesExcludingEslintDisabled,
-    availableMessageIds,
-    options,
-    context,
-    nodes,
-  })
-}
-
 function computeArrayIncludesElements(
   memberExpression: TSESTree.MemberExpression,
-): (TSESTree.SpreadElement | TSESTree.Expression | null)[] | null {
+): TSESTree.Expression | null {
   if (memberExpression.property.type !== AST_NODE_TYPES.Identifier) {
     return null
   }
@@ -284,17 +127,5 @@ function computeArrayIncludesElements(
     return null
   }
 
-  return computeArrayElements(memberExpression.object)
-}
-
-function getNodeName({
-  sourceCode,
-  element,
-}: {
-  element: TSESTree.SpreadElement | TSESTree.Expression
-  sourceCode: TSESLint.SourceCode
-}): string {
-  return element.type === AST_NODE_TYPES.Literal ?
-      `${element.value}`
-    : sourceCode.getText(element)
+  return memberExpression.object
 }

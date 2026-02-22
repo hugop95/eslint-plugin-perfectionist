@@ -10,9 +10,14 @@ import {
   GROUP_ORDER_ERROR,
   ORDER_ERROR,
 } from '../utils/report-errors'
-import { computeArrayElements } from './sort-array-includes/compute-array-elements'
-import { defaultOptions, jsonSchema, sortArray } from './sort-array-includes'
+import { defaultOptions, jsonSchema } from './sort-array-includes'
 import { createEslintRule } from '../utils/create-eslint-rule'
+import { sortArray } from './sort-array-includes/sort-array'
+
+/**
+ * Cache computed groups by modifiers and selectors for performance.
+ */
+let cachedGroupsByModifiersAndSelectors = new Map<string, string[]>()
 
 const ORDER_ERROR_ID = 'unexpectedSetsOrder'
 const GROUP_ORDER_ERROR_ID = 'unexpectedSetsGroupOrder'
@@ -28,8 +33,8 @@ type MessageId =
 export default createEslintRule<Options, MessageId>({
   create: context => ({
     NewExpression: node => {
-      let setElements = computeSetElements(node)
-      if (!setElements) {
+      let setExpression = computeSetExpression(node)
+      if (!setExpression) {
         return
       }
 
@@ -40,7 +45,8 @@ export default createEslintRule<Options, MessageId>({
           unexpectedGroupOrder: GROUP_ORDER_ERROR_ID,
           unexpectedOrder: ORDER_ERROR_ID,
         },
-        elements: setElements,
+        cachedGroupsByModifiersAndSelectors,
+        expression: setExpression,
         context,
       })
     },
@@ -65,9 +71,9 @@ export default createEslintRule<Options, MessageId>({
   name: 'sort-sets',
 })
 
-function computeSetElements(
+function computeSetExpression(
   newExpression: TSESTree.NewExpression,
-): (TSESTree.SpreadElement | TSESTree.Expression | null)[] | null {
+): TSESTree.CallExpressionArgument | null {
   if (newExpression.callee.type !== AST_NODE_TYPES.Identifier) {
     return null
   }
@@ -78,5 +84,5 @@ function computeSetElements(
     return null
   }
 
-  return computeArrayElements(newExpression.arguments[0])
+  return newExpression.arguments[0]
 }
