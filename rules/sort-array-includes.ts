@@ -65,7 +65,11 @@ export let jsonSchema: JSONSchema4 = {
         additionalCustomGroupMatchProperties:
           additionalCustomGroupMatchOptionsJsonSchema,
       }),
-      useConfigurationIf: buildUseConfigurationIfJsonSchema(),
+      useConfigurationIf: buildUseConfigurationIfJsonSchema({
+        additionalProperties: {
+          matchesAstSelector: { type: 'string' },
+        },
+      }),
       partitionByComment: partitionByCommentJsonSchema,
       partitionByNewLine: partitionByNewLineJsonSchema,
     },
