@@ -1164,6 +1164,211 @@ describe('sort-sets', () => {
       )
     })
 
+    describe('useConfigurationIf.matchesAstSelector', () => {
+      it('matches configuration based off matchesAstSelector', async () => {
+        await invalid({
+          options: [
+            {
+              ...options,
+              useConfigurationIf: {
+                matchesAstSelector: 'VariableDeclarator',
+              },
+              type: 'unsorted',
+            },
+          ],
+          errors: [
+            {
+              data: {
+                right: 'a',
+                left: 'b',
+              },
+              messageId: 'unexpectedSetsOrder',
+            },
+          ],
+          output: dedent`
+            const array = new Set([
+              a,
+              b,
+            ])
+          `,
+          code: dedent`
+            const array = new Set([
+              b,
+              a,
+            ])
+          `,
+        })
+
+        await valid({
+          options: [
+            {
+              ...options,
+              useConfigurationIf: {
+                matchesAstSelector: 'ArrayExpression',
+              },
+              type: 'unsorted',
+            },
+          ],
+          code: dedent`
+            Set([
+              b,
+              a,
+            ])
+          `,
+        })
+
+        await valid({
+          options: [
+            {
+              ...options,
+              useConfigurationIf: {
+                matchesAstSelector: 'ArrayExpression',
+              },
+              type: 'unsorted',
+            },
+          ],
+          code: dedent`
+            [
+              b,
+              a,
+            ].includes(value)
+          `,
+        })
+
+        await invalid({
+          options: [
+            {
+              ...options,
+              useConfigurationIf: {
+                matchesAstSelector: '* > ArrayExpression',
+                allNamesMatchPattern: '^[ac]$',
+              },
+              type: 'unsorted',
+            },
+            {
+              ...options,
+              useConfigurationIf: {
+                matchesAstSelector: 'ArrayExpression',
+              },
+              type: 'alphabetical',
+            },
+            {
+              type: 'unsorted',
+            },
+          ],
+          errors: [
+            {
+              data: {
+                right: 'a',
+                left: 'b',
+              },
+              messageId: 'unexpectedSetsOrder',
+            },
+          ],
+          output: dedent`
+            new Set([
+              a,
+              b,
+            ])
+          `,
+          code: dedent`
+            new Set([
+              b,
+              a,
+            ])
+          `,
+        })
+
+        await invalid({
+          options: [
+            {
+              ...options,
+              useConfigurationIf: {
+                matchesAstSelector: 'ArrayExpression',
+                allNamesMatchPattern: '^[ac]$',
+              },
+              type: 'unsorted',
+            },
+            {
+              ...options,
+              useConfigurationIf: {
+                matchesAstSelector: 'ArrayExpression',
+              },
+              type: 'alphabetical',
+            },
+            {
+              type: 'unsorted',
+            },
+          ],
+          errors: [
+            {
+              data: {
+                right: 'a',
+                left: 'b',
+              },
+              messageId: 'unexpectedSetsOrder',
+            },
+          ],
+          output: dedent`
+            new Set([
+              a,
+              b,
+            ])
+          `,
+          code: dedent`
+            new Set([
+              b,
+              a,
+            ])
+          `,
+        })
+
+        await invalid({
+          options: [
+            {
+              ...options,
+              useConfigurationIf: {
+                matchesAstSelector: 'ArrayExpression',
+                allNamesMatchPattern: '^[ac]$',
+              },
+              type: 'unsorted',
+            },
+            {
+              ...options,
+              useConfigurationIf: {
+                allNamesMatchPattern: '^[ab]$',
+              },
+              type: 'alphabetical',
+            },
+            {
+              type: 'unsorted',
+            },
+          ],
+          errors: [
+            {
+              data: {
+                right: 'a',
+                left: 'b',
+              },
+              messageId: 'unexpectedSetsOrder',
+            },
+          ],
+          output: dedent`
+            new Set([
+              a,
+              b,
+            ])
+          `,
+          code: dedent`
+            new Set([
+              b,
+              a,
+            ])
+          `,
+        })
+      })
+    })
+
     it('removes newlines between and inside groups by default when "newlinesBetween" is 0', async () => {
       let newlinesOptions = [
         {
