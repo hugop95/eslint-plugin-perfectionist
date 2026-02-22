@@ -1,4 +1,5 @@
 import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema'
+import type { RuleContext } from '@typescript-eslint/utils/ts-eslint'
 import type { TSESTree } from '@typescript-eslint/types'
 
 import { AST_NODE_TYPES } from '@typescript-eslint/utils'
@@ -81,26 +82,29 @@ export let jsonSchema: JSONSchema4 = {
 }
 
 export default createEslintRule<Options, MessageId>({
-  create: context => ({
-    MemberExpression: node => {
-      let arrayExpression = computeArrayIncludesElements(node)
-      if (!arrayExpression) {
-        return
-      }
+  create: context => {
+    let allAstSelectors = context.options
+      .map(option => option.useConfigurationIf?.matchesAstSelector)
+      .filter(matchesAstSelector => matchesAstSelector !== undefined)
+    let allAstSelectorMatchers = allAstSelectors.map(
+      astSelector =>
+        [
+          astSelector,
+          buildPotentialArraySorter({
+            astSelector,
+            context,
+          }),
+        ] as const,
+    )
 
-      sortArray<MessageId>({
-        availableMessageIds: {
-          missedSpacingBetweenMembers: MISSED_SPACING_ERROR_ID,
-          extraSpacingBetweenMembers: EXTRA_SPACING_ERROR_ID,
-          unexpectedGroupOrder: GROUP_ORDER_ERROR_ID,
-          unexpectedOrder: ORDER_ERROR_ID,
-        },
-        cachedGroupsByModifiersAndSelectors,
-        expression: arrayExpression,
+    return {
+      ...Object.fromEntries(allAstSelectorMatchers),
+      MemberExpression: buildFromMemberExpressionArraySorter({
+        astSelector: null,
         context,
-      })
-    },
-  }),
+      }),
+    }
+  },
   meta: {
     messages: {
       [MISSED_SPACING_ERROR_ID]: MISSED_SPACING_ERROR,
@@ -121,15 +125,84 @@ export default createEslintRule<Options, MessageId>({
   name: 'sort-array-includes',
 })
 
-function computeArrayIncludesElements(
-  memberExpression: TSESTree.MemberExpression,
-): TSESTree.Expression | null {
-  if (memberExpression.property.type !== AST_NODE_TYPES.Identifier) {
-    return null
-  }
-  if (memberExpression.property.name !== 'includes') {
-    return null
+function sortArrayFromMemberExpression({
+  astSelector,
+  context,
+  node,
+}: {
+  context: Readonly<RuleContext<MessageId, Options>>
+  node: TSESTree.MemberExpression
+  astSelector: string | null
+}): void {
+  let arrayExpression = extractArrayIncludesExpression()
+  if (!arrayExpression) {
+    return
   }
 
-  return memberExpression.object
+  sortArray<MessageId>({
+    availableMessageIds: {
+      missedSpacingBetweenMembers: MISSED_SPACING_ERROR_ID,
+      extraSpacingBetweenMembers: EXTRA_SPACING_ERROR_ID,
+      unexpectedGroupOrder: GROUP_ORDER_ERROR_ID,
+      unexpectedOrder: ORDER_ERROR_ID,
+    },
+    cachedGroupsByModifiersAndSelectors,
+    expression: arrayExpression,
+    astSelector,
+    context,
+  })
+
+  function extractArrayIncludesExpression(): TSESTree.Expression | null {
+    if (node.property.type !== AST_NODE_TYPES.Identifier) {
+      return null
+    }
+    if (node.property.name !== 'includes') {
+      return null
+    }
+
+    return node.object
+  }
+}
+
+function buildPotentialArraySorter({
+  astSelector,
+  context,
+}: {
+  context: Readonly<RuleContext<MessageId, Options>>
+  astSelector: string
+}): (node: TSESTree.Node) => void {
+  return sortPotentialArray
+
+  function sortPotentialArray(node: TSESTree.Node): void {
+    if (node.type !== AST_NODE_TYPES.ArrayExpression) {
+      return
+    }
+    if (node.parent.type !== AST_NODE_TYPES.MemberExpression) {
+      return
+    }
+
+    sortArrayFromMemberExpression({
+      node: node.parent,
+      astSelector,
+      context,
+    })
+  }
+}
+
+function buildFromMemberExpressionArraySorter({
+  astSelector,
+  context,
+}: {
+  context: Readonly<RuleContext<MessageId, Options>>
+  astSelector: string | null
+}): (node: TSESTree.MemberExpression) => void {
+  return sorter
+
+  function sorter(node: TSESTree.MemberExpression): void {
+    return sortArrayFromMemberExpression({
+      astSelector,
+      context,
+      node,
+    })
+  }
 }

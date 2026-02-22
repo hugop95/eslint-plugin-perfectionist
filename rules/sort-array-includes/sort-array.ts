@@ -36,6 +36,7 @@ type SortArraySortingNode = SortingNode<
 export function sortArray<MessageIds extends string>({
   cachedGroupsByModifiersAndSelectors,
   availableMessageIds,
+  astSelector,
   expression,
   context,
 }: {
@@ -48,6 +49,7 @@ export function sortArray<MessageIds extends string>({
   cachedGroupsByModifiersAndSelectors: Map<string, string[]>
   context: Readonly<RuleContext<MessageIds, Options>>
   expression: TSESTree.CallExpressionArgument
+  astSelector: string | null
 }): void {
   let elements = computeArrayElements(expression)
   if (!elements) {
@@ -62,9 +64,13 @@ export function sortArray<MessageIds extends string>({
   let settings = getSettings(context.settings)
 
   let matchedContextOptions = computeMatchedContextOptions({
+    astSelector,
     elements,
     context,
   })
+  if (!matchedContextOptions && astSelector) {
+    return
+  }
 
   let options = complete(matchedContextOptions, settings, defaultOptions)
   validateCustomSortConfiguration(options)
