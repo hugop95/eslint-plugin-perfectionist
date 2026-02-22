@@ -1084,83 +1084,85 @@ describe('sort-sets', () => {
       })
     })
 
-    it.each([
-      ['string pattern', 'foo'],
-      ['array of patterns', ['noMatch', 'foo']],
-      ['case-insensitive regex', { pattern: 'FOO', flags: 'i' }],
-      ['regex in array', ['noMatch', { pattern: 'foo', flags: 'i' }]],
-    ])(
-      'applies configuration when all names match pattern - %s',
-      async (_, allNamesMatchPattern) => {
-        let conditionalOptions = [
-          {
-            ...options,
-            useConfigurationIf: {
-              allNamesMatchPattern,
+    describe('useConfigurationIf.allNamesMatchPattern', () => {
+      it.each([
+        ['string pattern', 'foo'],
+        ['array of patterns', ['noMatch', 'foo']],
+        ['case-insensitive regex', { pattern: 'FOO', flags: 'i' }],
+        ['regex in array', ['noMatch', { pattern: 'foo', flags: 'i' }]],
+      ])(
+        'applies configuration when all names match pattern - %s',
+        async (_, allNamesMatchPattern) => {
+          let conditionalOptions = [
+            {
+              ...options,
+              useConfigurationIf: {
+                allNamesMatchPattern,
+              },
             },
-          },
-          {
-            ...options,
-            customGroups: [
+            {
+              ...options,
+              customGroups: [
+                {
+                  elementNamePattern: '^r$',
+                  groupName: 'r',
+                },
+                {
+                  elementNamePattern: '^g$',
+                  groupName: 'g',
+                },
+                {
+                  elementNamePattern: '^b$',
+                  groupName: 'b',
+                },
+              ],
+              useConfigurationIf: {
+                allNamesMatchPattern: '^r|g|b$',
+              },
+              groups: ['r', 'g', 'b'],
+            },
+          ]
+
+          await invalid({
+            errors: [
               {
-                elementNamePattern: '^r$',
-                groupName: 'r',
+                data: {
+                  rightGroup: 'g',
+                  leftGroup: 'b',
+                  right: 'g',
+                  left: 'b',
+                },
+                messageId: 'unexpectedSetsGroupOrder',
               },
               {
-                elementNamePattern: '^g$',
-                groupName: 'g',
-              },
-              {
-                elementNamePattern: '^b$',
-                groupName: 'b',
+                data: {
+                  rightGroup: 'r',
+                  leftGroup: 'g',
+                  right: 'r',
+                  left: 'g',
+                },
+                messageId: 'unexpectedSetsGroupOrder',
               },
             ],
-            useConfigurationIf: {
-              allNamesMatchPattern: '^r|g|b$',
-            },
-            groups: ['r', 'g', 'b'],
-          },
-        ]
-
-        await invalid({
-          errors: [
-            {
-              data: {
-                rightGroup: 'g',
-                leftGroup: 'b',
-                right: 'g',
-                left: 'b',
-              },
-              messageId: 'unexpectedSetsGroupOrder',
-            },
-            {
-              data: {
-                rightGroup: 'r',
-                leftGroup: 'g',
-                right: 'r',
-                left: 'g',
-              },
-              messageId: 'unexpectedSetsGroupOrder',
-            },
-          ],
-          output: dedent`
-            new Set([
-              'r',
-              'g',
-              'b',
-            ])
-          `,
-          code: dedent`
-            new Set([
-              'b',
-              'g',
-              'r',
-            ])
-          `,
-          options: conditionalOptions,
-        })
-      },
-    )
+            output: dedent`
+              new Set([
+                'r',
+                'g',
+                'b',
+              ])
+            `,
+            code: dedent`
+              new Set([
+                'b',
+                'g',
+                'r',
+              ])
+            `,
+            options: conditionalOptions,
+          })
+        },
+      )
+    })
 
     it('removes newlines between and inside groups by default when "newlinesBetween" is 0', async () => {
       let newlinesOptions = [
@@ -2634,83 +2636,85 @@ describe('sort-sets', () => {
       })
     })
 
-    it.each([
-      ['string pattern', 'foo'],
-      ['array of patterns', ['noMatch', 'foo']],
-      ['case-insensitive regex', { pattern: 'FOO', flags: 'i' }],
-      ['regex in array', ['noMatch', { pattern: 'foo', flags: 'i' }]],
-    ])(
-      'applies configuration when all names match pattern - %s',
-      async (_, allNamesMatchPattern) => {
-        let conditionalOptions = [
-          {
-            ...options,
-            useConfigurationIf: {
-              allNamesMatchPattern,
+    describe('useConfigurationIf.allNamesMatchPattern', () => {
+      it.each([
+        ['string pattern', 'foo'],
+        ['array of patterns', ['noMatch', 'foo']],
+        ['case-insensitive regex', { pattern: 'FOO', flags: 'i' }],
+        ['regex in array', ['noMatch', { pattern: 'foo', flags: 'i' }]],
+      ])(
+        'applies configuration when all names match pattern - %s',
+        async (_, allNamesMatchPattern) => {
+          let conditionalOptions = [
+            {
+              ...options,
+              useConfigurationIf: {
+                allNamesMatchPattern,
+              },
             },
-          },
-          {
-            ...options,
-            customGroups: [
+            {
+              ...options,
+              customGroups: [
+                {
+                  elementNamePattern: '^r$',
+                  groupName: 'r',
+                },
+                {
+                  elementNamePattern: '^g$',
+                  groupName: 'g',
+                },
+                {
+                  elementNamePattern: '^b$',
+                  groupName: 'b',
+                },
+              ],
+              useConfigurationIf: {
+                allNamesMatchPattern: '^r|g|b$',
+              },
+              groups: ['r', 'g', 'b'],
+            },
+          ]
+
+          await invalid({
+            errors: [
               {
-                elementNamePattern: '^r$',
-                groupName: 'r',
+                data: {
+                  rightGroup: 'g',
+                  leftGroup: 'b',
+                  right: 'g',
+                  left: 'b',
+                },
+                messageId: 'unexpectedSetsGroupOrder',
               },
               {
-                elementNamePattern: '^g$',
-                groupName: 'g',
-              },
-              {
-                elementNamePattern: '^b$',
-                groupName: 'b',
+                data: {
+                  rightGroup: 'r',
+                  leftGroup: 'g',
+                  right: 'r',
+                  left: 'g',
+                },
+                messageId: 'unexpectedSetsGroupOrder',
               },
             ],
-            useConfigurationIf: {
-              allNamesMatchPattern: '^r|g|b$',
-            },
-            groups: ['r', 'g', 'b'],
-          },
-        ]
-
-        await invalid({
-          errors: [
-            {
-              data: {
-                rightGroup: 'g',
-                leftGroup: 'b',
-                right: 'g',
-                left: 'b',
-              },
-              messageId: 'unexpectedSetsGroupOrder',
-            },
-            {
-              data: {
-                rightGroup: 'r',
-                leftGroup: 'g',
-                right: 'r',
-                left: 'g',
-              },
-              messageId: 'unexpectedSetsGroupOrder',
-            },
-          ],
-          output: dedent`
-            new Set([
-              'r',
-              'g',
-              'b',
-            ])
-          `,
-          code: dedent`
-            new Set([
-              'b',
-              'g',
-              'r',
-            ])
-          `,
-          options: conditionalOptions,
-        })
-      },
-    )
+            output: dedent`
+              new Set([
+                'r',
+                'g',
+                'b',
+              ])
+            `,
+            code: dedent`
+              new Set([
+                'b',
+                'g',
+                'r',
+              ])
+            `,
+            options: conditionalOptions,
+          })
+        },
+      )
+    })
 
     it('removes newlines between groups when newlinesBetween is 0', async () => {
       let newlinesOptions = [
@@ -4080,83 +4084,85 @@ describe('sort-sets', () => {
       })
     })
 
-    it.each([
-      ['string pattern', 'foo'],
-      ['array of patterns', ['noMatch', 'foo']],
-      ['case-insensitive regex', { pattern: 'FOO', flags: 'i' }],
-      ['regex in array', ['noMatch', { pattern: 'foo', flags: 'i' }]],
-    ])(
-      'applies configuration when all names match pattern - %s',
-      async (_, allNamesMatchPattern) => {
-        let conditionalOptions = [
-          {
-            ...options,
-            useConfigurationIf: {
-              allNamesMatchPattern,
+    describe('useConfigurationIf.allNamesMatchPattern', () => {
+      it.each([
+        ['string pattern', 'foo'],
+        ['array of patterns', ['noMatch', 'foo']],
+        ['case-insensitive regex', { pattern: 'FOO', flags: 'i' }],
+        ['regex in array', ['noMatch', { pattern: 'foo', flags: 'i' }]],
+      ])(
+        'applies configuration when all names match pattern - %s',
+        async (_, allNamesMatchPattern) => {
+          let conditionalOptions = [
+            {
+              ...options,
+              useConfigurationIf: {
+                allNamesMatchPattern,
+              },
             },
-          },
-          {
-            ...options,
-            customGroups: [
+            {
+              ...options,
+              customGroups: [
+                {
+                  elementNamePattern: '^r$',
+                  groupName: 'r',
+                },
+                {
+                  elementNamePattern: '^g$',
+                  groupName: 'g',
+                },
+                {
+                  elementNamePattern: '^b$',
+                  groupName: 'b',
+                },
+              ],
+              useConfigurationIf: {
+                allNamesMatchPattern: '^r|g|b$',
+              },
+              groups: ['r', 'g', 'b'],
+            },
+          ]
+
+          await invalid({
+            errors: [
               {
-                elementNamePattern: '^r$',
-                groupName: 'r',
+                data: {
+                  rightGroup: 'g',
+                  leftGroup: 'b',
+                  right: 'g',
+                  left: 'b',
+                },
+                messageId: 'unexpectedSetsGroupOrder',
               },
               {
-                elementNamePattern: '^g$',
-                groupName: 'g',
-              },
-              {
-                elementNamePattern: '^b$',
-                groupName: 'b',
+                data: {
+                  rightGroup: 'r',
+                  leftGroup: 'g',
+                  right: 'r',
+                  left: 'g',
+                },
+                messageId: 'unexpectedSetsGroupOrder',
               },
             ],
-            useConfigurationIf: {
-              allNamesMatchPattern: '^r|g|b$',
-            },
-            groups: ['r', 'g', 'b'],
-          },
-        ]
-
-        await invalid({
-          errors: [
-            {
-              data: {
-                rightGroup: 'g',
-                leftGroup: 'b',
-                right: 'g',
-                left: 'b',
-              },
-              messageId: 'unexpectedSetsGroupOrder',
-            },
-            {
-              data: {
-                rightGroup: 'r',
-                leftGroup: 'g',
-                right: 'r',
-                left: 'g',
-              },
-              messageId: 'unexpectedSetsGroupOrder',
-            },
-          ],
-          output: dedent`
-            new Set([
-              'r',
-              'g',
-              'b',
-            ])
-          `,
-          code: dedent`
-            new Set([
-              'b',
-              'g',
-              'r',
-            ])
-          `,
-          options: conditionalOptions,
-        })
-      },
-    )
+            output: dedent`
+              new Set([
+                'r',
+                'g',
+                'b',
+              ])
+            `,
+            code: dedent`
+              new Set([
+                'b',
+                'g',
+                'r',
+              ])
+            `,
+            options: conditionalOptions,
+          })
+        },
+      )
+    })
 
     it('removes newlines between groups when newlinesBetween is 0', async () => {
       let newlinesOptions = [
