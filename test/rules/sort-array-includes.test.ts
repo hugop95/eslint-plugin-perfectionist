@@ -1391,6 +1391,112 @@ describe('sort-array-includes', () => {
           `,
         })
 
+        await valid({
+          options: [
+            {
+              ...options,
+              useConfigurationIf: {
+                matchesAstSelector: 'ArrayExpression',
+              },
+              type: 'unsorted',
+            },
+          ],
+          code: dedent`
+            [
+              b,
+              a,
+            ].includes(value)
+          `,
+        })
+
+        await invalid({
+          options: [
+            {
+              ...options,
+              useConfigurationIf: {
+                matchesAstSelector: '* > ArrayExpression',
+                allNamesMatchPattern: '^[ac]$',
+              },
+              type: 'unsorted',
+            },
+            {
+              ...options,
+              useConfigurationIf: {
+                matchesAstSelector: 'ArrayExpression',
+              },
+              type: 'alphabetical',
+            },
+            {
+              type: 'unsorted',
+            },
+          ],
+          errors: [
+            {
+              data: {
+                right: 'a',
+                left: 'b',
+              },
+              messageId: 'unexpectedArrayIncludesOrder',
+            },
+          ],
+          output: dedent`
+            [
+              a,
+              b,
+            ].includes(value)
+          `,
+          code: dedent`
+            [
+              b,
+              a,
+            ].includes(value)
+          `,
+        })
+
+        await invalid({
+          options: [
+            {
+              ...options,
+              useConfigurationIf: {
+                matchesAstSelector: 'ArrayExpression',
+                allNamesMatchPattern: '^[ac]$',
+              },
+              type: 'unsorted',
+            },
+            {
+              ...options,
+              useConfigurationIf: {
+                matchesAstSelector: 'ArrayExpression',
+              },
+              type: 'alphabetical',
+            },
+            {
+              type: 'unsorted',
+            },
+          ],
+          errors: [
+            {
+              data: {
+                right: 'a',
+                left: 'b',
+              },
+              messageId: 'unexpectedArrayIncludesOrder',
+            },
+          ],
+          output: dedent`
+            [
+              a,
+              b,
+            ].includes(value)
+          `,
+          code: dedent`
+            [
+              b,
+              a,
+            ].includes(value)
+          `,
+        })
+
         await invalid({
           options: [
             {

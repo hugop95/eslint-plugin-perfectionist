@@ -35,6 +35,7 @@ type SortArraySortingNode = SortingNode<
 
 export function sortArray<MessageIds extends string>({
   cachedGroupsByModifiersAndSelectors,
+  alreadyParsedExpressions,
   availableMessageIds,
   astSelector,
   expression,
@@ -46,6 +47,7 @@ export function sortArray<MessageIds extends string>({
     unexpectedGroupOrder: MessageIds
     unexpectedOrder: MessageIds
   }
+  alreadyParsedExpressions: Set<TSESTree.CallExpressionArgument>
   cachedGroupsByModifiersAndSelectors: Map<string, string[]>
   context: Readonly<RuleContext<MessageIds, Options>>
   expression: TSESTree.CallExpressionArgument
@@ -71,6 +73,11 @@ export function sortArray<MessageIds extends string>({
   if (!matchedContextOptions && astSelector) {
     return
   }
+
+  if (alreadyParsedExpressions.has(expression)) {
+    return
+  }
+  alreadyParsedExpressions.add(expression)
 
   let options = complete(matchedContextOptions, settings, defaultOptions)
   validateCustomSortConfiguration(options)

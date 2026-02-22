@@ -83,6 +83,8 @@ export let jsonSchema: JSONSchema4 = {
 
 export default createEslintRule<Options, MessageId>({
   create: context => {
+    let alreadyParsedExpressions = new Set<TSESTree.Expression>()
+
     let allAstSelectors = context.options
       .map(option => option.useConfigurationIf?.matchesAstSelector)
       .filter(matchesAstSelector => matchesAstSelector !== undefined)
@@ -91,6 +93,7 @@ export default createEslintRule<Options, MessageId>({
         [
           astSelector,
           buildPotentialArraySorter({
+            alreadyParsedExpressions,
             astSelector,
             context,
           }),
@@ -99,7 +102,8 @@ export default createEslintRule<Options, MessageId>({
 
     return {
       ...Object.fromEntries(allAstSelectorMatchers),
-      MemberExpression: buildFromMemberExpressionArraySorter({
+      'MemberExpression:exit': buildFromMemberExpressionArraySorter({
+        alreadyParsedExpressions,
         astSelector: null,
         context,
       }),
@@ -126,10 +130,12 @@ export default createEslintRule<Options, MessageId>({
 })
 
 function sortArrayFromMemberExpression({
+  alreadyParsedExpressions,
   astSelector,
   context,
   node,
 }: {
+  alreadyParsedExpressions: Set<TSESTree.Expression>
   context: Readonly<RuleContext<MessageId, Options>>
   node: TSESTree.MemberExpression
   astSelector: string | null
@@ -148,6 +154,7 @@ function sortArrayFromMemberExpression({
     },
     cachedGroupsByModifiersAndSelectors,
     expression: arrayExpression,
+    alreadyParsedExpressions,
     astSelector,
     context,
   })
@@ -165,9 +172,11 @@ function sortArrayFromMemberExpression({
 }
 
 function buildPotentialArraySorter({
+  alreadyParsedExpressions,
   astSelector,
   context,
 }: {
+  alreadyParsedExpressions: Set<TSESTree.Expression>
   context: Readonly<RuleContext<MessageId, Options>>
   astSelector: string
 }): (node: TSESTree.Node) => void {
@@ -182,6 +191,7 @@ function buildPotentialArraySorter({
     }
 
     sortArrayFromMemberExpression({
+      alreadyParsedExpressions,
       node: node.parent,
       astSelector,
       context,
@@ -190,9 +200,11 @@ function buildPotentialArraySorter({
 }
 
 function buildFromMemberExpressionArraySorter({
+  alreadyParsedExpressions,
   astSelector,
   context,
 }: {
+  alreadyParsedExpressions: Set<TSESTree.Expression>
   context: Readonly<RuleContext<MessageId, Options>>
   astSelector: string | null
 }): (node: TSESTree.MemberExpression) => void {
@@ -200,6 +212,7 @@ function buildFromMemberExpressionArraySorter({
 
   function sorter(node: TSESTree.MemberExpression): void {
     return sortArrayFromMemberExpression({
+      alreadyParsedExpressions,
       astSelector,
       context,
       node,
