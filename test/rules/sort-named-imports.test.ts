@@ -1632,6 +1632,129 @@ describe('sort-named-imports', () => {
         })
       },
     )
+
+    describe('useConfigurationIf.matchesAstSelector', () => {
+      it('matches configuration based off matchesAstSelector', async () => {
+        await invalid({
+          options: [
+            {
+              ...options,
+              useConfigurationIf: {
+                matchesAstSelector: 'VariableDeclaration',
+              },
+              type: 'unsorted',
+            },
+          ],
+          errors: [
+            {
+              data: {
+                right: 'a',
+                left: 'b',
+              },
+              messageId: 'unexpectedNamedImportsOrder',
+            },
+          ],
+          output: dedent`
+            import { a, b } from 'module'
+          `,
+          code: dedent`
+            import { b, a } from 'module'
+          `,
+        })
+
+        await valid({
+          options: [
+            {
+              ...options,
+              useConfigurationIf: {
+                matchesAstSelector: 'ImportDeclaration',
+              },
+              type: 'unsorted',
+            },
+          ],
+          code: dedent`
+            import { b, a } from 'module'
+          `,
+        })
+
+        await invalid({
+          options: [
+            {
+              ...options,
+              useConfigurationIf: {
+                matchesAstSelector: 'ImportDeclaration',
+                allNamesMatchPattern: '^[ac]$',
+              },
+              type: 'unsorted',
+            },
+            {
+              ...options,
+              useConfigurationIf: {
+                matchesAstSelector: 'ImportDeclaration',
+              },
+              type: 'alphabetical',
+            },
+            {
+              type: 'unsorted',
+            },
+          ],
+          errors: [
+            {
+              data: {
+                right: 'a',
+                left: 'b',
+              },
+              messageId: 'unexpectedNamedImportsOrder',
+            },
+          ],
+          output: dedent`
+            import { a, b } from 'module'
+          `,
+          code: dedent`
+            import { b, a } from 'module'
+          `,
+        })
+
+        await invalid({
+          options: [
+            {
+              ...options,
+              useConfigurationIf: {
+                matchesAstSelector: 'ImportDeclaration',
+                allNamesMatchPattern: '^[ac]$',
+              },
+              type: 'unsorted',
+            },
+            {
+              ...options,
+              useConfigurationIf: {
+                allNamesMatchPattern: '^[ab]$',
+              },
+              type: 'alphabetical',
+              order: 'desc',
+            },
+            {
+              type: 'unsorted',
+            },
+          ],
+          errors: [
+            {
+              data: {
+                right: 'b',
+                left: 'a',
+              },
+              messageId: 'unexpectedNamedImportsOrder',
+            },
+          ],
+          output: dedent`
+            import { b, a } from 'module'
+          `,
+          code: dedent`
+            import { a, b } from 'module'
+          `,
+        })
+      })
+    })
   })
 
   describe('natural', () => {

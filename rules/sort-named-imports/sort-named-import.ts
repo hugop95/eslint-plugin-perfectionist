@@ -64,12 +64,16 @@ export let defaultOptions: Required<Options[number]> = {
 }
 
 export function sortNamedImport({
+  alreadyParsedNodes,
+  astSelector,
   settings,
   context,
   node,
 }: {
+  alreadyParsedNodes: Set<TSESTree.ImportDeclaration>
   context: TSESLint.RuleContext<MessageId, Options>
   node: TSESTree.ImportDeclaration
+  astSelector: string | null
   settings: Settings
 }): void {
   let specifiers = node.specifiers.filter(
@@ -81,9 +85,18 @@ export function sortNamedImport({
   }
 
   let matchedContextOptions = computeMatchedContextOptions({
+    astSelector,
     context,
     node,
   })
+  if (!matchedContextOptions && astSelector) {
+    return
+  }
+
+  if (alreadyParsedNodes.has(node)) {
+    return
+  }
+  alreadyParsedNodes.add(node)
 
   let options = complete(matchedContextOptions, settings, defaultOptions)
   validateCustomSortConfiguration(options)
