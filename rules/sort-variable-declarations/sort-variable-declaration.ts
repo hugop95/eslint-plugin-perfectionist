@@ -64,12 +64,16 @@ export let defaultOptions: Required<Options[number]> = {
 }
 
 export function sortVariableDeclaration({
+  alreadyParsedNodes,
+  astSelector,
   settings,
   context,
   node,
 }: {
+  alreadyParsedNodes: Set<TSESTree.VariableDeclaration>
   context: TSESLint.RuleContext<MessageId, Options>
   node: TSESTree.VariableDeclaration
+  astSelector: string | null
   settings: Settings
 }): void {
   if (!isSortable(node.declarations)) {
@@ -79,10 +83,19 @@ export function sortVariableDeclaration({
   let { sourceCode, id } = context
 
   let matchedContextOptions = computeMatchedContextOptions({
+    astSelector,
     sourceCode,
     context,
     node,
   })
+  if (!matchedContextOptions && astSelector) {
+    return
+  }
+
+  if (alreadyParsedNodes.has(node)) {
+    return
+  }
+  alreadyParsedNodes.add(node)
 
   let options = complete(matchedContextOptions, settings, defaultOptions)
 
