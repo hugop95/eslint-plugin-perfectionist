@@ -256,6 +256,8 @@ This option is only applicable when [`partitionByNewLine`](#partitionbynewline) 
 </sub>
 <sub>default: `[]`</sub>
 
+Specifies a list of intersection type groups for sorting. Groups help organize types into categories, making your type definitions more readable and maintainable.
+
 Each member will be assigned a single group specified in the `groups` option (or the `unknown` group if no match is found).
 The order of items in the `groups` option determines how groups are ordered.
 
@@ -414,7 +416,7 @@ This feature is only applicable when [`partitionByNewLine`](#partitionbynewline)
 </sub>
 <sub>default: `[]`</sub>
 
-Defines custom groups to match specific object type members.
+Defines custom groups to match specific intersection type members.
 
 A custom group definition may follow one of the two following interfaces:
 
@@ -430,7 +432,7 @@ interface CustomGroupDefinition {
 }
 ```
 
-An type member will match a `CustomGroupDefinition` group if it matches all the filters of the custom group's definition.
+A type member will match a `CustomGroupDefinition` group if it matches all the filters of the custom group's definition.
 
 or:
 
@@ -448,7 +450,7 @@ interface CustomGroupAnyOfDefinition {
 }
 ```
 
-An type member will match a `CustomGroupAnyOfDefinition` group if it matches all the filters of at least one of the `anyOf` items.
+A type member will match a `CustomGroupAnyOfDefinition` group if it matches all the filters of at least one of the `anyOf` items.
 
 #### Attributes
 
